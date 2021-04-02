@@ -14,6 +14,7 @@ use commands::{
 };
 mod config;
 use config::CONFIG;
+mod database;
 
 pub struct ShardManagerContainer;
 
@@ -53,7 +54,7 @@ async fn main() {
 
     tokio::spawn(async move {
         tokio::signal::ctrl_c().await.expect("Could not register ctrl+c handler");
-        println!("\n");
+        println!();
         println!("ETechBot is shutting down");
         shard_manager.lock().await.shutdown_all().await;
     });

@@ -11,7 +11,8 @@ lazy_static! {
 pub struct Config {
     pub token: String,
     pub prefix: String,
-    pub colours: Colours
+    pub colours: Colours,
+    pub database: DatabaseOptions
 }
 #[derive(Debug, Deserialize)]
 pub struct Colours {
@@ -19,6 +20,17 @@ pub struct Colours {
     pub moderator: i32,
     pub music: i32,
     pub commands: i32
+}
+
+#[derive(Debug, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum DatabaseType {
+    Sqlite
+}
+#[derive(Debug, Deserialize)]
+pub struct DatabaseOptions {
+    pub db_type: DatabaseType,
+    pub path: String
 }
 
 impl Config {
