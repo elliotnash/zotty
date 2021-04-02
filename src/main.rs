@@ -34,7 +34,7 @@ impl EventHandler for Handler {
 }
 
 #[group]
-#[commands(help)]
+#[commands(help, moderator, music)]
 struct General;
 
 //init client
