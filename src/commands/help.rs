@@ -95,22 +95,22 @@ async fn help_music(ctx: &Context, msg: &Message) -> CommandResult {
             e.color(CONFIG.colours.music);
             if let Some(url) = thumbnail_url {e.thumbnail(url);};
             e.title("**Help Music**");
-            e.field(format!("`{}connect [user]`", CONFIG.prefix), format!("Joins the voice channel the user is in
-*aliases:* `{}join`", CONFIG.prefix), false);
-            e.field(format!("`{}play [name to search or url]`", CONFIG.prefix), format!("Plays the specified song
-*aliases:* `{}p`", CONFIG.prefix), false);
+            e.field(format!("`{}connect [user]`", CONFIG.prefix), format!("Joins the voice channel the user is in\
+            *aliases:* `{}join`", CONFIG.prefix), false);
+            e.field(format!("`{}play [name to search or url]`", CONFIG.prefix), format!("Plays the specified song\
+            *aliases:* `{}p`", CONFIG.prefix), false);
             e.field(format!("`{}pause`", CONFIG.prefix), "Pauses the current song", false);
             e.field(format!("`{}resume`", CONFIG.prefix), "Resumes the current song", false);
-            e.field(format!("`{}skip`", CONFIG.prefix), format!("Skips the current song
-*aliases:* `{}s`", CONFIG.prefix), false);
-            e.field(format!("`{}queue`", CONFIG.prefix), format!("Shows which songs are in the queue
-*aliases:* `{0}playlist, {0}q`", CONFIG.prefix), false);
-            e.field(format!("`{}playing`", CONFIG.prefix), format!("Lists the current song
-*aliases:* `{0}current, {0}np`", CONFIG.prefix), false);
-            e.field(format!("`{}volume [volume 1-100]`", CONFIG.prefix), format!("Adjusts the volume for all users
-*aliases:* `{}vol`", CONFIG.prefix), false);
-            e.field(format!("`{}stop`", CONFIG.prefix), "Stops the song and disconnects from the voice channel.
-this will clear the entire playlist", false)
+            e.field(format!("`{}skip`", CONFIG.prefix), format!("Skips the current song\
+            *aliases:* `{}s`", CONFIG.prefix), false);
+            e.field(format!("`{}queue`", CONFIG.prefix), format!("Shows which songs are in the queue\
+            *aliases:* `{0}playlist, {0}q`", CONFIG.prefix), false);
+            e.field(format!("`{}playing`", CONFIG.prefix), format!("Lists the current song\
+            *aliases:* `{0}current, {0}np`", CONFIG.prefix), false);
+            e.field(format!("`{}volume [volume 1-100]`", CONFIG.prefix), format!("Adjusts the volume for all users\
+            *aliases:* `{}vol`", CONFIG.prefix), false);
+            e.field(format!("`{}stop`", CONFIG.prefix), "Stops the song and disconnects from the voice channel.\
+            this will clear the entire playlist", false)
         })
     }).await?;
 
