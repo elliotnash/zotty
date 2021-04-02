@@ -11,7 +11,7 @@ use serenity::{
 use crate::CONFIG;
 
 #[group]
-#[commands(help, moderator, music, commands)]
+#[commands(help, moderator, music, utilities)]
 struct Help;
 
 #[command]
@@ -23,8 +23,8 @@ async fn help(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         Some("music") => {
             help_music(ctx, msg).await?;
         }
-        Some("cmd") | Some("commands") => {
-            help_commands(ctx, msg).await?;
+        Some("utils") | Some("utilities") => {
+            help_utilities(ctx, msg).await?;
         }
         _ => {
             help_main(ctx, msg).await?;
@@ -46,9 +46,9 @@ async fn music(ctx: &Context, msg: &Message) -> CommandResult {
     Ok(())
 }
 #[command]
-#[aliases("cmd")]
-async fn commands(ctx: &Context, msg: &Message) -> CommandResult {
-    help_commands(ctx, msg).await?;
+#[aliases("utils")]
+async fn utilities(ctx: &Context, msg: &Message) -> CommandResult {
+    help_utilities(ctx, msg).await?;
     Ok(())
 }
 
@@ -63,7 +63,7 @@ async fn help_main(ctx: &Context, msg: &Message) -> CommandResult {
             e.title("**Help**");
             e.field("**Moderator**", format!("`{}help moderator`", CONFIG.prefix), true);
             e.field("**Music**", format!("`{}help music`", CONFIG.prefix), true);
-            e.field("**Commands**", format!("`{}help commands`", CONFIG.prefix), true)
+            e.field("**Utilities**", format!("`{}help utilities`", CONFIG.prefix), true)
         })
     }).await?;
 
@@ -124,7 +124,7 @@ async fn help_music(ctx: &Context, msg: &Message) -> CommandResult {
     Ok(())
 }
 
-async fn help_commands(ctx: &Context, msg: &Message) -> CommandResult {
+async fn help_utilities(ctx: &Context, msg: &Message) -> CommandResult {
 
     let thumbnail_url = msg.guild(&ctx.cache).await.unwrap().icon_url();
 
@@ -132,7 +132,7 @@ async fn help_commands(ctx: &Context, msg: &Message) -> CommandResult {
         m.embed(|e| {
             e.color(CONFIG.colours.commands);
             if let Some(url) = thumbnail_url {e.thumbnail(url);};
-            e.title("**Help Commands**");
+            e.title("**Help Utilities**");
             e.field(format!("`{}say [message]`", CONFIG.prefix), "Repeats what the user says", false);
             e.field(format!("`{}poll [message]`", CONFIG.prefix), "Creates a poll", false);
             e.field(format!("`{}suggest [message]`", CONFIG.prefix), "Suggests an idea to #server-suggestions", false)
