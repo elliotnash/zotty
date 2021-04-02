@@ -102,21 +102,21 @@ async fn help_music(ctx: &Context, msg: &Message) -> CommandResult {
             e.color(CONFIG.colours.music);
             if let Some(url) = thumbnail_url {e.thumbnail(url);};
             e.title("**Help Music**");
-            e.field(format!("`{}connect [user]`", CONFIG.prefix), format!("Joins the voice channel the user is in\
+            e.field(format!("`{}connect [user]`", CONFIG.prefix), format!("Joins the voice channel the user is in \n\
             *aliases:* `{}join`", CONFIG.prefix), false);
-            e.field(format!("`{}play [name to search or url]`", CONFIG.prefix), format!("Plays the specified song\
+            e.field(format!("`{}play [name to search or url]`", CONFIG.prefix), format!("Plays the specified song \n\
             *aliases:* `{}p`", CONFIG.prefix), false);
             e.field(format!("`{}pause`", CONFIG.prefix), "Pauses the current song", false);
             e.field(format!("`{}resume`", CONFIG.prefix), "Resumes the current song", false);
-            e.field(format!("`{}skip`", CONFIG.prefix), format!("Skips the current song\
+            e.field(format!("`{}skip`", CONFIG.prefix), format!("Skips the current song \n\
             *aliases:* `{}s`", CONFIG.prefix), false);
-            e.field(format!("`{}queue`", CONFIG.prefix), format!("Shows which songs are in the queue\
+            e.field(format!("`{}queue`", CONFIG.prefix), format!("Shows which songs are in the queue \n\
             *aliases:* `{0}playlist, {0}q`", CONFIG.prefix), false);
-            e.field(format!("`{}playing`", CONFIG.prefix), format!("Lists the current song\
+            e.field(format!("`{}playing`", CONFIG.prefix), format!("Lists the current song \n\
             *aliases:* `{0}current, {0}np`", CONFIG.prefix), false);
-            e.field(format!("`{}volume [volume 1-100]`", CONFIG.prefix), format!("Adjusts the volume for all users\
+            e.field(format!("`{}volume [volume 1-100]`", CONFIG.prefix), format!("Adjusts the volume for all users \n\
             *aliases:* `{}vol`", CONFIG.prefix), false);
-            e.field(format!("`{}stop`", CONFIG.prefix), "Stops the song and disconnects from the voice channel.\
+            e.field(format!("`{}stop`", CONFIG.prefix), "Stops the song and disconnects from the voice channel. \n\
             this will clear the entire playlist", false)
         })
     }).await?;
