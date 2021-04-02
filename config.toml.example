@@ -1,2 +1,9 @@
+
 token = "DISCORD_TOKEN_HERE"
 prefix = "~"
+
+[colours]
+help = 0xD3A6F6
+moderator = 0xF05101
+music = 0x7289DA
+commands = 0xC542F5

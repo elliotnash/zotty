@@ -30,7 +30,7 @@ async fn help_main(ctx: &Context, msg: &Message) -> CommandResult {
 
     msg.channel_id.send_message(&ctx.http, |m| {
         m.embed(|e| {
-            e.color(0xD3A6F6);
+            e.color(CONFIG.colours.help);
             if let Some(url) = thumbnail_url {e.thumbnail(url);};
             e.title("**Help**");
             e.field("**Moderator**", format!("`{}help moderator`", CONFIG.prefix), true);
