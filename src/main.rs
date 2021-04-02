@@ -15,6 +15,8 @@ mod commands;
 use commands::{
     help::*
 };
+mod config;
+use config::CONFIG;
 
 pub struct ShardManagerContainer;
 
@@ -38,14 +40,12 @@ struct General;
 //init client
 #[tokio::main]
 async fn main() {
-    let token = env::var("DISCORD_TOKEN")
-        .expect("Expected a token in the environment");
 
     let framework = StandardFramework::new()
         .configure(|c| c.prefix("~"))
         .group(&GENERAL_GROUP);
 
-    let mut client = Client::builder(&token)
+    let mut client = Client::builder(&CONFIG.token)
         .event_handler(Handler)
         .framework(framework)
         .await
@@ -68,4 +68,5 @@ async fn main() {
     if let Err(why) = client.start().await {
         println!("Client error: {:?}", why);
     }
+
 }

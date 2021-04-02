@@ -11,3 +11,5 @@ tokio = { version = "1.0", features = ["macros", "rt-multi-thread", "signal"] } 
 serenity = { default-features = false, features = ["client", "gateway", "rustls_backend", "model", "cache", "framework", "standard_framework"], version = "0.10" }
 lazy_static = "1.4.0"
 regex = "1.4.3"
+serde = "1"
+toml = "0.5"
