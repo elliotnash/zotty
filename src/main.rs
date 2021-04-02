@@ -3,10 +3,7 @@ use std::sync::Arc;
 use serenity::{
     async_trait,
     client::bridge::gateway::ShardManager,
-    framework::{
-        StandardFramework,
-        standard::macros::group,
-    },
+    framework::StandardFramework,
     model::gateway::Ready,
     prelude::*,
 };
@@ -33,17 +30,13 @@ impl EventHandler for Handler {
     }
 }
 
-#[group]
-#[commands(help, moderator, music, commands)]
-struct General;
-
 //init client
 #[tokio::main]
 async fn main() {
 
     let framework = StandardFramework::new()
         .configure(|c| c.prefix(&CONFIG.prefix))
-        .group(&GENERAL_GROUP);
+        .group(&HELP_GROUP);
 
     let mut client = Client::builder(&CONFIG.token)
         .event_handler(Handler)

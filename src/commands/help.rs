@@ -1,11 +1,18 @@
-use serenity::{framework::standard::Args, prelude::*};
-use serenity::model::prelude::*;
-use serenity::framework::standard::{
-    CommandResult,
-    macros::command,
+use serenity::{
+    framework::standard::{
+        Args,
+        CommandResult,
+        macros::{command, group},
+    },
+    model::prelude::*,
+    prelude::*
 };
 
 use crate::CONFIG;
+
+#[group]
+#[commands(help, moderator, music, commands)]
+struct Help;
 
 #[command]
 async fn help(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
