@@ -1,4 +1,4 @@
-use serenity::{framework::standard::Args, http::Http, prelude::*};
+use serenity::{framework::standard::Args, prelude::*};
 use serenity::model::prelude::*;
 use serenity::framework::standard::{
     CommandResult,
@@ -123,12 +123,12 @@ async fn help_commands(ctx: &Context, msg: &Message) -> CommandResult {
 
     msg.channel_id.send_message(&ctx.http, |m| {
         m.embed(|e| {
-            e.color(0xD3A6F6);
+            e.color(CONFIG.colours.commands);
             if let Some(url) = thumbnail_url {e.thumbnail(url);};
-            e.title("**Help**");
-            e.field("**Moderator**", format!("`{}help moderator`", CONFIG.prefix), true);
-            e.field("**Music**", format!("`{}help music`", CONFIG.prefix), true);
-            e.field("**Commands**", format!("`{}help commands`", CONFIG.prefix), true)
+            e.title("**Help Commands**");
+            e.field(format!("`{}say [message]`", CONFIG.prefix), "Repeats what the user says", false);
+            e.field(format!("`{}poll [message]`", CONFIG.prefix), "Creates a poll", false);
+            e.field(format!("`{}suggest [message]`", CONFIG.prefix), "Suggests an idea to #server-suggestions", false)
         })
     }).await?;
 
