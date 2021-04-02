@@ -42,7 +42,7 @@ struct General;
 async fn main() {
 
     let framework = StandardFramework::new()
-        .configure(|c| c.prefix("~"))
+        .configure(|c| c.prefix(&CONFIG.prefix))
         .group(&GENERAL_GROUP);
 
     let mut client = Client::builder(&CONFIG.token)
