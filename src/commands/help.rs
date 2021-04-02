@@ -16,6 +16,9 @@ async fn help(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         Some("music") => {
             help_music(ctx, msg).await?;
         }
+        Some("cmd") | Some("commands") => {
+            help_commands(ctx, msg).await?;
+        }
         _ => {
             help_main(ctx, msg).await?;
         }
@@ -33,6 +36,12 @@ async fn moderator(ctx: &Context, msg: &Message) -> CommandResult {
 #[command]
 async fn music(ctx: &Context, msg: &Message) -> CommandResult {
     help_music(ctx, msg).await?;
+    Ok(())
+}
+#[command]
+#[aliases("cmd")]
+async fn commands(ctx: &Context, msg: &Message) -> CommandResult {
+    help_commands(ctx, msg).await?;
     Ok(())
 }
 
