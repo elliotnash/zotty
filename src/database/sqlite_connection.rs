@@ -14,11 +14,11 @@ pub struct SqliteConnection {
 }
 impl SqliteConnection {
     pub async fn new(path: &str) -> SqliteConnection {
-        let connection = Sqlite::connect(&format!("sqlite:{}", get_absolute_path(path)) ).await
+        let db_url = format!("sqlite:{}", get_absolute_path(path));
+        println!("Connecting to database: {}", db_url);
+        let connection = Sqlite::connect(&db_url).await
             .expect("Failed to connect to sqlite database");
-        let mut connection = SqliteConnection {connection: Arc::new(Mutex::new(connection))};
-        connection.initialize().await;
-        connection
+        SqliteConnection {connection: Arc::new(Mutex::new(connection))}
     }
 }
 

@@ -10,8 +10,8 @@ use serenity::{
     prelude::*,
 };
 
-mod commands;
-use commands::{
+mod modules;
+use modules::{
     help::*
 };
 mod config;
