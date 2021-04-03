@@ -1,33 +1,26 @@
+use chrono::{DateTime, Utc};
 use serenity::async_trait;
-use std::fs::File;
+use std::time::Duration;
+use std::{fs::File, time::UNIX_EPOCH};
 use std::sync::Arc;
 use std::path::Path;
 use path_absolutize::*;
 use tokio::sync::Mutex;
-use sqlx::{Connection, Executor, sqlite::SqliteConnection as Sqlite};
+use rusqlite::Connection;
 
-use super::Database;
+use super::{Database, DBUser};
 
 #[derive(Debug)]
 pub struct SqliteConnection {
-    connection: Arc<Mutex<Sqlite>>
+    connection: Arc<Mutex<Connection>>
 }
 impl SqliteConnection {
     pub async fn new(path: &str) -> SqliteConnection {
-        let db_url = format!("sqlite:{}", get_absolute_path(path));
-        println!("Connecting to database: {}", db_url);
-        let connection = Sqlite::connect(&db_url).await
+        let db_path = get_absolute_path(path);
+        println!("Connecting to database: {}", db_path);
+        let connection = Connection::open(&db_path)
             .expect("Failed to connect to sqlite database");
         SqliteConnection {connection: Arc::new(Mutex::new(connection))}
-    }
-}
-
-#[async_trait]
-impl Database for SqliteConnection {
-    async fn initialize(&mut self) {
-        let mut conn = self.connection.lock().await;
-        let qr = conn.execute("BEGIN").await.expect("Failed to query");
-        dbg!(qr);
     }
 }
 
@@ -36,4 +29,50 @@ fn get_absolute_path(path: &str) -> String {
     let path = path.absolutize().unwrap().to_path_buf();
     if !path.exists() {File::create(&path).expect("Unable to create sqlite database");};
     path.to_str().unwrap().to_string()
+}
+
+#[async_trait]
+impl Database for SqliteConnection {
+    async fn get_user(&mut self, guild_id: String, user_id: String) -> DBUser {
+
+        let conn = self.connection.lock().await;
+
+        //create table in db if it doesn't exist for this server
+        conn.execute(&format!("
+        CREATE TABLE IF NOT EXISTS '{}' (
+            user_id INTEGER PRIMARY KEY,
+            levels INTEGER NOT NULL DEFAULT 0,
+            xp INTEGER NOT NULL DEFAULT 0,
+            last_xp INTEGER NOT NULL DEFAULT 0
+        );
+        ", guild_id), []).expect("Failed to create tables");
+
+        conn.execute(&format!("
+        INSERT OR IGNORE INTO '{0}' values ({1}, 0, 0, 0);
+        ", guild_id, user_id), [])
+            .expect("Failed to insert ____ into user");
+        
+        let select_sql = format!("
+        SELECT levels, xp, last_xp FROM '{0}' WHERE user_id = {1};
+        ", guild_id, user_id);
+
+        println!("{}", select_sql);
+
+        let mut query = conn.prepare(&select_sql).expect("Failed to query database");
+
+        let mut db_user_iter = query.query_map([], |row| {
+            //let levels: i32 = row.get("levels").unwrap();
+            //dbg!(&levels);
+            let duration = UNIX_EPOCH + Duration::from_secs(row.get("last_xp").unwrap());
+            let datetime = DateTime::<Utc>::from(duration);
+            Ok(DBUser {
+                level: row.get("levels").unwrap(),
+                xp: row.get("xp").unwrap(),
+                last_xp: datetime
+            })
+        }).expect("Failed to query database");
+
+        db_user_iter.next().unwrap().unwrap()
+
+    }
 }
