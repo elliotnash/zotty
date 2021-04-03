@@ -1,18 +1,15 @@
 use std::sync::Arc;
 use tokio::sync::Mutex;
+use tokio::spawn;
 use once_cell::sync::OnceCell;
 
-use serenity::{
-    async_trait,
-    client::bridge::gateway::ShardManager,
-    framework::StandardFramework,
-    model::gateway::Ready,
-    prelude::*,
-};
+use serenity::{async_trait, client::bridge::gateway::ShardManager, framework::StandardFramework, model::{channel::Message, gateway::Ready}, prelude::*};
 
 mod modules;
 use modules::{
-    help::*
+    help::HELP_GROUP,
+    levels,
+    levels::LEVELS_GROUP
 };
 mod config;
 use config::Config;
@@ -35,6 +32,10 @@ impl EventHandler for Handler {
     async fn ready(&self, _: Context, ready: Ready) {
         println!("{} is connected!", ready.user.name);
     }
+    async fn message(&self, ctx: Context, msg: Message) {
+        //dispatch message event to modules that need it
+        spawn(levels::on_message(ctx.clone(), msg.clone()));
+    }
 }
 
 //init client
@@ -48,7 +49,8 @@ async fn main() {
 
     let framework = StandardFramework::new()
         .configure(|c| c.prefix(&CONFIG.get().unwrap().prefix))
-        .group(&HELP_GROUP);
+        .group(&HELP_GROUP)
+        .group(&LEVELS_GROUP);
 
     let mut client = Client::builder(&CONFIG.get().unwrap().token)
         .event_handler(Handler)
