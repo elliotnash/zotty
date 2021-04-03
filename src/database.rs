@@ -7,7 +7,7 @@ pub mod sqlite_connection;
 use sqlite_connection::SqliteConnection;
 
 #[async_trait]
-pub trait Database: Send {
+pub trait Database: std::fmt::Debug + Send {
     // Make sure database structure is setup
     async fn initialize(&mut self);
 }

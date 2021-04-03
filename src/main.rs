@@ -44,7 +44,7 @@ async fn main() {
     //initialize config
     CONFIG.set(Config::from_file()).expect("Failed to load config");
     //initialize database
-    let result = DATABASE.set(Arc::new(Mutex::new(database::new_database().await)));
+    DATABASE.set(Arc::new(Mutex::new(database::new_database().await))).expect("Unable to connect to database");
 
     let framework = StandardFramework::new()
         .configure(|c| c.prefix(&CONFIG.get().unwrap().prefix))

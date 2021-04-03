@@ -1,6 +1,5 @@
 use serenity::async_trait;
 use std::fs::File;
-use std::io::prelude::*;
 use std::sync::Arc;
 use std::path::Path;
 use path_absolutize::*;
@@ -9,6 +8,7 @@ use sqlx::{Connection, Executor, sqlite::SqliteConnection as Sqlite};
 
 use super::Database;
 
+#[derive(Debug)]
 pub struct SqliteConnection {
     connection: Arc<Mutex<Sqlite>>
 }
@@ -18,14 +18,13 @@ impl SqliteConnection {
             .expect("Failed to connect to sqlite database");
         let mut connection = SqliteConnection {connection: Arc::new(Mutex::new(connection))};
         connection.initialize().await;
-        println!("We just initialized the db");
         connection
     }
 }
+
 #[async_trait]
 impl Database for SqliteConnection {
     async fn initialize(&mut self) {
-        println!("initalize called");
         let mut conn = self.connection.lock().await;
         let qr = conn.execute("BEGIN").await.expect("Failed to query");
         dbg!(qr);
