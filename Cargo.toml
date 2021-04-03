@@ -9,8 +9,9 @@ edition = "2018"
 [dependencies]
 tokio = { version = "1.0", features = ["macros", "rt-multi-thread", "signal"] } #lazy
 serenity = { default-features = false, features = ["client", "gateway", "rustls_backend", "model", "cache", "framework", "standard_framework"], version = "0.10" }
-diesel = { version = "1.4.4", features = ["sqlite"] }
-lazy_static = "1.4.0"
+sqlx = { version = "0.5", features = [ "runtime-tokio-rustls", "sqlite", "mysql", "postgres" ] }
+path-absolutize = "3.0"
+once_cell = "1.7"
 regex = "1.4.3"
 serde = "1"
 toml = "0.5"

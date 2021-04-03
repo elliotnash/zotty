@@ -1,4 +1,6 @@
 use std::sync::Arc;
+use tokio::sync::Mutex;
+use once_cell::sync::OnceCell;
 
 use serenity::{
     async_trait,
@@ -13,8 +15,12 @@ use commands::{
     help::*
 };
 mod config;
-use config::CONFIG;
+use config::Config;
 mod database;
+use database::Database;
+
+static CONFIG: OnceCell<Config> = OnceCell::new();
+static DATABASE: OnceCell<Arc<Mutex<Box<dyn Database>>>> = OnceCell::new();
 
 pub struct ShardManagerContainer;
 
@@ -35,11 +41,16 @@ impl EventHandler for Handler {
 #[tokio::main]
 async fn main() {
 
+    //initialize config
+    CONFIG.set(Config::from_file()).expect("Failed to load config");
+    //initialize database
+    let result = DATABASE.set(Arc::new(Mutex::new(database::new_database().await)));
+
     let framework = StandardFramework::new()
-        .configure(|c| c.prefix(&CONFIG.prefix))
+        .configure(|c| c.prefix(&CONFIG.get().unwrap().prefix))
         .group(&HELP_GROUP);
 
-    let mut client = Client::builder(&CONFIG.token)
+    let mut client = Client::builder(&CONFIG.get().unwrap().token)
         .event_handler(Handler)
         .framework(framework)
         .await
