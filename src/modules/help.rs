@@ -12,7 +12,7 @@ use crate::CONFIG;
 
 #[group]
 #[commands(help, moderator, music, utilities)]
-pub struct Help;
+struct Help;
 
 #[command]
 async fn help(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
