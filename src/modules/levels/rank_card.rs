@@ -1,5 +1,5 @@
 use cairo::{ ImageSurface, Format, Context, LineCap };
-use std::{f64::consts::PI, fs::File, time::Instant};
+use std::{f64::consts::PI, fs::File, io::BufWriter, time::Instant};
 use std::convert::TryFrom;
 
 fn main() {
@@ -29,7 +29,7 @@ impl Colour {
 }
 
 pub fn generate_rank_card(username: &str, user_discriminator: u16, 
-        rank: i32, level: i32, xp: i32) {
+        rank: i32, level: i32, xp: i32) -> BufWriter<Vec<u8>> {
     
     // get level xp with calculation
     let level_xp = super::get_level_xp(level);
@@ -61,11 +61,13 @@ pub fn generate_rank_card(username: &str, user_discriminator: u16,
     // add level text
     draw_level_text(&context, xc, yc+125_f64, level);
 
-    // write to file
-    let mut file = File::create("output.png")
-        .expect("Couldn’t create file.");
-    surface.write_to_png(&mut file)
-        .expect("Couldn’t write to png");
+    // write to buffer and return
+    let mut writer = BufWriter::with_capacity(70_000, Vec::<u8>::new());
+    surface.write_to_png(&mut writer)
+        .expect("Couldn’t write to BufWriter");
+    dbg!(writer.buffer().len());
+    dbg!(writer.capacity());
+    writer
 }
 
 fn set_colour(context: &Context, colour: Colour) {
