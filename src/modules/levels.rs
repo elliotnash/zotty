@@ -41,9 +41,10 @@ async fn rank(ctx: &Context, msg: &Message) -> CommandResult {
         let username = msg.author.name.clone();
         let user_discriminator = msg.author.discriminator.clone();
         let level = db_user.level.clone();
+        let rank = database.get_rank(guild_id.to_string(), &db_user).await;
         let xp = db_user.xp.clone();
         let writer = tokio::task::spawn_blocking(move || {
-            generate_rank_card(&username, user_discriminator, 0, level, xp)
+            generate_rank_card(&username, user_discriminator, rank, level, xp)
         }).await?;
 
         msg.channel_id.send_files(&ctx.http, vec![(writer.buffer(), "rank.png")], |m| {m}).await

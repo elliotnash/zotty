@@ -18,6 +18,8 @@ pub struct DBUser {
 pub trait Database: std::fmt::Debug + Send {
     // returns a User struct with information about recent msgs
     async fn get_user(&mut self, guild_id: String, user_id: String) -> DBUser;
+    // returns a users rank
+    async fn get_rank(&mut self, guild_id: String, db_user: &DBUser) -> i32;
     // sets a users xp
     async fn set_user_xp(&mut self, guild_id: String, user_id: String, xp: i32);
     // sets a users xp and level

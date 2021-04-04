@@ -51,12 +51,10 @@ impl Database for SqliteConnection {
         INSERT OR IGNORE INTO '{0}' values ({1}, 0, 0, 0);
         ", guild_id, user_id), [])
             .expect("Failed to insert ____ into user");
-        
-        let select_sql = format!("
-        SELECT level, xp, last_xp FROM '{0}' WHERE user_id = {1};
-        ", guild_id, user_id);
 
-        let mut query = conn.prepare(&select_sql).expect("Failed to query database");
+        let mut query = conn.prepare(&format!("
+        SELECT level, xp, last_xp FROM '{0}' WHERE user_id = {1};
+        ", guild_id, user_id)).expect("Failed to query database");
 
         let mut db_user_iter = query.query_map([], |row| {
             //let levels: i32 = row.get("levels").unwrap();
@@ -73,6 +71,26 @@ impl Database for SqliteConnection {
         db_user_iter.next().unwrap().unwrap()
 
     }
+
+    async fn get_rank(&mut self, guild_id: String, db_user: &DBUser) -> i32 {
+
+        let conn = self.connection.lock().await;
+
+        let sql = format!("
+        SELECT COUNT() FROM '{0}'
+	        WHERE level > {1} OR 
+		        (level = {1} AND xp> {2});
+        ", guild_id, db_user.level, db_user.xp);
+
+        println!("{}", sql);
+
+        let mut query = conn.prepare(&sql).expect("Failed to query database");
+        let test: i32 = query.query_row([], |row| {
+            Ok(row.get(0).unwrap())
+        }).unwrap();
+        test+1
+    }
+
     async fn set_user_xp(&mut self, guild_id: String, user_id: String, xp: i32) {
 
         let conn = self.connection.lock().await;
