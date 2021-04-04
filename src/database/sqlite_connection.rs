@@ -76,15 +76,11 @@ impl Database for SqliteConnection {
 
         let conn = self.connection.lock().await;
 
-        let sql = format!("
+        let mut query = conn.prepare(&format!("
         SELECT COUNT() FROM '{0}'
 	        WHERE level > {1} OR 
 		        (level = {1} AND xp> {2});
-        ", guild_id, db_user.level, db_user.xp);
-
-        println!("{}", sql);
-
-        let mut query = conn.prepare(&sql).expect("Failed to query database");
+        ", guild_id, db_user.level, db_user.xp)).expect("Failed to query database");
         let test: i32 = query.query_row([], |row| {
             Ok(row.get(0).unwrap())
         }).unwrap();
