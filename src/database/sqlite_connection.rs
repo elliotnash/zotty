@@ -41,7 +41,7 @@ impl Database for SqliteConnection {
         conn.execute(&format!("
         CREATE TABLE IF NOT EXISTS '{}' (
             user_id INTEGER PRIMARY KEY,
-            levels INTEGER NOT NULL DEFAULT 0,
+            level INTEGER NOT NULL DEFAULT 0,
             xp INTEGER NOT NULL DEFAULT 0,
             last_xp INTEGER NOT NULL DEFAULT 0
         );
@@ -53,7 +53,7 @@ impl Database for SqliteConnection {
             .expect("Failed to insert ____ into user");
         
         let select_sql = format!("
-        SELECT levels, xp, last_xp FROM '{0}' WHERE user_id = {1};
+        SELECT level, xp, last_xp FROM '{0}' WHERE user_id = {1};
         ", guild_id, user_id);
 
         let mut query = conn.prepare(&select_sql).expect("Failed to query database");
@@ -64,7 +64,7 @@ impl Database for SqliteConnection {
             let duration = UNIX_EPOCH + Duration::from_secs(row.get("last_xp").unwrap());
             let datetime = DateTime::<Utc>::from(duration);
             Ok(DBUser {
-                level: row.get("levels").unwrap(),
+                level: row.get("level").unwrap(),
                 xp: row.get("xp").unwrap(),
                 last_xp: datetime
             })

@@ -37,12 +37,24 @@ pub async fn on_message(ctx: Context, msg: Message) {
         dbg!(&db_user);
         // only award if user hasn't been awarded in the last minute
         if (Utc::now() - db_user.last_xp).num_seconds() > 59 {
-            println!("User should be getting awarded");
-            let xp = rand::thread_rng().gen_range(15..25);
-            database.set_user_xp(guild_id.to_string(), msg.author.id.to_string(),
-                db_user.xp + xp).await;
+
+            let xp = db_user.xp + rand::thread_rng().gen_range(15..25);
+            let level_xp = get_level_xp(db_user.level);
+
+            if xp > level_xp {
+                database.set_user_level(guild_id.to_string(), msg.author.id.to_string(),
+                    db_user.level+1, xp-level_xp).await;
+                msg.reply(&ctx.http, "Congrats you lveldd up").await;
+            } else {
+                database.set_user_xp(guild_id.to_string(), msg.author.id.to_string(),
+                    xp).await;
+            }
         }
 
     }
 
+}
+
+pub fn get_level_xp(level: i32) -> i32 {
+    5 * level.pow(2) + 50 * level + 100
 }
