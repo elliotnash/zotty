@@ -9,7 +9,7 @@ edition = "2018"
 [dependencies]
 tokio = { version = "1.0", features = ["macros", "rt-multi-thread", "signal"] } #lazy
 serenity = { default-features = false, features = ["client", "gateway", "rustls_backend", "model", "cache", "framework", "standard_framework"], version = "0.10" }
-# sqlx = { version = "0.5", features = [ "runtime-tokio-rustls", "sqlite", "mysql", "postgres", "chrono" ] }
+cairo-rs = { version = "0.9.1", features = ["png"] }
 rusqlite = "0.25"
 rand = "0.8"
 chrono = "0.4"

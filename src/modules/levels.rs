@@ -1,4 +1,5 @@
 use chrono::Utc;
+use rank_card::generate_rank_card;
 use serenity::{
     cache::FromStrAndCache, framework::standard::{
         CommandResult,
@@ -9,6 +10,8 @@ use serenity::{
 use rand::Rng;
 
 use crate::DATABASE;
+
+mod rank_card;
 
 pub fn get_level_xp(level: i32) -> i32 {
     5 * level.pow(2) + 50 * level + 100
@@ -34,6 +37,8 @@ async fn rank(ctx: &Context, msg: &Message) -> CommandResult {
 
         let mut database = DATABASE.get().expect("Database not initialized").lock().await;
         let db_user = database.get_user(guild_id.to_string(), msg.author.id.to_string()).await;
+
+        generate_rank_card(&msg.author.name, msg.author.discriminator, 0, db_user.level, db_user.xp);
 
         msg.channel_id.say(&ctx.http, format!("You are level {0}. XP: {1}/{2}",
             db_user.level, db_user.xp, get_level_xp(db_user.level)))
