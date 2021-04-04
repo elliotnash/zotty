@@ -1,13 +1,12 @@
-use chrono::{DateTime, Utc};
+use chrono::Utc;
 use serenity::{
     cache::FromStrAndCache, framework::standard::{
-        Args,
         CommandResult,
         macros::{command, group},
     }, 
     model::prelude::*, prelude::*
 };
-use rand::{Rng, distributions::Uniform};
+use rand::Rng;
 
 use crate::DATABASE;
 
@@ -20,7 +19,7 @@ pub fn get_level_xp(level: i32) -> i32 {
 struct Levels;
 
 #[command]
-async fn rank(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+async fn rank(ctx: &Context, msg: &Message) -> CommandResult {
 
     let guild_id = if msg.guild_id.is_none() {return Ok(());} else {msg.guild_id.unwrap()};
 
