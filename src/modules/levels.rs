@@ -4,8 +4,9 @@ use serenity::{
     cache::FromStrAndCache, framework::standard::{
         CommandResult,
         macros::{command, group},
-    }, 
-    model::prelude::*, prelude::*
+    },
+    model::prelude::*, 
+    prelude::*
 };
 use rand::Rng;
 
@@ -29,17 +30,19 @@ async fn rank(ctx: &Context, msg: &Message) -> CommandResult {
     let role_id = RoleId::from_str(&ctx.cache, "827946575136948226").await;
     let role_id = if role_id.is_err() {return Ok(());} else {role_id.unwrap()};
 
-    let has_tester_role = msg.author.has_role(&ctx.http, guild_id, role_id).await;
+    let target = if msg.mentions.is_empty() {&msg.author} else {&msg.mentions[0]};
+
+    let has_tester_role = target.has_role(&ctx.http, guild_id, role_id).await;
     if has_tester_role.is_err() {return Ok(());};
     let has_tester_role = has_tester_role.unwrap();
 
     if has_tester_role {
 
         let mut database = DATABASE.get().expect("Database not initialized").lock().await;
-        let db_user = database.get_user(guild_id.to_string(), msg.author.id.to_string()).await;
+        let db_user = database.get_user(guild_id.to_string(), target.id.to_string()).await;
 
-        let username = msg.author.name.clone();
-        let user_discriminator = msg.author.discriminator.clone();
+        let username = target.name.clone();
+        let user_discriminator = target.discriminator.clone();
         let level = db_user.level.clone();
         let rank = database.get_rank(guild_id.to_string(), &db_user).await;
         let xp = db_user.xp.clone();

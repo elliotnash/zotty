@@ -1,13 +1,7 @@
 use cairo::{ ImageSurface, Format, Context, LineCap };
-use std::{f64::consts::PI, fs::File, io::BufWriter, time::Instant};
-use std::convert::TryFrom;
+use std::{f64::consts::PI, convert::TryFrom, io::BufWriter};
 
-fn main() {
-    println!("Generating image");
-    let now = Instant::now();
-    generate_rank_card(&String::from("icanflyit"), 6718, 1, 30, 4009);
-    println!("took {} ms", now.elapsed().as_millis());
-}
+//TODO fix formatting on long usernames
 
 #[derive(Debug)]
 pub struct Colour {
