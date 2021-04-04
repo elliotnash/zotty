@@ -56,8 +56,6 @@ impl Database for SqliteConnection {
         SELECT levels, xp, last_xp FROM '{0}' WHERE user_id = {1};
         ", guild_id, user_id);
 
-        println!("{}", select_sql);
-
         let mut query = conn.prepare(&select_sql).expect("Failed to query database");
 
         let mut db_user_iter = query.query_map([], |row| {
@@ -73,6 +71,27 @@ impl Database for SqliteConnection {
         }).expect("Failed to query database");
 
         db_user_iter.next().unwrap().unwrap()
+
+    }
+    async fn set_user_xp(&mut self, guild_id: String, user_id: String, xp: i32) {
+
+        let conn = self.connection.lock().await;
+
+        conn.execute(&format!("
+        UPDATE '{0}' SET xp = {2}, last_xp = {3} WHERE user_id = {1};
+        ", guild_id, user_id, xp, Utc::now().timestamp()), [])
+            .expect("Failed to update user");
+
+    }
+
+    async fn set_user_level(&mut self, guild_id: String, user_id: String, level: i32, xp: i32) {
+
+        let conn = self.connection.lock().await;
+
+        conn.execute(&format!("
+        UPDATE '{0}' SET level = {2}, xp = {3}, last_xp = {4} WHERE user_id = {1};
+        ", guild_id, user_id, level, xp, Utc::now().timestamp()), [])
+            .expect("Failed to update user");
 
     }
 }

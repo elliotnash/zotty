@@ -1,8 +1,13 @@
-use serenity::{cache::FromStrAndCache, framework::standard::{
+use chrono::{DateTime, Utc};
+use serenity::{
+    cache::FromStrAndCache, framework::standard::{
         Args,
         CommandResult,
         macros::{command, group},
-    }, model::prelude::*, prelude::*};
+    }, 
+    model::prelude::*, prelude::*
+};
+use rand::{Rng, distributions::Uniform};
 
 use crate::DATABASE;
 
@@ -29,7 +34,15 @@ pub async fn on_message(ctx: Context, msg: Message) {
     if has_tester_role {
         let mut database = DATABASE.get().expect("Database not initialized").lock().await;
         let db_user = database.get_user(guild_id.to_string(), msg.author.id.to_string()).await;
-        dbg!(db_user);
+        dbg!(&db_user);
+        // only award if user hasn't been awarded in the last minute
+        if (Utc::now() - db_user.last_xp).num_seconds() > 59 {
+            println!("User should be getting awarded");
+            let xp = rand::thread_rng().gen_range(15..25);
+            database.set_user_xp(guild_id.to_string(), msg.author.id.to_string(),
+                db_user.xp + xp).await;
+        }
+
     }
 
 }
