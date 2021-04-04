@@ -38,15 +38,12 @@ async fn rank(ctx: &Context, msg: &Message) -> CommandResult {
         let mut database = DATABASE.get().expect("Database not initialized").lock().await;
         let db_user = database.get_user(guild_id.to_string(), msg.author.id.to_string()).await;
 
-        // msg.channel_id.say(&ctx.http, format!("You are level {0}. XP: {1}/{2}",
-        //     db_user.level, db_user.xp, get_level_xp(db_user.level)))
-        //     .await.expect("Unable to send message");
-
-        let writer = generate_rank_card(&msg.author.name, msg.author.discriminator, 0, db_user.level, db_user.xp);
-
-        let res = tokio::task::spawn_blocking(move || {
-            // do some compute-heavy work or call synchronous code
-            generate_rank_card(&msg.author.name, msg.author.discriminator, 0, db_user.level, db_user.xp)
+        let username = msg.author.name.clone();
+        let user_discriminator = msg.author.discriminator.clone();
+        let level = db_user.level.clone();
+        let xp = db_user.xp.clone();
+        let writer = tokio::task::spawn_blocking(move || {
+            generate_rank_card(&username, user_discriminator, 0, level, xp)
         }).await?;
 
         msg.channel_id.send_files(&ctx.http, vec![(writer.buffer(), "rank.png")], |m| {m}).await

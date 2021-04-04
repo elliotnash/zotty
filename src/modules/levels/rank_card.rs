@@ -65,8 +65,6 @@ pub fn generate_rank_card(username: &str, user_discriminator: u16,
     let mut writer = BufWriter::with_capacity(70_000, Vec::<u8>::new());
     surface.write_to_png(&mut writer)
         .expect("Couldn’t write to BufWriter");
-    dbg!(writer.buffer().len());
-    dbg!(writer.capacity());
     writer
 }
 
