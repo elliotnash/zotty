@@ -25,12 +25,15 @@ struct Levels;
 #[command]
 async fn rank(ctx: &Context, msg: &Message) -> CommandResult {
 
+    let target = if msg.mentions.is_empty() {&msg.author} else {&msg.mentions[0]};
+
+    //Don't let target be bot
+    if target.bot {return Ok(());};
+
     let guild_id = if msg.guild_id.is_none() {return Ok(());} else {msg.guild_id.unwrap()};
 
     let role_id = RoleId::from_str(&ctx.cache, "827946575136948226").await;
     let role_id = if role_id.is_err() {return Ok(());} else {role_id.unwrap()};
-
-    let target = if msg.mentions.is_empty() {&msg.author} else {&msg.mentions[0]};
 
     let has_tester_role = target.has_role(&ctx.http, guild_id, role_id).await;
     if has_tester_role.is_err() {return Ok(());};
@@ -60,6 +63,9 @@ async fn rank(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 pub async fn on_message(ctx: Context, msg: Message) {
+
+    //Don't award points to bots
+    if msg.author.bot {return;};
 
     let guild_id = if msg.guild_id.is_none() {return;} else {msg.guild_id.unwrap()};
 
