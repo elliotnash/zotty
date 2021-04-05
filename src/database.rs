@@ -7,7 +7,7 @@ use super::CONFIG;
 pub mod sqlite_connection;
 use sqlite_connection::SqliteConnection;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DBUser {
     pub level: i32,
     pub xp: i32,

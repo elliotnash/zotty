@@ -1,5 +1,8 @@
 use cairo::{ ImageSurface, FontFace, FontSlant, FontWeight, Context, LineCap };
+use serenity::model::prelude::User;
 use std::{f64::consts::PI, fs::File, convert::TryFrom, io::BufWriter};
+
+use crate::database::DBUser;
 
 const FONT_FAMILY: &str = "Avenir";
 
@@ -33,7 +36,13 @@ impl Colour {
     fn alpha_decimal(&self) -> f64 {f64::from(self.alpha)*0.00392156862}
 }
 
-pub fn generate_rank_card(username: &str, user_discriminator: u16, 
+pub async fn generate_rank_card(user: User, db_user: DBUser, rank: i32) -> BufWriter<Vec<u8>> {
+    tokio::task::spawn_blocking(move || {
+        generate(&user.name, user.discriminator, rank, db_user.level, db_user.xp)
+    }).await.unwrap()
+}
+
+fn generate(username: &str, user_discriminator: u16, 
         rank: i32, level: i32, xp: i32) -> BufWriter<Vec<u8>> {
     
     // get level xp with calculation
