@@ -82,12 +82,21 @@ fn draw_username_text(context: &Context, xc: f64, yc: f64, username: &str, user_
     // set font size
     context.set_font_size(80_f64);
     // get text extents of both parts
-    let discriminator_string = format!("\u{2009}#{}", user_discriminator);
+    let discriminator_string = format!("#{}", user_discriminator);
+    let username_extents = context.text_extents(&username);
+    let discriminator_extents = context.text_extents(&discriminator_string);
+    // if bigger than screen, rescale
+    let total_width = username_extents.width + 8_f64 + discriminator_extents.width;
+    let scale = if total_width > 650_f64 {
+        650_f64 / total_width
+    } else {1_f64};
+    // rescale everything based off that scale
+    context.set_font_size(80_f64*scale);
     let username_extents = context.text_extents(&username);
     let discriminator_extents = context.text_extents(&discriminator_string);
     // draw username
     set_colour(context, Colour::from_hex(0xd8dee9));
-    context.move_to(xc-(0.5*(username_extents.width+discriminator_extents.width)), yc+(0.5*discriminator_extents.height));
+    context.move_to(xc-(0.5*(username_extents.width+discriminator_extents.width))-(8_f64*scale), yc+(0.5*discriminator_extents.height));
     context.text_path(&username);
     context.fill();
     // draw discriminator
