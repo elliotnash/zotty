@@ -12,6 +12,7 @@ use serenity::{
 use rand::Rng;
 
 use crate::DATABASE;
+use super::help;
 
 mod rank_card;
 
@@ -55,7 +56,7 @@ async fn rank(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let target = if let Some(target) = target {
         target
     } else {
-        println!("Command fired with incorrect usage");
+        help::send_usage(ctx, msg, "Invalid arguments", "rank [user]").await;
         return Ok(());
     };
 

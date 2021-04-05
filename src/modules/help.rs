@@ -52,6 +52,16 @@ async fn utilities(ctx: &Context, msg: &Message) -> CommandResult {
     Ok(())
 }
 
+pub async fn send_usage(ctx: &Context, msg: &Message, error: &str, usage: &str) {
+    msg.channel_id.send_message(&ctx.http, |m| {
+        m.embed(|e| {
+            e.color(CONFIG.get().unwrap().colours.help);
+            e.title("**Error**");
+            e.description(format!("{0}\nUsage: `{1}{2}`", error, CONFIG.get().unwrap().prefix, usage))
+        })
+    }).await.expect("Failed to send message");
+}
+
 async fn help_main(ctx: &Context, msg: &Message) -> CommandResult {
 
     let thumbnail_url = msg.guild(&ctx.cache).await.unwrap().icon_url();
