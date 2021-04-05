@@ -1,12 +1,13 @@
 use chrono::Utc;
 use rank_card::generate_rank_card;
 use serenity::{
-    cache::FromStrAndCache, framework::standard::{
-        CommandResult,
-        macros::{command, group},
-    },
-    model::prelude::*, 
-    prelude::*
+    cache::FromStrAndCache, 
+    framework::standard::{
+        Args, 
+        CommandResult, 
+        macros::{command, group}
+    }, 
+    model::prelude::*, prelude::*
 };
 use rand::Rng;
 
@@ -23,9 +24,40 @@ pub fn get_level_xp(level: i32) -> i32 {
 struct Levels;
 
 #[command]
-async fn rank(ctx: &Context, msg: &Message) -> CommandResult {
+async fn rank(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 
-    let target = if msg.mentions.is_empty() {&msg.author} else {&msg.mentions[0]};
+    // oh go d
+    let target = if args.is_empty() {
+        Some(msg.author.clone())
+    } else if args.len() == 1 {
+        if msg.mentions.is_empty() {
+            let arg = args.current().unwrap();
+            let user_id = UserId::from_str(&ctx.cache, arg).await;
+            if let Ok(user_id) = user_id {
+                let guild = msg.guild(&ctx.cache).await.unwrap();
+                if let Ok(member) = guild.member(&ctx.http, user_id).await {
+                    Some(member.user)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        } else {
+            Some(msg.mentions[0].clone())
+        }
+    } else {
+        None
+    };
+
+    
+    dbg!(&target);
+    let target = if let Some(target) = target {
+        target
+    } else {
+        println!("Command fired with incorrect usage");
+        return Ok(());
+    };
 
     //Don't let target be bot
     if target.bot {return Ok(());};
