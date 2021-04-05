@@ -52,7 +52,6 @@ async fn rank(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     };
 
     
-    dbg!(&target);
     let target = if let Some(target) = target {
         target
     } else {
