@@ -1,23 +1,36 @@
-use cairo::{ ImageSurface, Format, Context, LineCap };
-use std::{f64::consts::PI, convert::TryFrom, io::BufWriter};
+use cairo::{ ImageSurface, FontFace, FontSlant, FontWeight, Context, LineCap };
+use std::{f64::consts::PI, fs::File, convert::TryFrom, io::BufWriter};
+
+const FONT_FAMILY: &str = "Avenir";
 
 #[derive(Debug)]
 pub struct Colour {
     red: u8,
     green: u8,
     blue: u8,
+    alpha: u8
 }
 impl Colour {
+    fn from_alpha_hex(hex: u32) -> Colour {
+        Colour {
+            red: u8::try_from((hex >> 24) & 255).unwrap(),
+            green: u8::try_from((hex >> 16) & 255).unwrap(),
+            blue: u8::try_from((hex >> 8) & 255).unwrap(),
+            alpha: u8::try_from(hex & 255).unwrap()
+        }
+    }
     fn from_hex(hex: i32) -> Colour {
         Colour {
-            red: u8::try_from(hex/(256_i32.pow(2))).unwrap(),
-            green: u8::try_from((hex/256) % 256).unwrap(),
-            blue: u8::try_from(hex % 256).unwrap()
+            red: u8::try_from((hex >> 16) & 255).unwrap(),
+            green: u8::try_from((hex >> 8) & 255).unwrap(),
+            blue: u8::try_from(hex & 255).unwrap(),
+            alpha: 255
         }
     }
     fn red_decimal(&self) -> f64 {f64::from(self.red)*0.00392156862}
     fn green_decimal(&self) -> f64 {f64::from(self.green)*0.00392156862}
     fn blue_decimal(&self) -> f64 {f64::from(self.blue)*0.00392156862}
+    fn alpha_decimal(&self) -> f64 {f64::from(self.alpha)*0.00392156862}
 }
 
 pub fn generate_rank_card(username: &str, user_discriminator: u16, 
@@ -26,72 +39,102 @@ pub fn generate_rank_card(username: &str, user_discriminator: u16,
     // get level xp with calculation
     let level_xp = super::get_level_xp(level);
 
-    // create surface and paint a rounded rectangle with nord1
-    let surface = ImageSurface::create(Format::ARgb32, 750, 900)
-        .expect("Couldn’t create a surface!");
+    // create surface from rank card
+    let mut file = File::open("rank.png")
+        .expect("Couldn’t open input file.");
+
+    let surface = ImageSurface::create_from_png(&mut file)
+        .expect("Couldn't create a surface!");
+
+    let width = f64::from(surface.get_width());
+    let height = f64::from(surface.get_height());
+    
     let context = Context::new(&surface);
-    set_colour(&context, Colour::from_hex(0x2e3440));
-    draw_rounded_rec(&context, 0_f64, 0_f64, 750_f64, 900_f64, 80_f64);
+
+    // create base rectangle
+    set_colour(&context, Colour::from_alpha_hex(0x3B4252DD));
+    let margin = 40_f64;
+    let left_margin = 275_f64;
+    draw_rounded_rec(&context, left_margin, margin, width-margin, height-margin, 25_f64);
     context.fill();
 
-    // calculate center of arc
-    let xc = 750_f64*0.5;
-    let yc = 900_f64*0.5 + 75_f64;
+    //draw progress bar
+    let progress_margin = 30_f64;
+    let progress_thickness = 30_f64;
+    draw_progress_bar(&context, left_margin+progress_margin, width-margin-progress_margin, 
+        height-(margin+progress_margin), progress_thickness, xp, level_xp);
 
-    // paint progress arc
-    draw_progress_arc(&context, xc, yc, xp, level_xp);
+    //draw username 
+    let username_magin = 15_f64;
+    draw_username_text(&context, left_margin+progress_margin, width-(margin+progress_margin),
+        height-(margin+progress_margin+username_magin), username, user_discriminator);
 
-    // add username text
-    draw_username_text(&context, xc, 120_f64, username, user_discriminator);
+    //draw xp text
+    let xp_xc = 0.5 * (left_margin+ (width-margin));
+    let xp_xy = margin+60_f64;
+    let xp_half_width = draw_xp_text(&context, xp_xc, xp_xy, xp, level_xp);
 
-    // add xp text
-    draw_xp_text(&context, xc, yc, xp, level_xp);
+    //draw rank text
+    let rank_xc = 0.5 * (left_margin+(xp_xc-xp_half_width));
+    draw_rank_text(&context, rank_xc, xp_xy, rank);
 
-    // add rank text
-    draw_rank_text(&context, xc, yc-125_f64, rank);
-
-    // add level text
-    draw_level_text(&context, xc, yc+125_f64, level);
+    //draw level text
+    let level_xc = 0.5 * (xp_xc+(width-margin));
+    draw_level_text(&context, level_xc, xp_xy, level);
 
     // write to buffer and return
-    let mut writer = BufWriter::with_capacity(70_000, Vec::<u8>::new());
+    let mut writer = BufWriter::with_capacity(500_000, Vec::<u8>::new());
     surface.write_to_png(&mut writer)
         .expect("Couldn’t write to BufWriter");
     writer
 }
 
 fn set_colour(context: &Context, colour: Colour) {
-    context.set_source_rgb(colour.red_decimal(), colour.green_decimal(), colour.blue_decimal());
+    context.set_source_rgba(colour.red_decimal(), colour.green_decimal(), 
+        colour.blue_decimal(), colour.alpha_decimal());
 }
 
-fn draw_progress_arc(context: &Context, xc: f64, yc: f64, xp: i32, level_xp: i32) {
-    set_colour(context, Colour::from_hex(0x8fbcbb));
-    context.set_line_width(20.0);
+fn draw_progress_bar(context: &Context, x1: f64, x2: f64, y: f64, thickness: f64, xp: i32, level_xp: i32) {
+    set_colour(context, Colour::from_hex(0x2E3440));
+    context.set_line_width(thickness);
     context.set_line_cap(LineCap::Round);
+    // draw backing
+    context.move_to(x1, y);
+    context.line_to(x2, y);
+    context.stroke();
+    // calculate length to draw
+    let progress = f64::from(xp) / f64::from(level_xp);
+    let bar_length = (x2-x1) * progress;
+    // draw bar
+    context.move_to(x1, y);
+    set_colour(context, Colour::from_hex(0x88C0D0));
+    context.line_to(x1+bar_length, y);
 
-    let start_angle = 0.5 * PI;
-    let end_angle = start_angle + (2_f64*PI) * (f64::from(xp)/f64::from(level_xp));
-
-    context.arc(xc, yc, xc-100.0, start_angle, end_angle);
     context.stroke();
 }
 
-fn draw_username_text(context: &Context, xc: f64, yc: f64, username: &str, user_discriminator: u16) {
+fn draw_username_text(context: &Context, x1: f64, x2: f64, y_bottom: f64, username: &str, user_discriminator: u16) {
+    let width = x2 - x1;
+    let xc = 0.5 * (x1 + x2);
     // set font size
-    context.set_font_size(80_f64);
+    let font_size = 50_f64;
+    context.set_font_size(font_size);
+    let font = FontFace::toy_create(FONT_FAMILY, FontSlant::Normal, FontWeight::Normal);
+    context.set_font_face(&font);
     // get text extents of both parts
     let discriminator_string = format!("#{}", user_discriminator);
     let username_extents = context.text_extents(&username);
     let discriminator_extents = context.text_extents(&discriminator_string);
     // if bigger than screen, rescale
     let total_width = username_extents.width + 8_f64 + discriminator_extents.width;
-    let scale = if total_width > 650_f64 {
-        650_f64 / total_width
+    let scale = if total_width > width {
+        width / total_width
     } else {1_f64};
     // rescale everything based off that scale
-    context.set_font_size(80_f64*scale);
+    context.set_font_size(font_size*scale);
     let username_extents = context.text_extents(&username);
     let discriminator_extents = context.text_extents(&discriminator_string);
+    let yc = y_bottom-(discriminator_extents.height);
     // draw username
     set_colour(context, Colour::from_hex(0xd8dee9));
     context.move_to(xc-(0.5*(username_extents.width+discriminator_extents.width))-(8_f64*scale), yc+(0.5*discriminator_extents.height));
@@ -104,33 +147,89 @@ fn draw_username_text(context: &Context, xc: f64, yc: f64, username: &str, user_
     context.fill();
 }
 
-fn draw_xp_text(context: &Context, xc: f64, yc: f64, xp: i32, level_xp: i32) {
+fn draw_xp_text(context: &Context, xc: f64, yc: f64, xp: i32, level_xp: i32) -> f64 {
     set_colour(context, Colour::from_hex(0xedeff3));
-    context.set_font_size(60_f64);
-    let xp_text = format!("{}/{}", format_i32(xp), format_i32(level_xp));
-    let text_extents = context.text_extents(&xp_text);
-    context.move_to(xc-(0.5*text_extents.width), yc+(0.5*text_extents.height));
-    context.text_path(&xp_text);
+    context.set_font_size(30_f64);
+    let font = FontFace::toy_create(FONT_FAMILY, FontSlant::Normal, FontWeight::Bold);
+    context.set_font_face(&font);
+    let seperation = 5_f64;
+    // format text
+    let top_text = format_i32(xp);
+    let bottom_text = format_i32(level_xp);
+    // get text extents
+    let top_extents = context.text_extents(&top_text);
+    let bottom_extents = context.text_extents(&bottom_text);
+    // draw top text
+    context.move_to(xc-(0.5*top_extents.width), yc-seperation);
+    context.text_path(&top_text);
+    // draw bottom text
+    context.move_to(xc-(0.5*bottom_extents.width), yc+bottom_extents.height+seperation);
+    context.text_path(&bottom_text);
     context.fill();
+    // draw seperator
+    let half_width = 0.5 * top_extents.width.max(bottom_extents.width);
+    context.set_line_width(2_f64);
+    context.move_to(xc-half_width, yc);
+    context.line_to(xc+half_width, yc);
+    context.stroke();
+    half_width
 }
 
 fn draw_rank_text(context: &Context, xc: f64, yc: f64, rank: i32) {
     set_colour(context, Colour::from_hex(0xedeff3));
-    context.set_font_size(100_f64);
-    let rank_text = format!("#{}", rank);
-    let text_extents = context.text_extents(&rank_text);
-    context.move_to(xc-(0.5*text_extents.width), yc+(0.5*text_extents.height));
-    context.text_path(&rank_text);
+    let font = FontFace::toy_create(FONT_FAMILY, FontSlant::Normal, FontWeight::Bold);
+    context.set_font_face(&font);
+    let bottom_size = 75_f64;
+    let top_size = 25_f64;
+    let seperation = 5_f64;
+    // format text
+    let top_text = "RANK";
+    let bottom_text = format!("#{}", rank);
+    // get text extents
+    context.set_font_size(top_size);
+    let top_extents = context.text_extents(top_text);
+    context.set_font_size(bottom_size);
+    let bottom_extents = context.text_extents(&bottom_text);
+    // get total height
+    let half_height = 0.5* (top_extents.height+seperation+bottom_extents.height);
+    // draw top
+    context.set_font_size(top_size);
+    context.move_to(xc-(0.5*top_extents.width)+1_f64, (yc-half_height)+top_extents.height);
+    context.text_path(top_text);
+    context.fill();
+    // draw bottom
+    context.set_font_size(bottom_size);
+    context.move_to(xc-(0.5*bottom_extents.width), yc+half_height);
+    context.text_path(&bottom_text);
     context.fill();
 }
 
 fn draw_level_text(context: &Context, xc: f64, yc: f64, level: i32) {
-    set_colour(context, Colour::from_hex(0xd8dee9));
-    context.set_font_size(60_f64);
-    let level_text = format!("level {}", level);
-    let text_extents = context.text_extents(&level_text);
-    context.move_to(xc-(0.5*text_extents.width), yc+(0.5*text_extents.height));
-    context.text_path(&level_text);
+    set_colour(context, Colour::from_hex(0xedeff3));
+    let font = FontFace::toy_create(FONT_FAMILY, FontSlant::Normal, FontWeight::Bold);
+    context.set_font_face(&font);
+    let bottom_size = 75_f64;
+    let top_size = 25_f64;
+    let seperation = 5_f64;
+    // format text
+    let top_text = "LEVEL";
+    let bottom_text = format!("{}", level);
+    // get text extents
+    context.set_font_size(top_size);
+    let top_extents = context.text_extents(top_text);
+    context.set_font_size(bottom_size);
+    let bottom_extents = context.text_extents(&bottom_text);
+    // get total height
+    let half_height = 0.5* (top_extents.height+seperation+bottom_extents.height);
+    // draw top
+    context.set_font_size(top_size);
+    context.move_to(xc-(0.5*top_extents.width), (yc-half_height)+top_extents.height);
+    context.text_path(top_text);
+    context.fill();
+    // draw bottom
+    context.set_font_size(bottom_size);
+    context.move_to(xc-(0.5*bottom_extents.width), yc+half_height);
+    context.text_path(&bottom_text);
     context.fill();
 }
 
