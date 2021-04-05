@@ -61,7 +61,10 @@ async fn rank(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     };
 
     //Don't let target be bot
-    if target.bot {return Ok(());};
+    if target.bot {
+        help::send_error(ctx, msg, "Sorry, you can't use this command on a bot").await;
+        return Ok(());
+    };
 
     let guild_id = if msg.guild_id.is_none() {return Ok(());} else {msg.guild_id.unwrap()};
 
