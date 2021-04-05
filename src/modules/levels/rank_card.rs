@@ -1,8 +1,6 @@
 use cairo::{ ImageSurface, Format, Context, LineCap };
 use std::{f64::consts::PI, convert::TryFrom, io::BufWriter};
 
-//TODO fix formatting on long usernames
-
 #[derive(Debug)]
 pub struct Colour {
     red: u8,
