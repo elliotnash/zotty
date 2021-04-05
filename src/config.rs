@@ -13,7 +13,8 @@ pub struct Colours {
     pub help: i32,
     pub moderator: i32,
     pub music: i32,
-    pub commands: i32
+    pub commands: i32,
+    pub error: i32
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
