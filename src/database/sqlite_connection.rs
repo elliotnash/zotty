@@ -57,8 +57,6 @@ impl Database for SqliteConnection {
         ", guild_id, user_id)).expect("Failed to query database");
 
         let mut db_user_iter = query.query_map([], |row| {
-            //let levels: i32 = row.get("levels").unwrap();
-            //dbg!(&levels);
             let duration = UNIX_EPOCH + Duration::from_secs(row.get("last_xp").unwrap());
             let datetime = DateTime::<Utc>::from(duration);
             Ok(DBUser {

@@ -3,8 +3,7 @@ use serenity::model::prelude::User;
 use std::{f64::consts::PI, fs::File, convert::TryFrom, io::{BufWriter, BufReader, Cursor}};
 
 use crate::database::DBUser;
-
-const FONT_FAMILY: &str = "TT Norms Regular";
+use crate::CONFIG;
 
 #[derive(Debug)]
 pub struct Colour {
@@ -168,7 +167,8 @@ fn draw_username_text(context: &Context, x1: f64, x2: f64, y_bottom: f64, userna
     // set font size
     let font_size = 50_f64;
     context.set_font_size(font_size);
-    let font = FontFace::toy_create(FONT_FAMILY, FontSlant::Normal, FontWeight::Normal);
+    let font = FontFace::toy_create(&CONFIG.get().unwrap().modules.ranks.font_family, 
+        FontSlant::Normal, FontWeight::Normal);
     context.set_font_face(&font);
     // get text extents of both parts
     let discriminator_string = format!("#{}", user_discriminator);
@@ -199,7 +199,8 @@ fn draw_username_text(context: &Context, x1: f64, x2: f64, y_bottom: f64, userna
 fn draw_xp_text(context: &Context, xc: f64, yc: f64, xp: i32, level_xp: i32) -> f64 {
     set_colour(context, Colour::from_hex(0xedeff3));
     context.set_font_size(30_f64);
-    let font = FontFace::toy_create(FONT_FAMILY, FontSlant::Normal, FontWeight::Normal);
+    let font = FontFace::toy_create(&CONFIG.get().unwrap().modules.ranks.font_family, 
+        FontSlant::Normal, FontWeight::Normal);
     context.set_font_face(&font);
     let seperation = 8_f64;
     // format text
@@ -226,7 +227,8 @@ fn draw_xp_text(context: &Context, xc: f64, yc: f64, xp: i32, level_xp: i32) -> 
 
 fn draw_rank_text(context: &Context, xc: f64, yc: f64, rank: i32) {
     set_colour(context, Colour::from_hex(0xedeff3));
-    let font = FontFace::toy_create(FONT_FAMILY, FontSlant::Normal, FontWeight::Normal);
+    let font = FontFace::toy_create(&CONFIG.get().unwrap().modules.ranks.font_family, 
+        FontSlant::Normal, FontWeight::Normal);
     context.set_font_face(&font);
     let bottom_size = 75_f64;
     let top_size = 25_f64;
@@ -255,7 +257,8 @@ fn draw_rank_text(context: &Context, xc: f64, yc: f64, rank: i32) {
 
 fn draw_level_text(context: &Context, xc: f64, yc: f64, level: i32) {
     set_colour(context, Colour::from_hex(0xedeff3));
-    let font = FontFace::toy_create(FONT_FAMILY, FontSlant::Normal, FontWeight::Normal);
+    let font = FontFace::toy_create(&CONFIG.get().unwrap().modules.ranks.font_family, 
+        FontSlant::Normal, FontWeight::Normal);
     context.set_font_face(&font);
     let bottom_size = 75_f64;
     let top_size = 25_f64;
