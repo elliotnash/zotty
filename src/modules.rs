@@ -1,2 +1,2 @@
 pub mod help;
-pub mod levels;
+pub mod ranks;

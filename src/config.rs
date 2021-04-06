@@ -6,7 +6,8 @@ pub struct Config {
     pub token: String,
     pub prefix: String,
     pub colours: Colours,
-    pub database: DatabaseOptions
+    pub database: DatabaseOptions,
+    pub modules: Modules
 }
 #[derive(Debug, Deserialize)]
 pub struct Colours {
@@ -26,6 +27,16 @@ pub enum DatabaseType {
 pub struct DatabaseOptions {
     pub db_type: DatabaseType,
     pub path: String
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Modules {
+    pub ranks: Ranks
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Ranks {
+    pub font_family: String
 }
 
 impl Config {

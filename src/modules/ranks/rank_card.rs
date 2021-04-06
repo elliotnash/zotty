@@ -199,7 +199,7 @@ fn draw_username_text(context: &Context, x1: f64, x2: f64, y_bottom: f64, userna
 fn draw_xp_text(context: &Context, xc: f64, yc: f64, xp: i32, level_xp: i32) -> f64 {
     set_colour(context, Colour::from_hex(0xedeff3));
     context.set_font_size(30_f64);
-    let font = FontFace::toy_create(FONT_FAMILY, FontSlant::Normal, FontWeight::Bold);
+    let font = FontFace::toy_create(FONT_FAMILY, FontSlant::Normal, FontWeight::Normal);
     context.set_font_face(&font);
     let seperation = 8_f64;
     // format text
@@ -226,7 +226,7 @@ fn draw_xp_text(context: &Context, xc: f64, yc: f64, xp: i32, level_xp: i32) -> 
 
 fn draw_rank_text(context: &Context, xc: f64, yc: f64, rank: i32) {
     set_colour(context, Colour::from_hex(0xedeff3));
-    let font = FontFace::toy_create(FONT_FAMILY, FontSlant::Normal, FontWeight::Bold);
+    let font = FontFace::toy_create(FONT_FAMILY, FontSlant::Normal, FontWeight::Normal);
     context.set_font_face(&font);
     let bottom_size = 75_f64;
     let top_size = 25_f64;
@@ -255,7 +255,7 @@ fn draw_rank_text(context: &Context, xc: f64, yc: f64, rank: i32) {
 
 fn draw_level_text(context: &Context, xc: f64, yc: f64, level: i32) {
     set_colour(context, Colour::from_hex(0xedeff3));
-    let font = FontFace::toy_create(FONT_FAMILY, FontSlant::Normal, FontWeight::Bold);
+    let font = FontFace::toy_create(FONT_FAMILY, FontSlant::Normal, FontWeight::Normal);
     context.set_font_face(&font);
     let bottom_size = 75_f64;
     let top_size = 25_f64;

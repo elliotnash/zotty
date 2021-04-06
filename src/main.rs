@@ -8,8 +8,8 @@ use serenity::{async_trait, client::bridge::gateway::ShardManager, framework::St
 mod modules;
 use modules::{
     help::HELP_GROUP,
-    levels,
-    levels::LEVELS_GROUP
+    ranks,
+    ranks::LEVELS_GROUP
 };
 mod config;
 use config::Config;
@@ -34,7 +34,7 @@ impl EventHandler for Handler {
     }
     async fn message(&self, ctx: Context, msg: Message) {
         //dispatch message event to modules that need it
-        spawn(levels::on_message(ctx.clone(), msg.clone()));
+        spawn(ranks::on_message(ctx.clone(), msg.clone()));
     }
 }
 
