@@ -9,6 +9,7 @@ use serenity::{
     }, 
     model::prelude::*, prelude::*
 };
+use tracing::debug;
 use rand::Rng;
 use std::time::Instant;
 
@@ -101,21 +102,31 @@ async fn rank(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 
 pub async fn on_message(ctx: Context, msg: Message) {
 
+    let now = Instant::now();
+
     //Don't award points to bots
     if msg.author.bot {return;};
 
     let guild_id = if msg.guild_id.is_none() {return;} else {msg.guild_id.unwrap()};
 
-    let role_id = RoleId::from_str(&ctx.cache, "827946575136948226").await;
+    let role_id = RoleId::from_str(&ctx, "827946575136948226").await;
     let role_id = if role_id.is_err() {return;} else {role_id.unwrap()};
 
-    let has_tester_role = msg.author.has_role(&ctx.http, guild_id, role_id).await;
+    let has_tester_role = msg.author.has_role(&ctx, guild_id, role_id).await;
     if has_tester_role.is_err() {return;};
     let has_tester_role = has_tester_role.unwrap();
 
+    debug!("Got tester role {}", now.elapsed().as_micros());
+    
+
     if has_tester_role {
+        let now = Instant::now();
         let mut database = DATABASE.get().expect("Database not initialized").lock().await;
+        debug!("Got lock on database in {}", now.elapsed().as_micros());
+
+        let now = Instant::now();
         let db_user = database.get_user(guild_id.to_string(), msg.author.id.to_string()).await;
+        debug!("Got user in {}", now.elapsed().as_micros());
         
         // only award if user hasn't been awarded in the last minute
         if (Utc::now() - db_user.last_xp).num_seconds() > 59 {
@@ -126,10 +137,15 @@ pub async fn on_message(ctx: Context, msg: Message) {
             if xp > level_xp {
                 database.set_user_level(guild_id.to_string(), msg.author.id.to_string(),
                     db_user.level+1, xp-level_xp).await;
+                drop(database);
                 level_up(&ctx, &msg, db_user.level+1).await;
             } else {
+                let now = Instant::now();
                 database.set_user_xp(guild_id.to_string(), msg.author.id.to_string(),
                     xp).await;
+                drop(database);
+                debug!("Set user in {}", now.elapsed().as_micros());
+
             }
         }
 

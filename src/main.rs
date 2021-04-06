@@ -1,10 +1,10 @@
-use std::sync::Arc;
+use std::{sync::Arc, time::Instant};
 use tokio::sync::Mutex;
 use tokio::spawn;
 use once_cell::sync::OnceCell;
 
 use serenity::{async_trait, client::bridge::gateway::ShardManager, framework::StandardFramework, model::{channel::Message, gateway::Ready}, prelude::*};
-use tracing::{error, info};
+use tracing::{error, info, debug};
 
 mod modules;
 use modules::{
@@ -35,7 +35,11 @@ impl EventHandler for Handler {
     }
     async fn message(&self, ctx: Context, msg: Message) {
         //dispatch message event to modules that need it
-        spawn(ranks::on_message(ctx.clone(), msg.clone()));
+
+        let now = Instant::now();
+        ranks::on_message(ctx.clone(), msg.clone()).await;
+        debug!("Ranks onmessage took {}", now.elapsed().as_micros())
+
     }
 }
 
