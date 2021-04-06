@@ -12,3 +12,7 @@ error = 0xff0000
 [database]
 db_type = "sqlite"
 path = "./db.sqlite"
+
+[modules]
+[modules.ranks]
+font_family = "TT Norms Regular"
