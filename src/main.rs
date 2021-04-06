@@ -4,6 +4,7 @@ use tokio::spawn;
 use once_cell::sync::OnceCell;
 
 use serenity::{async_trait, client::bridge::gateway::ShardManager, framework::StandardFramework, model::{channel::Message, gateway::Ready}, prelude::*};
+use tracing::{error, info};
 
 mod modules;
 use modules::{
@@ -30,7 +31,7 @@ struct Handler;
 #[async_trait]
 impl EventHandler for Handler {
     async fn ready(&self, _: Context, ready: Ready) {
-        println!("{} is connected!", ready.user.name);
+        info!("{} is connected!", ready.user.name);
     }
     async fn message(&self, ctx: Context, msg: Message) {
         //dispatch message event to modules that need it
@@ -41,6 +42,9 @@ impl EventHandler for Handler {
 //init client
 #[tokio::main]
 async fn main() {
+
+    // initialize logger
+    tracing_subscriber::fmt::init();
 
     //initialize config
     CONFIG.set(Config::from_file()).expect("Failed to load config");
@@ -68,12 +72,12 @@ async fn main() {
     tokio::spawn(async move {
         tokio::signal::ctrl_c().await.expect("Could not register ctrl+c handler");
         println!();
-        println!("ETechBot is shutting down");
+        info!("ETechBot is shutting down");
         shard_manager.lock().await.shutdown_all().await;
     });
 
     if let Err(why) = client.start().await {
-        println!("Client error: {:?}", why);
+        error!("Client error: {:?}", why);
     }
 
 }

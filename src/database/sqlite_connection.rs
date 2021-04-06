@@ -7,6 +7,7 @@ use std::path::Path;
 use path_absolutize::*;
 use tokio::sync::Mutex;
 use rusqlite::Connection;
+use tracing::info;
 
 use super::{Database, DBUser};
 
@@ -17,7 +18,7 @@ pub struct SqliteConnection {
 impl SqliteConnection {
     pub async fn new(path: &str) -> SqliteConnection {
         let db_path = get_absolute_path(path);
-        println!("Connecting to database: {}", db_path);
+        info!("Connecting to database: {}", db_path);
         let connection = Connection::open(&db_path)
             .expect("Failed to connect to sqlite database");
         SqliteConnection {connection: Arc::new(Mutex::new(connection))}
