@@ -43,8 +43,6 @@ pub async fn generate_rank_card(user: User, db_user: DBUser, rank: i32) -> BufWr
 
     let avatar =  reqwest::get(avatar_url).await.expect("Failed to download avatar").bytes().await.unwrap().to_vec();
 
-    dbg!(avatar.len());
-
     let reader = BufReader::with_capacity(150_000, Cursor::new(avatar));
 
     tokio::task::spawn_blocking(move || {
