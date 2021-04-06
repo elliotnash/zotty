@@ -105,7 +105,7 @@ fn generate(avatar: BufReader<Cursor<Vec<u8>>>, username: &str, user_discriminat
     draw_level_text(&context, level_xc, xp_xy, level);
 
     // write to buffer and return
-    let mut writer = BufWriter::with_capacity(500_000, Vec::<u8>::new());
+    let mut writer = BufWriter::with_capacity(350_000, Vec::<u8>::new());
     base.write_to_png(&mut writer)
         .expect("Couldn’t write to BufWriter");
     writer
