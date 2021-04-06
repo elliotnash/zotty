@@ -24,6 +24,7 @@ pub fn get_level_xp(level: i32) -> i32 {
 #[commands(rank)]
 struct Levels;
 
+//TODO allow getting user by tag or username or nickname
 #[command]
 async fn rank(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 
