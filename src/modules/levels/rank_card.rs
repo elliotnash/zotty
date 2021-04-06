@@ -4,7 +4,7 @@ use std::{f64::consts::PI, fs::File, convert::TryFrom, io::{BufWriter, BufReader
 
 use crate::database::DBUser;
 
-const FONT_FAMILY: &str = "Avenir";
+const FONT_FAMILY: &str = "TT Norms Regular";
 
 #[derive(Debug)]
 pub struct Colour {
@@ -201,7 +201,7 @@ fn draw_xp_text(context: &Context, xc: f64, yc: f64, xp: i32, level_xp: i32) -> 
     context.set_font_size(30_f64);
     let font = FontFace::toy_create(FONT_FAMILY, FontSlant::Normal, FontWeight::Bold);
     context.set_font_face(&font);
-    let seperation = 5_f64;
+    let seperation = 8_f64;
     // format text
     let top_text = format_i32(xp);
     let bottom_text = format_i32(level_xp);
@@ -230,7 +230,7 @@ fn draw_rank_text(context: &Context, xc: f64, yc: f64, rank: i32) {
     context.set_font_face(&font);
     let bottom_size = 75_f64;
     let top_size = 25_f64;
-    let seperation = 5_f64;
+    let seperation = 8_f64;
     // format text
     let top_text = "RANK";
     let bottom_text = format!("#{}", rank);
@@ -259,7 +259,7 @@ fn draw_level_text(context: &Context, xc: f64, yc: f64, level: i32) {
     context.set_font_face(&font);
     let bottom_size = 75_f64;
     let top_size = 25_f64;
-    let seperation = 5_f64;
+    let seperation = 8_f64;
     // format text
     let top_text = "LEVEL";
     let bottom_text = format!("{}", level);
