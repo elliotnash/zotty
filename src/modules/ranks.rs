@@ -10,6 +10,7 @@ use serenity::{
     model::prelude::*, prelude::*
 };
 use rand::Rng;
+use std::time::Instant;
 
 use crate::DATABASE;
 use super::help;
@@ -26,27 +27,24 @@ struct Levels;
 
 //TODO allow getting user by tag or username or nickname
 #[command]
-async fn rank(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+async fn rank(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 
     // oh go d
     let target = if args.is_empty() {
         Some(msg.author.clone())
     } else if args.len() == 1 {
-        if msg.mentions.is_empty() {
-            let arg = args.current().unwrap();
-            let user_id = UserId::from_str(&ctx.cache, arg).await;
-            if let Ok(user_id) = user_id {
-                let guild = msg.guild(&ctx.cache).await.unwrap();
-                if let Ok(member) = guild.member(&ctx.http, user_id).await {
-                    Some(member.user)
+        if let Some(mention) = msg.mentions.get(0) {
+            Some(mention.clone())
+        } else {
+            if let Ok(user_id) = args.single::<UserId>() {
+                if let Ok(user_id) = user_id.to_user(ctx).await {
+                    Some(user_id)
                 } else {
                     None
                 }
             } else {
                 None
             }
-        } else {
-            Some(msg.mentions[0].clone())
         }
     } else {
         None
@@ -66,25 +64,34 @@ async fn rank(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         return Ok(());
     };
 
-    let guild_id = if msg.guild_id.is_none() {return Ok(());} else {msg.guild_id.unwrap()};
+    let guild_id = if msg.guild_id.is_none() {
+        help::send_error(ctx, msg, "Sorry, you can't use that command here").await;
+        return Ok(());
+    } else {msg.guild_id.unwrap()};
 
-    let role_id = RoleId::from_str(&ctx.cache, "827946575136948226").await;
-    let role_id = if role_id.is_err() {return Ok(());} else {role_id.unwrap()};
+    let role_id = RoleId::from_str(&ctx.cache, "827946575136948226").await?;
 
-    let has_tester_role = target.has_role(&ctx.http, guild_id, role_id).await;
+    let has_tester_role = target.has_role(ctx, guild_id, role_id).await;
     if has_tester_role.is_err() {return Ok(());};
     let has_tester_role = has_tester_role.unwrap();
 
     if has_tester_role {
-
-        let mut database = DATABASE.get().expect("Database not initialized").lock().await;
-        let db_user = database.get_user(guild_id.to_string(), target.id.to_string()).await;
-
-        let writer = generate_rank_card(target, db_user.clone(),
-            database.get_rank(guild_id.to_string(), &db_user).await).await;
+        
+        let db_user;
+        let rank;
+        {
+            let mut database = DATABASE.get().expect("Database not initialized").lock().await;
+            db_user = database.get_user(guild_id.to_string(), target.id.to_string()).await;
+            rank = database.get_rank(guild_id.to_string(), &db_user).await;
+            drop(database);
+        }
+        let now = Instant::now();
+        let writer = generate_rank_card(target, db_user.clone(), rank).await;
+        println!("took {}", now.elapsed().as_millis());
 
         msg.channel_id.send_files(&ctx.http, vec![(writer.buffer(), "rank.png")], |m| {m}).await
             .expect("Failed to send message");
+
 
     }
 
