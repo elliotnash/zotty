@@ -52,7 +52,7 @@ pub async fn generate_rank_card(user: User, db_user: DBUser, rank: i32) -> BufWr
     }).await.unwrap()
 }
 
-fn generate(mut avatar: BufReader<Cursor<Vec<u8>>>, username: &str, user_discriminator: u16, 
+fn generate(avatar: BufReader<Cursor<Vec<u8>>>, username: &str, user_discriminator: u16, 
         rank: i32, level: i32, xp: i32) -> BufWriter<Vec<u8>> {
     
     // get level xp with calculation
@@ -73,9 +73,12 @@ fn generate(mut avatar: BufReader<Cursor<Vec<u8>>>, username: &str, user_discrim
     // create base rectangle
     set_colour(&context, Colour::from_alpha_hex(0x3B4252DD));
     let margin = 40_f64;
-    let left_margin = 265_f64;
+    let left_margin = 250_f64;
     draw_rounded_rec(&context, margin, margin, width-margin, height-margin, 25_f64);
     context.fill();
+
+    //draw avatar
+    draw_avatar(&context, 0.5 * (left_margin+10_f64-margin), 0.5 * height, 0.7, margin, avatar);
 
     //draw progress bar
     let progress_margin = 30_f64;
@@ -101,18 +104,6 @@ fn generate(mut avatar: BufReader<Cursor<Vec<u8>>>, username: &str, user_discrim
     let level_xc = 0.5 * (xp_xc+(width-margin));
     draw_level_text(&context, level_xc, xp_xy, level);
 
-    //draw avatar
-    //theres gotta be a fix for everything being scaled
-    //but for now I just put it at the bottom :)
-    let avatar_source = ImageSurface::create_from_png(&mut avatar)
-        .expect("Failed to read avatar");
-    let scale = 0.7;
-    context.scale(scale, scale);
-    context.set_source_surface(&avatar_source, 
-        30_f64 + (0.5 * (left_margin/scale-(f64::from(avatar_source.get_width())))), 
-        0.5 * (height/scale-(f64::from(avatar_source.get_height()))));
-    context.paint();
-
     // write to buffer and return
     let mut writer = BufWriter::with_capacity(500_000, Vec::<u8>::new());
     base.write_to_png(&mut writer)
@@ -123,6 +114,35 @@ fn generate(mut avatar: BufReader<Cursor<Vec<u8>>>, username: &str, user_discrim
 fn set_colour(context: &Context, colour: Colour) {
     context.set_source_rgba(colour.red_decimal(), colour.green_decimal(), 
         colour.blue_decimal(), colour.alpha_decimal());
+}
+
+fn draw_avatar(context: &Context, xc: f64, yc: f64, scale: f64, left_margin: f64, mut image: BufReader<Cursor<Vec<u8>>>) -> f64 {
+    // create image from bufreader
+    let avatar_source = ImageSurface::create_from_png(&mut image)
+        .expect("Failed to read avatar");
+    //scale entire canvas to scale image
+    context.scale(scale, scale);
+    //calculate x, y relative to scale
+    let avatar_x = left_margin/scale + xc/scale - 0.5 * f64::from(avatar_source.get_width());
+    let avatar_y = yc/scale - 0.5 * f64::from(avatar_source.get_height());
+    //add avatar to canvas
+    context.set_source_surface(&avatar_source, avatar_x, avatar_y);
+    //reset scale
+    context.scale(1_f64/scale, 1_f64/scale);
+    //draw clipping mask for avatar
+    draw_rounded_rec(&context, 
+        left_margin + xc - 0.5*(scale*f64::from(avatar_source.get_width())), 
+        yc - 0.5*(scale*f64::from(avatar_source.get_height())), 
+        left_margin + xc + 0.5*(scale*f64::from(avatar_source.get_width())), 
+        yc + 0.5*(scale*f64::from(avatar_source.get_height())),
+        20_f64);
+    // clip and paint
+    context.clip();
+    context.paint();
+    // make sure to reset clipping mask so others can draw
+    context.reset_clip();
+    // return the amount of space used
+    left_margin + scale*f64::from(avatar_source.get_width())
 }
 
 fn draw_progress_bar(context: &Context, x1: f64, x2: f64, y: f64, thickness: f64, xp: i32, level_xp: i32) {
