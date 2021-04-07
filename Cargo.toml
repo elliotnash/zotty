@@ -8,7 +8,7 @@ edition = "2018"
 
 [dependencies]
 tokio = { version = "1.0", features = ["macros", "rt-multi-thread", "signal"] } #lazy
-serenity = { default-features = false, features = ["client", "gateway", "rustls_backend", "model", "cache", "framework", "standard_framework"], version = "0.10" }
+serenity = { default-features = false, features = ["client", "gateway", "rustls_backend", "model", "cache"], version = "0.10" }
 cairo-rs = { version = "0.9.1", features = ["png"] }
 tracing = "0.1"
 tracing-subscriber = "0.2"
