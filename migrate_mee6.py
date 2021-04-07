@@ -14,7 +14,7 @@ async def add_user(user):
     id = user['id']
     level = user['level']
     xp = int(int(user['xp']) - ((5/6)*level * (level + 7) * (2*level + 13)))
-    sql = f"INSERT OR {method} INTO '{sys.argv[2]}' values ({id}, {level}, {xp}, 0);"
+    sql = f"INSERT OR {method} INTO '{sys.argv[2]}_levels' values ({id}, {level}, {xp}, 0);"
     cur.execute(sql)
 
 async def main():
@@ -40,7 +40,7 @@ async def main():
         sys.exit(1)
 
     cur.execute(f"""
-    CREATE TABLE IF NOT EXISTS '{sys.argv[2]}' (
+    CREATE TABLE IF NOT EXISTS '{sys.argv[2]}_levels' (
         user_id INTEGER PRIMARY KEY,
         level INTEGER NOT NULL DEFAULT 0,
         xp INTEGER NOT NULL DEFAULT 0,
