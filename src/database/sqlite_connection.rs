@@ -4,10 +4,8 @@ use r2d2::Pool;
 use serenity::async_trait;
 use std::time::Duration;
 use std::{fs::File, time::UNIX_EPOCH};
-use std::sync::Arc;
 use std::path::Path;
 use path_absolutize::*;
-use tokio::sync::Mutex;
 use tracing::info;
 
 use super::{Database, DBUser};

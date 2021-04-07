@@ -4,7 +4,7 @@ use serenity::{
     cache::FromStrAndCache,
     model::prelude::*, prelude::*
 };
-use crate::commands::{Args, CommandResult};
+use crate::commands::Args;
 use tracing::debug;
 use rand::Rng;
 use std::time::Instant;
@@ -19,7 +19,7 @@ pub fn get_level_xp(level: i32) -> i32 {
 }
 
 //TODO allow getting user by tag or username or nickname
-pub async fn rank(ctx: Context, msg: Message, mut args: Args) {
+pub async fn rank(ctx: Context, msg: Message, args: Args) {
 
     debug!("Ranks command is firing");
 

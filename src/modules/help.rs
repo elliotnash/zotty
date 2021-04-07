@@ -9,18 +9,18 @@ use crate::CONFIG;
 pub async fn help(ctx: Context, msg: Message, args: Args) {
     match args.current() {
         Some("mod") | Some("moderator") => {
-            help_moderator(&ctx, &msg).await;
+            help_moderator(&ctx, &msg).await
         }
         Some("music") => {
-            help_music(&ctx, &msg).await;
+            help_music(&ctx, &msg).await
         }
         Some("utils") | Some("utilities") => {
-            help_utilities(&ctx, &msg).await;
+            help_utilities(&ctx, &msg).await
         }
         _ => {
-            help_main(&ctx, &msg).await;
+            help_main(&ctx, &msg).await
         }
-    }
+    }.expect("Error dispatching help command")
 }
 
 pub async fn send_usage(ctx: &Context, msg: &Message, error: &str, usage: &str) {

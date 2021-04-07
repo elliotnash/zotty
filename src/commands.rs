@@ -1,6 +1,5 @@
 use std::usize;
 
-use serenity::prelude::SerenityError;
 use std::error::Error;
 
 #[derive(Clone, Debug)]

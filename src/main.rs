@@ -1,4 +1,4 @@
-use std::{sync::Arc, time::Instant};
+use std::sync::Arc;
 use tokio::sync::Mutex;
 use tokio::task;
 use once_cell::sync::OnceCell;
@@ -47,7 +47,7 @@ impl EventHandler for Handler {
 
         match args.command.as_str() {
             "help" => {tokio::spawn(help::help(ctx.clone(), msg.clone(), args.clone()));}
-            "rank" => {tokio::spawn(ranks::rank(ctx.clone(), msg.clone(), args.clone()));}
+            "rank" | "level" => {tokio::spawn(ranks::rank(ctx.clone(), msg.clone(), args.clone()));}
             _ => {}
         }
 
