@@ -43,9 +43,14 @@ pub async fn send_error(ctx: &Context, msg: &Message, error: &str) {
     }).await.expect("Failed to send message");
 }
 
+pub fn get_hd_url(guild: &Guild) -> Option<String> {
+    guild.icon_url().map(|mut s| {s.truncate(s.len()-5); s})
+}
+
 async fn help_main(ctx: &Context, msg: &Message, prefix: &str) -> CommandResult {
 
-    let thumbnail_url = msg.guild(&ctx.cache).await.unwrap().icon_url();
+    let guild = msg.guild(&ctx).await.unwrap();
+    let thumbnail_url = get_hd_url(&guild);
 
     msg.channel_id.send_message(&ctx.http, |m| {
         m.embed(|e| {
@@ -63,7 +68,8 @@ async fn help_main(ctx: &Context, msg: &Message, prefix: &str) -> CommandResult 
 
 async fn help_moderator(ctx: &Context, msg: &Message, prefix: &str) -> CommandResult {
 
-    let thumbnail_url = msg.guild(&ctx.cache).await.unwrap().icon_url();
+    let guild = msg.guild(&ctx).await.unwrap();
+    let thumbnail_url = get_hd_url(&guild);
 
     msg.channel_id.send_message(&ctx.http, |m| {
         m.embed(|e| {
@@ -86,7 +92,8 @@ async fn help_moderator(ctx: &Context, msg: &Message, prefix: &str) -> CommandRe
 
 async fn help_music(ctx: &Context, msg: &Message, prefix: &str) -> CommandResult {
 
-    let thumbnail_url = msg.guild(&ctx.cache).await.unwrap().icon_url();
+    let guild = msg.guild(&ctx).await.unwrap();
+    let thumbnail_url = get_hd_url(&guild);
 
     msg.channel_id.send_message(&ctx.http, |m| {
         m.embed(|e| {
@@ -117,7 +124,8 @@ async fn help_music(ctx: &Context, msg: &Message, prefix: &str) -> CommandResult
 
 async fn help_utilities(ctx: &Context, msg: &Message, prefix: &str) -> CommandResult {
 
-    let thumbnail_url = msg.guild(&ctx.cache).await.unwrap().icon_url();
+    let guild = msg.guild(&ctx).await.unwrap();
+    let thumbnail_url = get_hd_url(&guild);
 
     msg.channel_id.send_message(&ctx.http, |m| {
         m.embed(|e| {
