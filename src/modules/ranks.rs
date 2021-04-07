@@ -22,29 +22,30 @@ pub fn get_level_xp(level: i32) -> i32 {
 pub async fn rank(ctx: Context, msg: Message, args: Args) {
 
     debug!("Ranks command is firing");
+    
+    //Don't allow in dms
+    let guild_id = if msg.guild_id.is_none() {
+        help::send_error(&ctx, &msg, "Sorry, you can't use that command here").await;
+        return;
+    } else {msg.guild_id.unwrap()};
 
-    // oh go d
-    let target = if args.is_empty() {
-        Some(msg.author.clone())
+    // get the userid of the target
+    let target_id = if args.is_empty() {
+        Some(msg.author.id)
     } else if args.len() == 1 {
-        if let Some(mention) = msg.mentions.get(0) {
-            Some(mention.clone())
-        } else {
-            if let Ok(user_id) = UserId::from_str(&ctx, args.current().unwrap()).await {
-                if let Ok(user_id) = user_id.to_user(&ctx).await {
-                    Some(user_id)
-                } else {
-                    None
-                }
-            } else {
-                None
-            }
-        }
+        Some(args.current().unwrap().parse::<UserId>().unwrap())
     } else {
         None
     };
 
-    
+    // get option of target member
+    let target = if let Some(target_id) = target_id {
+        guild_id.member(&ctx, target_id).await.ok()
+    } else {
+        None
+    };
+
+    // send invalid usage if member isn't existant
     let target = if let Some(target) = target {
         target
     } else {
@@ -53,21 +54,17 @@ pub async fn rank(ctx: Context, msg: Message, args: Args) {
     };
 
     //Don't let target be bot
-    if target.bot {
+    if target.user.bot {
         help::send_error(&ctx, &msg, "Sorry, you can't use this command on a bot").await;
         return;
     };
 
-    let guild_id = if msg.guild_id.is_none() {
-        help::send_error(&ctx, &msg, "Sorry, you can't use that command here").await;
-        return;
-    } else {msg.guild_id.unwrap()};
-
-    let role_id = RoleId::from_str(&ctx.cache, "827946575136948226").await.unwrap();
-
-    let has_tester_role = target.has_role(&ctx, guild_id, role_id).await;
-    if has_tester_role.is_err() {return;};
-    let has_tester_role = has_tester_role.unwrap();
+    let has_tester_role = if let Some(roles) = target.roles(&ctx).await {
+        let rolenames: Vec<String> = roles.iter().map(|role| role.name.to_lowercase()).collect();
+        rolenames.contains(&"tester".to_string())
+    } else {
+        false
+    };
 
     if has_tester_role {
         
@@ -77,12 +74,12 @@ pub async fn rank(ctx: Context, msg: Message, args: Args) {
             let now = Instant::now();
             let mut database = DATABASE.get().expect("Database not initialized").lock().await;
             debug!("Rank command got lock on database in {} micro seconds", now.elapsed().as_micros());
-            db_user = database.get_user(guild_id.to_string(), target.id.to_string()).await;
+            db_user = database.get_user(guild_id.to_string(), target.user.id.to_string()).await;
             rank = database.get_rank(guild_id.to_string(), &db_user).await;
             drop(database);
         }
         let now = Instant::now();
-        let writer = generate_rank_card(target, db_user.clone(), rank).await;
+        let writer = generate_rank_card(target.user, db_user.clone(), rank).await;
         debug!("generating rank card took {}ms", now.elapsed().as_millis());
 
         msg.channel_id.send_files(&ctx.http, vec![(writer.buffer(), "rank.png")], |m| {m}).await
