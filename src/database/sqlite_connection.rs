@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use r2d2_sqlite::{SqliteConnectionManager, rusqlite::params};
 use r2d2::Pool;
-use serenity::{async_trait, model::id::UserId};
+use serenity::async_trait;
 use std::time::Duration;
 use std::{fs::File, time::UNIX_EPOCH};
 use std::path::Path;
