@@ -20,7 +20,7 @@ impl SqliteConnection {
         info!("Connecting to database: {}", db_path);
         let manager = SqliteConnectionManager::file(&db_path);
         let pool = Pool::builder()
-            .max_size(50)
+            .max_size(10)
             .build(manager)
             .unwrap();
         SqliteConnection {pool}
@@ -44,7 +44,7 @@ impl Database for SqliteConnection {
 
         //create table in db if it doesn't exist for this server
         conn.execute(&format!("
-        CREATE TABLE IF NOT EXISTS '{}' (
+        CREATE TABLE IF NOT EXISTS '{}_levels' (
             user_id INTEGER PRIMARY KEY,
             level INTEGER NOT NULL DEFAULT 0,
             xp INTEGER NOT NULL DEFAULT 0,
@@ -53,15 +53,15 @@ impl Database for SqliteConnection {
         ", guild_id), params![]).expect("Failed to create tables");
 
         conn.execute(&format!("
-        INSERT OR IGNORE INTO '{0}' values ({1}, 0, 0, 0);
+        INSERT OR IGNORE INTO '{0}_levels' values ({1}, 0, 0, 0);
         ", guild_id, user_id), params![])
             .expect("Failed to insert ____ into user");
 
         let mut query = conn.prepare(&format!("
-        SELECT level, xp, last_xp FROM '{0}' WHERE user_id = {1};
+        SELECT level, xp, last_xp FROM '{0}_levels' WHERE user_id = {1};
         ", guild_id, user_id)).expect("Failed to query database");
 
-        let mut db_user_iter = query.query_map(params![], |row| {
+        query.query_row(params![], |row| {
             let duration: i64 = row.get("last_xp").unwrap();
             let duration = UNIX_EPOCH + Duration::from_secs(duration as u64);
             let datetime = DateTime::<Utc>::from(duration);
@@ -70,9 +70,7 @@ impl Database for SqliteConnection {
                 xp: row.get("xp").unwrap(),
                 last_xp: datetime
             })
-        }).expect("Failed to query database");
-
-        db_user_iter.next().unwrap().unwrap()
+        }).expect("Failed to query database")
 
     }
 
@@ -82,14 +80,14 @@ impl Database for SqliteConnection {
         let conn = pool.get().expect("Failed to get sqlite connection");
 
         let mut query = conn.prepare(&format!("
-        SELECT COUNT() FROM '{0}'
+        SELECT COUNT() FROM '{0}_levels'
 	        WHERE level > {1} OR 
 		        (level = {1} AND xp> {2});
         ", guild_id, db_user.level, db_user.xp)).expect("Failed to query database");
-        let test: i32 = query.query_row(params![], |row| {
+        let rank_index: i32 = query.query_row(params![], |row| {
             Ok(row.get(0).unwrap())
         }).unwrap();
-        test+1
+        rank_index+1
     }
 
     async fn set_user_xp(&mut self, guild_id: String, user_id: String, xp: i32) {
@@ -98,7 +96,7 @@ impl Database for SqliteConnection {
         let conn = pool.get().expect("Failed to get sqlite connection");
 
         conn.execute(&format!("
-        UPDATE '{0}' SET xp = {2}, last_xp = {3} WHERE user_id = {1};
+        UPDATE '{0}_levels' SET xp = {2}, last_xp = {3} WHERE user_id = {1};
         ", guild_id, user_id, xp, Utc::now().timestamp()), params![])
             .expect("Failed to update user");
 
@@ -110,7 +108,7 @@ impl Database for SqliteConnection {
         let conn = pool.get().expect("Failed to get sqlite connection");
 
         conn.execute(&format!("
-        UPDATE '{0}' SET level = {2}, xp = {3}, last_xp = {4} WHERE user_id = {1};
+        UPDATE '{0}_levels' SET level = {2}, xp = {3}, last_xp = {4} WHERE user_id = {1};
         ", guild_id, user_id, level, xp, Utc::now().timestamp()), params![])
             .expect("Failed to update user");
 
