@@ -6,23 +6,21 @@ use crate::commands::{Args, CommandResult};
 
 use crate::CONFIG;
 
-async fn help(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+pub async fn help(ctx: Context, msg: Message, args: Args) {
     match args.current() {
         Some("mod") | Some("moderator") => {
-            help_moderator(ctx, msg).await?;
+            help_moderator(&ctx, &msg).await;
         }
         Some("music") => {
-            help_music(ctx, msg).await?;
+            help_music(&ctx, &msg).await;
         }
         Some("utils") | Some("utilities") => {
-            help_utilities(ctx, msg).await?;
+            help_utilities(&ctx, &msg).await;
         }
         _ => {
-            help_main(ctx, msg).await?;
+            help_main(&ctx, &msg).await;
         }
     }
-
-    Ok(())
 }
 
 pub async fn send_usage(ctx: &Context, msg: &Message, error: &str, usage: &str) {

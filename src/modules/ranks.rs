@@ -19,7 +19,7 @@ pub fn get_level_xp(level: i32) -> i32 {
 }
 
 //TODO allow getting user by tag or username or nickname
-async fn rank(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+pub async fn rank(ctx: Context, msg: Message, mut args: Args) {
 
     debug!("Ranks command is firing");
 
@@ -30,8 +30,8 @@ async fn rank(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         if let Some(mention) = msg.mentions.get(0) {
             Some(mention.clone())
         } else {
-            if let Ok(user_id) = UserId::from_str(ctx, args.current().unwrap()).await {
-                if let Ok(user_id) = user_id.to_user(ctx).await {
+            if let Ok(user_id) = UserId::from_str(&ctx, args.current().unwrap()).await {
+                if let Ok(user_id) = user_id.to_user(&ctx).await {
                     Some(user_id)
                 } else {
                     None
@@ -48,25 +48,25 @@ async fn rank(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let target = if let Some(target) = target {
         target
     } else {
-        help::send_usage(ctx, msg, "Invalid arguments", "rank [user]").await;
-        return Ok(());
+        help::send_usage(&ctx, &msg, "Invalid arguments", "rank [user]").await;
+        return;
     };
 
     //Don't let target be bot
     if target.bot {
-        help::send_error(ctx, msg, "Sorry, you can't use this command on a bot").await;
-        return Ok(());
+        help::send_error(&ctx, &msg, "Sorry, you can't use this command on a bot").await;
+        return;
     };
 
     let guild_id = if msg.guild_id.is_none() {
-        help::send_error(ctx, msg, "Sorry, you can't use that command here").await;
-        return Ok(());
+        help::send_error(&ctx, &msg, "Sorry, you can't use that command here").await;
+        return;
     } else {msg.guild_id.unwrap()};
 
-    let role_id = RoleId::from_str(&ctx.cache, "827946575136948226").await?;
+    let role_id = RoleId::from_str(&ctx.cache, "827946575136948226").await.unwrap();
 
-    let has_tester_role = target.has_role(ctx, guild_id, role_id).await;
-    if has_tester_role.is_err() {return Ok(());};
+    let has_tester_role = target.has_role(&ctx, guild_id, role_id).await;
+    if has_tester_role.is_err() {return;};
     let has_tester_role = has_tester_role.unwrap();
 
     if has_tester_role {
@@ -88,11 +88,7 @@ async fn rank(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         msg.channel_id.send_files(&ctx.http, vec![(writer.buffer(), "rank.png")], |m| {m}).await
             .expect("Failed to send message");
 
-
     }
-
-
-    Ok(())
 }
 
 pub async fn on_message(ctx: Context, msg: Message) {

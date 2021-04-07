@@ -38,6 +38,18 @@ impl EventHandler for Handler {
         //dispatch message event to modules that need it
         task::spawn(ranks::on_message(ctx.clone(), msg.clone()));
 
+        //dispatch commands
+        if !msg.content.starts_with(&CONFIG.get().unwrap().prefix) {return;}
+        let mut content = msg.content.chars();
+        content.next();
+        let args = commands::Args::parse(content.as_str());
+
+        match args.command.as_str() {
+            "help" => {tokio::spawn(help::help(ctx.clone(), msg.clone(), args.clone()));}
+            "rank" => {tokio::spawn(ranks::rank(ctx.clone(), msg.clone(), args.clone()));}
+            _ => {}
+        }
+
     }
 }
 
