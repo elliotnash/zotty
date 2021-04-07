@@ -1,14 +1,10 @@
 use chrono::Utc;
 use rank_card::generate_rank_card;
 use serenity::{
-    cache::FromStrAndCache, 
-    framework::standard::{
-        Args, 
-        CommandResult, 
-        macros::{command, group}
-    }, 
+    cache::FromStrAndCache,
     model::prelude::*, prelude::*
 };
+use crate::commands::{Args, CommandResult};
 use tracing::debug;
 use rand::Rng;
 use std::time::Instant;
@@ -22,12 +18,7 @@ pub fn get_level_xp(level: i32) -> i32 {
     5 * level.pow(2) + 50 * level + 100
 }
 
-#[group]
-#[commands(rank)]
-struct Levels;
-
 //TODO allow getting user by tag or username or nickname
-#[command]
 async fn rank(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 
     debug!("Ranks command is firing");

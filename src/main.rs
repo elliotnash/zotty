@@ -3,9 +3,10 @@ use tokio::sync::Mutex;
 use tokio::task;
 use once_cell::sync::OnceCell;
 
-use serenity::{async_trait, client::bridge::gateway::ShardManager, framework::StandardFramework, model::{channel::Message, gateway::Ready}, prelude::*};
+use serenity::{async_trait, client::bridge::gateway::ShardManager, model::{channel::Message, gateway::Ready}, prelude::*};
 use tracing::{error, info, debug};
 
+mod commands;
 mod modules;
 use modules::{
     help::HELP_GROUP,
@@ -53,14 +54,8 @@ async fn main() {
     //initialize database
     DATABASE.set(Arc::new(Mutex::new(database::new_database().await))).expect("Unable to connect to database");
 
-    let framework = StandardFramework::new()
-        .configure(|c| c.prefix(&CONFIG.get().unwrap().prefix))
-        .group(&HELP_GROUP)
-        .group(&LEVELS_GROUP);
-
     let mut client = Client::builder(&CONFIG.get().unwrap().token)
         .event_handler(Handler)
-        .framework(framework)
         .await
         .expect("Err creating client");
 

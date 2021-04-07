@@ -1,20 +1,11 @@
 use serenity::{
-    framework::standard::{
-        Args,
-        CommandResult,
-        macros::{command, group},
-    },
     model::prelude::*,
     prelude::*
 };
+use crate::commands::{Args, CommandResult};
 
 use crate::CONFIG;
 
-#[group]
-#[commands(help, moderator, music, utilities)]
-struct Help;
-
-#[command]
 async fn help(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     match args.current() {
         Some("mod") | Some("moderator") => {
@@ -31,24 +22,6 @@ async fn help(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         }
     }
 
-    Ok(())
-}
-
-#[command]
-#[aliases("mod")]
-async fn moderator(ctx: &Context, msg: &Message) -> CommandResult {
-    help_moderator(ctx, msg).await?;
-    Ok(())
-}
-#[command]
-async fn music(ctx: &Context, msg: &Message) -> CommandResult {
-    help_music(ctx, msg).await?;
-    Ok(())
-}
-#[command]
-#[aliases("utils")]
-async fn utilities(ctx: &Context, msg: &Message) -> CommandResult {
-    help_utilities(ctx, msg).await?;
     Ok(())
 }
 
