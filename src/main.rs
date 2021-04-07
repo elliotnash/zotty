@@ -1,6 +1,6 @@
 use std::{sync::Arc, time::Instant};
 use tokio::sync::Mutex;
-use tokio::spawn;
+use tokio::task;
 use once_cell::sync::OnceCell;
 
 use serenity::{async_trait, client::bridge::gateway::ShardManager, framework::StandardFramework, model::{channel::Message, gateway::Ready}, prelude::*};
@@ -9,8 +9,8 @@ use tracing::{error, info, debug};
 mod modules;
 use modules::{
     help::HELP_GROUP,
-    ranks,
-    ranks::LEVELS_GROUP
+    ranks::LEVELS_GROUP,
+    ranks
 };
 mod config;
 use config::Config;
@@ -34,11 +34,9 @@ impl EventHandler for Handler {
         info!("{} is connected!", ready.user.name);
     }
     async fn message(&self, ctx: Context, msg: Message) {
-        //dispatch message event to modules that need it
 
-        let now = Instant::now();
-        ranks::on_message(ctx.clone(), msg.clone()).await;
-        debug!("Ranks onmessage took {}", now.elapsed().as_micros())
+        //dispatch message event to modules that need it
+        task::spawn(ranks::on_message(ctx.clone(), msg.clone()));
 
     }
 }

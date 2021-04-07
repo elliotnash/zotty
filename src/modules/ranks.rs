@@ -30,6 +30,8 @@ struct Levels;
 #[command]
 async fn rank(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 
+    debug!("Ranks command is firing");
+
     // oh go d
     let target = if args.is_empty() {
         Some(msg.author.clone())
@@ -81,14 +83,16 @@ async fn rank(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         let db_user;
         let rank;
         {
+            let now = Instant::now();
             let mut database = DATABASE.get().expect("Database not initialized").lock().await;
+            debug!("Got lock on database in {} micro seconds", now.elapsed().as_micros());
             db_user = database.get_user(guild_id.to_string(), target.id.to_string()).await;
             rank = database.get_rank(guild_id.to_string(), &db_user).await;
             drop(database);
         }
         let now = Instant::now();
         let writer = generate_rank_card(target, db_user.clone(), rank).await;
-        println!("took {}", now.elapsed().as_millis());
+        debug!("generating rank card took {}ms", now.elapsed().as_millis());
 
         msg.channel_id.send_files(&ctx.http, vec![(writer.buffer(), "rank.png")], |m| {m}).await
             .expect("Failed to send message");
@@ -102,8 +106,6 @@ async fn rank(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 
 pub async fn on_message(ctx: Context, msg: Message) {
 
-    let now = Instant::now();
-
     //Don't award points to bots
     if msg.author.bot {return;};
 
@@ -115,18 +117,14 @@ pub async fn on_message(ctx: Context, msg: Message) {
     let has_tester_role = msg.author.has_role(&ctx, guild_id, role_id).await;
     if has_tester_role.is_err() {return;};
     let has_tester_role = has_tester_role.unwrap();
-
-    debug!("Got tester role {}", now.elapsed().as_micros());
     
 
     if has_tester_role {
         let now = Instant::now();
         let mut database = DATABASE.get().expect("Database not initialized").lock().await;
-        debug!("Got lock on database in {}", now.elapsed().as_micros());
+        debug!("Got lock on database in {} micro seconds", now.elapsed().as_micros());
 
-        let now = Instant::now();
         let db_user = database.get_user(guild_id.to_string(), msg.author.id.to_string()).await;
-        debug!("Got user in {}", now.elapsed().as_micros());
         
         // only award if user hasn't been awarded in the last minute
         if (Utc::now() - db_user.last_xp).num_seconds() > 59 {
@@ -140,12 +138,9 @@ pub async fn on_message(ctx: Context, msg: Message) {
                 drop(database);
                 level_up(&ctx, &msg, db_user.level+1).await;
             } else {
-                let now = Instant::now();
                 database.set_user_xp(guild_id.to_string(), msg.author.id.to_string(),
                     xp).await;
                 drop(database);
-                debug!("Set user in {}", now.elapsed().as_micros());
-
             }
         }
 
