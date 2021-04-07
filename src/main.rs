@@ -3,13 +3,13 @@ use tokio::sync::Mutex;
 use tokio::task;
 use once_cell::sync::OnceCell;
 
-use serenity::{async_trait, client::bridge::gateway::ShardManager, framework::StandardFramework, model::{channel::Message, gateway::Ready}, prelude::*};
+use serenity::{async_trait, client::bridge::gateway::ShardManager, model::{channel::Message, gateway::Ready}, prelude::*};
 use tracing::{error, info, debug};
 
+mod commands;
 mod modules;
 use modules::{
-    help::HELP_GROUP,
-    ranks::LEVELS_GROUP,
+    help,
     ranks
 };
 mod config;
@@ -38,6 +38,18 @@ impl EventHandler for Handler {
         //dispatch message event to modules that need it
         task::spawn(ranks::on_message(ctx.clone(), msg.clone()));
 
+        //dispatch commands
+        if !msg.content.starts_with(&CONFIG.get().unwrap().prefix) {return;}
+        let mut content = msg.content.chars();
+        content.next();
+        let args = commands::Args::parse(content.as_str());
+
+        match args.command.as_str() {
+            "help" => {tokio::spawn(help::help(ctx.clone(), msg.clone(), args.clone()));}
+            "rank" => {tokio::spawn(ranks::rank(ctx.clone(), msg.clone(), args.clone()));}
+            _ => {}
+        }
+
     }
 }
 
@@ -53,14 +65,8 @@ async fn main() {
     //initialize database
     DATABASE.set(Arc::new(Mutex::new(database::new_database().await))).expect("Unable to connect to database");
 
-    let framework = StandardFramework::new()
-        .configure(|c| c.prefix(&CONFIG.get().unwrap().prefix))
-        .group(&HELP_GROUP)
-        .group(&LEVELS_GROUP);
-
     let mut client = Client::builder(&CONFIG.get().unwrap().token)
         .event_handler(Handler)
-        .framework(framework)
         .await
         .expect("Err creating client");
 

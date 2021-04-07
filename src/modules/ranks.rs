@@ -1,14 +1,10 @@
 use chrono::Utc;
 use rank_card::generate_rank_card;
 use serenity::{
-    cache::FromStrAndCache, 
-    framework::standard::{
-        Args, 
-        CommandResult, 
-        macros::{command, group}
-    }, 
+    cache::FromStrAndCache,
     model::prelude::*, prelude::*
 };
+use crate::commands::{Args, CommandResult};
 use tracing::debug;
 use rand::Rng;
 use std::time::Instant;
@@ -22,13 +18,8 @@ pub fn get_level_xp(level: i32) -> i32 {
     5 * level.pow(2) + 50 * level + 100
 }
 
-#[group]
-#[commands(rank)]
-struct Levels;
-
 //TODO allow getting user by tag or username or nickname
-#[command]
-async fn rank(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+pub async fn rank(ctx: Context, msg: Message, mut args: Args) {
 
     debug!("Ranks command is firing");
 
@@ -39,8 +30,8 @@ async fn rank(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         if let Some(mention) = msg.mentions.get(0) {
             Some(mention.clone())
         } else {
-            if let Ok(user_id) = args.single::<UserId>() {
-                if let Ok(user_id) = user_id.to_user(ctx).await {
+            if let Ok(user_id) = UserId::from_str(&ctx, args.current().unwrap()).await {
+                if let Ok(user_id) = user_id.to_user(&ctx).await {
                     Some(user_id)
                 } else {
                     None
@@ -57,25 +48,25 @@ async fn rank(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let target = if let Some(target) = target {
         target
     } else {
-        help::send_usage(ctx, msg, "Invalid arguments", "rank [user]").await;
-        return Ok(());
+        help::send_usage(&ctx, &msg, "Invalid arguments", "rank [user]").await;
+        return;
     };
 
     //Don't let target be bot
     if target.bot {
-        help::send_error(ctx, msg, "Sorry, you can't use this command on a bot").await;
-        return Ok(());
+        help::send_error(&ctx, &msg, "Sorry, you can't use this command on a bot").await;
+        return;
     };
 
     let guild_id = if msg.guild_id.is_none() {
-        help::send_error(ctx, msg, "Sorry, you can't use that command here").await;
-        return Ok(());
+        help::send_error(&ctx, &msg, "Sorry, you can't use that command here").await;
+        return;
     } else {msg.guild_id.unwrap()};
 
-    let role_id = RoleId::from_str(&ctx.cache, "827946575136948226").await?;
+    let role_id = RoleId::from_str(&ctx.cache, "827946575136948226").await.unwrap();
 
-    let has_tester_role = target.has_role(ctx, guild_id, role_id).await;
-    if has_tester_role.is_err() {return Ok(());};
+    let has_tester_role = target.has_role(&ctx, guild_id, role_id).await;
+    if has_tester_role.is_err() {return;};
     let has_tester_role = has_tester_role.unwrap();
 
     if has_tester_role {
@@ -85,7 +76,7 @@ async fn rank(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         {
             let now = Instant::now();
             let mut database = DATABASE.get().expect("Database not initialized").lock().await;
-            debug!("Got lock on database in {} micro seconds", now.elapsed().as_micros());
+            debug!("Rank command got lock on database in {} micro seconds", now.elapsed().as_micros());
             db_user = database.get_user(guild_id.to_string(), target.id.to_string()).await;
             rank = database.get_rank(guild_id.to_string(), &db_user).await;
             drop(database);
@@ -97,11 +88,7 @@ async fn rank(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         msg.channel_id.send_files(&ctx.http, vec![(writer.buffer(), "rank.png")], |m| {m}).await
             .expect("Failed to send message");
 
-
     }
-
-
-    Ok(())
 }
 
 pub async fn on_message(ctx: Context, msg: Message) {
@@ -122,7 +109,7 @@ pub async fn on_message(ctx: Context, msg: Message) {
     if has_tester_role {
         let now = Instant::now();
         let mut database = DATABASE.get().expect("Database not initialized").lock().await;
-        debug!("Got lock on database in {} micro seconds", now.elapsed().as_micros());
+        debug!("Message event got lock on database in {} micro seconds", now.elapsed().as_micros());
 
         let db_user = database.get_user(guild_id.to_string(), msg.author.id.to_string()).await;
         
