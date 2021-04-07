@@ -30,7 +30,7 @@ async fn rank(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         if let Some(mention) = msg.mentions.get(0) {
             Some(mention.clone())
         } else {
-            if let Ok(user_id) = args.single::<UserId>() {
+            if let Ok(user_id) = UserId::from_str(ctx, args.current().unwrap()).await {
                 if let Ok(user_id) = user_id.to_user(ctx).await {
                     Some(user_id)
                 } else {
@@ -76,7 +76,7 @@ async fn rank(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         {
             let now = Instant::now();
             let mut database = DATABASE.get().expect("Database not initialized").lock().await;
-            debug!("Got lock on database in {} micro seconds", now.elapsed().as_micros());
+            debug!("Rank command got lock on database in {} micro seconds", now.elapsed().as_micros());
             db_user = database.get_user(guild_id.to_string(), target.id.to_string()).await;
             rank = database.get_rank(guild_id.to_string(), &db_user).await;
             drop(database);
@@ -113,7 +113,7 @@ pub async fn on_message(ctx: Context, msg: Message) {
     if has_tester_role {
         let now = Instant::now();
         let mut database = DATABASE.get().expect("Database not initialized").lock().await;
-        debug!("Got lock on database in {} micro seconds", now.elapsed().as_micros());
+        debug!("Message event got lock on database in {} micro seconds", now.elapsed().as_micros());
 
         let db_user = database.get_user(guild_id.to_string(), msg.author.id.to_string()).await;
         

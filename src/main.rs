@@ -9,8 +9,7 @@ use tracing::{error, info, debug};
 mod commands;
 mod modules;
 use modules::{
-    help::HELP_GROUP,
-    ranks::LEVELS_GROUP,
+    help,
     ranks
 };
 mod config;
