@@ -40,6 +40,7 @@ impl EventHandler for Handler {
 
         //dispatch commands
         if !msg.content.starts_with(&CONFIG.get().unwrap().prefix) {return;}
+        debug!("Dispatching command {}", msg.content);
         let mut content = msg.content.chars();
         content.next();
         let args = commands::Args::parse(content.as_str());
