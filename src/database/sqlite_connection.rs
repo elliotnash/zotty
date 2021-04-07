@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use r2d2_sqlite::{SqliteConnectionManager, rusqlite::params};
 use r2d2::Pool;
-use serenity::async_trait;
+use serenity::{async_trait, model::id::UserId};
 use std::time::Duration;
 use std::{fs::File, time::UNIX_EPOCH};
 use std::path::Path;
@@ -58,14 +58,16 @@ impl Database for SqliteConnection {
             .expect("Failed to insert ____ into user");
 
         let mut query = conn.prepare(&format!("
-        SELECT level, xp, last_xp FROM '{0}_levels' WHERE user_id = {1};
+        SELECT user_id, level, xp, last_xp FROM '{0}_levels' WHERE user_id = {1};
         ", guild_id, user_id)).expect("Failed to query database");
 
         query.query_row(params![], |row| {
             let duration: i64 = row.get("last_xp").unwrap();
             let duration = UNIX_EPOCH + Duration::from_secs(duration as u64);
             let datetime = DateTime::<Utc>::from(duration);
+            let user_id: i64 = row.get("user_id").unwrap();
             Ok(DBUser {
+                user_id: user_id.to_string(),
                 level: row.get("level").unwrap(),
                 xp: row.get("xp").unwrap(),
                 last_xp: datetime

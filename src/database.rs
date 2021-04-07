@@ -9,6 +9,7 @@ use sqlite_connection::SqliteConnection;
 
 #[derive(Debug, Clone)]
 pub struct DBUser {
+    pub user_id: String,
     pub level: i32,
     pub xp: i32,
     pub last_xp: DateTime<Utc>
