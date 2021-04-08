@@ -26,14 +26,19 @@ pub async fn on_message(ctx: Context, msg: Message) {
     //Don't award points to bots
     if msg.author.bot {return;};
 
-    let guild_id = if msg.guild_id.is_none() {return;} else {msg.guild_id.unwrap()};
+    let guild_id = if let Some(guild_id) = msg.guild_id {guild_id} else {return;};
 
-    let role_id = RoleId::from_str(&ctx, "827946575136948226").await;
-    let role_id = if role_id.is_err() {return;} else {role_id.unwrap()};
+    let target = if let Ok(target) = 
+        guild_id.member(&ctx, msg.author.id).await {
+            target
+        } 
+    else {return;};
 
-    let has_tester_role = msg.author.has_role(&ctx, guild_id, role_id).await;
-    if has_tester_role.is_err() {return;};
-    let has_tester_role = has_tester_role.unwrap();
+    let has_tester_role = if let Some(roles) = target.roles(&ctx).await {
+        let rolenames: Vec<String> = roles.iter().map(|role| role.name.to_lowercase()).collect();
+        rolenames.contains(&"tester".to_string())
+    } 
+    else {false};
     
 
     if has_tester_role {
