@@ -39,7 +39,7 @@ fn generate(avatar: BufReader<Cursor<Vec<u8>>>, username: &str, user_discriminat
     let context = Context::new(&base);
 
     // create base rectangle
-    set_colour(&context, Colour::from_alpha_hex(0x3B4252DD));
+    set_colour(&context, Colour::from_alpha_hex(0x2E3440EE));
     let margin = 40_f64;
     let left_margin = 250_f64;
     draw_rounded_rec(&context, margin, margin, width-margin, height-margin, 25_f64);
@@ -120,7 +120,7 @@ fn draw_avatar(context: &Context, xc: f64, yc: f64, size: f64, left_margin: f64,
 }
 
 fn draw_progress_bar(context: &Context, x1: f64, x2: f64, y: f64, thickness: f64, xp: i32, level_xp: i32) {
-    set_colour(context, Colour::from_hex(0x2E3440));
+    set_colour(context, Colour::from_hex(0x434C5E));
     context.set_line_width(thickness);
     context.set_line_cap(LineCap::Round);
     // draw backing
