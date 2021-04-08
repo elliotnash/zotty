@@ -100,15 +100,6 @@ fn draw_avatar(context: &Context, xc: f64, yc: f64, size: f64, mut image: BufRea
         .expect("Failed to read avatar");
     // calculate scale from image size
     let scale = size / f64::from(avatar_source.get_width());
-    // paint background for transparent avatars
-    set_colour(&context, Colour::from_hex(0x2E3440));
-    draw_rounded_rec(&context, 
-        xc - 0.5*(scale*f64::from(avatar_source.get_width())), 
-        yc - 0.5*(scale*f64::from(avatar_source.get_height())), 
-        xc + 0.5*(scale*f64::from(avatar_source.get_width())), 
-        yc + 0.5*(scale*f64::from(avatar_source.get_height())),
-        10_f64);
-    context.fill();
     //scale entire canvas to scale image
     context.scale(scale, scale);
     //calculate x, y relative to scale
