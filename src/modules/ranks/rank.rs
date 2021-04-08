@@ -1,4 +1,3 @@
-use super::rank_card::generate_rank_card;
 use serenity::{
     model::prelude::*, prelude::*
 };
@@ -9,6 +8,8 @@ use std::time::Instant;
 use crate::DATABASE;
 use super::help;
 
+mod rank_card;
+use rank_card::generate_rank_card;
 
 pub async fn rank(ctx: Context, msg: Message, args: Args) {
 

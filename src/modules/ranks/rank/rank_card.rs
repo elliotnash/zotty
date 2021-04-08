@@ -2,7 +2,7 @@ use cairo::{ ImageSurface, FontFace, FontSlant, FontWeight, Context, LineCap };
 use serenity::model::prelude::User;
 use std::{f64::consts::PI, fs::File, io::{BufWriter, BufReader, Cursor}};
 
-use super::colour::{Colour, set_colour};
+use super::super::colour::{Colour, set_colour};
 use crate::database::DBUser;
 use crate::CONFIG;
 
@@ -24,7 +24,7 @@ fn generate(avatar: BufReader<Cursor<Vec<u8>>>, username: &str, user_discriminat
         rank: i32, level: i32, xp: i32) -> BufWriter<Vec<u8>> {
     
     // get level xp with calculation
-    let level_xp = super::get_level_xp(level);
+    let level_xp = super::super::get_level_xp(level);
 
     // create surface from rank card
     let mut file = File::open("rank.png")

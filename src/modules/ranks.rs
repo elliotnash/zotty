@@ -11,8 +11,6 @@ use crate::DATABASE;
 use super::help;
 
 mod colour;
-mod leaderboard_card;
-mod rank_card;
 
 pub mod rank;
 pub mod leaderboard;
