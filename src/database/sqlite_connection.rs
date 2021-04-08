@@ -36,6 +36,7 @@ fn get_absolute_path(path: &str) -> String {
 
 #[async_trait]
 impl Database for SqliteConnection {
+
     async fn get_user(&mut self, guild_id: String, user_id: String) -> DBUser {
 
         let pool = self.pool.clone();
@@ -115,4 +116,32 @@ impl Database for SqliteConnection {
             .expect("Failed to update user");
 
     }
+
+    async fn get_top_users(&mut self, guild_id: String, limit: i32, starting_rank: i32) -> Vec<DBUser> {
+
+        let pool = self.pool.clone();
+        let conn = pool.get().expect("Failed to get sqlite connection");
+        drop(pool);
+
+        let mut query = conn.prepare(&format!("
+        SELECT user_id, level, xp, last_xp FROM '{0}_levels' ORDER BY level DESC, xp DESC LIMIT {1}, {2};
+        ", guild_id, starting_rank, limit)).expect("Failed to query database");
+
+        let db_user_iter = query.query_map(params![], |row| {
+            let duration: i64 = row.get("last_xp").unwrap();
+            let duration = UNIX_EPOCH + Duration::from_secs(duration as u64);
+            let datetime = DateTime::<Utc>::from(duration);
+            let user_id: i64 = row.get("user_id").unwrap();
+            Ok(DBUser {
+                user_id: user_id.to_string(),
+                level: row.get("level").unwrap(),
+                xp: row.get("xp").unwrap(),
+                last_xp: datetime
+            })
+        }).expect("Failed to query database");
+
+        db_user_iter.map(|s| s.unwrap()).collect()
+
+    }
+
 }

@@ -46,8 +46,12 @@ impl EventHandler for Handler {
         let args = commands::Args::parse(content.as_str());
 
         match args.command.as_str() {
-            "help" => {tokio::spawn(help::help(ctx.clone(), msg.clone(), args.clone()));}
-            "rank" | "level" => {tokio::spawn(ranks::rank::rank(ctx.clone(), msg.clone(), args.clone()));}
+            "help" => 
+                {tokio::spawn(help::help(ctx.clone(), msg.clone(), args.clone()));}
+            "rank" | "level" => 
+                {tokio::spawn(ranks::rank::rank(ctx.clone(), msg.clone(), args.clone()));}
+            "leaderboard" | "top" | "levels" =>
+                {tokio::spawn(ranks::leaderboard::leaderboard(ctx.clone(), msg.clone(), args.clone()));}
             _ => {}
         }
 

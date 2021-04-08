@@ -11,10 +11,11 @@ use crate::DATABASE;
 use super::help;
 
 mod colour;
-mod levels_card;
+mod leaderboard_card;
 mod rank_card;
 
 pub mod rank;
+pub mod leaderboard;
 
 pub fn get_level_xp(level: i32) -> i32 {
     5 * level.pow(2) + 50 * level + 100
