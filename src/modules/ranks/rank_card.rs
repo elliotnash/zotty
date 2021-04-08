@@ -1,39 +1,10 @@
 use cairo::{ ImageSurface, FontFace, FontSlant, FontWeight, Context, LineCap };
 use serenity::model::prelude::User;
-use std::{f64::consts::PI, fs::File, convert::TryFrom, io::{BufWriter, BufReader, Cursor}};
+use std::{f64::consts::PI, fs::File, io::{BufWriter, BufReader, Cursor}};
 
+use super::colour::{Colour, set_colour};
 use crate::database::DBUser;
 use crate::CONFIG;
-
-#[derive(Debug)]
-pub struct Colour {
-    red: u8,
-    green: u8,
-    blue: u8,
-    alpha: u8
-}
-impl Colour {
-    fn from_alpha_hex(hex: u32) -> Colour {
-        Colour {
-            red: u8::try_from((hex >> 24) & 255).unwrap(),
-            green: u8::try_from((hex >> 16) & 255).unwrap(),
-            blue: u8::try_from((hex >> 8) & 255).unwrap(),
-            alpha: u8::try_from(hex & 255).unwrap()
-        }
-    }
-    fn from_hex(hex: i32) -> Colour {
-        Colour {
-            red: u8::try_from((hex >> 16) & 255).unwrap(),
-            green: u8::try_from((hex >> 8) & 255).unwrap(),
-            blue: u8::try_from(hex & 255).unwrap(),
-            alpha: 255
-        }
-    }
-    fn red_decimal(&self) -> f64 {f64::from(self.red)*0.00392156862}
-    fn green_decimal(&self) -> f64 {f64::from(self.green)*0.00392156862}
-    fn blue_decimal(&self) -> f64 {f64::from(self.blue)*0.00392156862}
-    fn alpha_decimal(&self) -> f64 {f64::from(self.alpha)*0.00392156862}
-}
 
 pub async fn generate_rank_card(user: User, db_user: DBUser, rank: i32) -> BufWriter<Vec<u8>> {
 
@@ -106,11 +77,6 @@ fn generate(avatar: BufReader<Cursor<Vec<u8>>>, username: &str, user_discriminat
     base.write_to_png(&mut writer)
         .expect("Couldn’t write to BufWriter");
     writer
-}
-
-fn set_colour(context: &Context, colour: Colour) {
-    context.set_source_rgba(colour.red_decimal(), colour.green_decimal(), 
-        colour.blue_decimal(), colour.alpha_decimal());
 }
 
 fn draw_avatar(context: &Context, xc: f64, yc: f64, scale: f64, left_margin: f64, mut image: BufReader<Cursor<Vec<u8>>>) -> f64 {

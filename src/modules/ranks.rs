@@ -12,6 +12,8 @@ use std::time::Instant;
 use crate::DATABASE;
 use super::help;
 
+mod colour;
+mod levels_card;
 mod rank_card;
 
 pub fn get_level_xp(level: i32) -> i32 {
