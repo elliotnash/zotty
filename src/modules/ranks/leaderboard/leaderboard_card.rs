@@ -10,6 +10,7 @@ use crate::CONFIG;
 
 #[derive(Debug)]
 struct LUser {
+    avatar: BufReader<Cursor<Vec<u8>>>,
     rank: i32,
     user: User,
     db_user: DBUser
@@ -23,24 +24,18 @@ pub async fn generate_leaderboard_card(cache_http: impl CacheHttp+Clone, db_user
             async move {
                 let user_id = db_user.user_id.parse::<UserId>().unwrap();
                 let user = user_id.to_user(cache_http).await.unwrap();
+                let avatar_url = user.static_avatar_url().unwrap_or(user.default_avatar_url())
+                    .replace("webp", "png").replace("1024", "64");
+                let avatar =  reqwest::get(avatar_url).await.expect("Failed to download avatar").bytes().await.unwrap().to_vec();
+                let reader = BufReader::with_capacity(150_000, Cursor::new(avatar));
                 LUser{
+                    avatar: reader,
                     rank: (i as i32)+1+starting_rank,
                     user,
                     db_user
                 }
             }
         }).buffered(10).collect().await;
-    // let test = bodies
-    //     .for_each(|b| async {
-    //         b
-    //     }).await;
-
-    // let avatar_url = user.static_avatar_url().unwrap_or(user.default_avatar_url())
-    //     .replace("webp", "png").replace("1024", "256");
-
-    // let avatar =  reqwest::get(avatar_url).await.expect("Failed to download avatar").bytes().await.unwrap().to_vec();
-
-    // let reader = BufReader::with_capacity(150_000, Cursor::new(avatar));
 
     tokio::task::spawn_blocking(move || {
         generate(lusers)
@@ -55,18 +50,21 @@ fn generate(users: Vec<LUser>) -> BufWriter<Vec<u8>> {
 
     let base = ImageSurface::create_from_png(&mut file)
         .expect("Couldn't create a surface!");
-
-    let width = f64::from(base.get_width());
-    let height = f64::from(base.get_height());
     
     let context = Context::new(&base);
 
-    // create base rectangle
-    set_colour(&context, Colour::from_alpha_hex(0x3B4252DD));
-    let margin = 40_f64;
-    let left_margin = 250_f64;
-    draw_rounded_rec(&context, margin, margin, width-margin, height-margin, 25_f64);
-    context.fill();
+    let width = f64::from(base.get_width());
+    let height = f64::from(base.get_height());
+    let margin = 7.5;
+    let num_entries = users.len() as f64;
+    let entry_height = (height-margin)/num_entries-margin;
+
+    let mut y1 = margin;
+
+    for user in users {
+        draw_user_entry(&context, user, margin, y1, width-margin, y1+entry_height);
+        y1 += entry_height+margin;
+    }
 
     // write to buffer and return
     let mut writer = BufWriter::with_capacity(3500_000, Vec::<u8>::new());
@@ -75,16 +73,38 @@ fn generate(users: Vec<LUser>) -> BufWriter<Vec<u8>> {
     writer
 }
 
-fn draw_avatar(context: &Context, xc: f64, yc: f64, size: f64, left_margin: f64, mut image: BufReader<Cursor<Vec<u8>>>) -> f64 {
+fn draw_user_entry(context: &Context, user: LUser, x1: f64, y1: f64, x2: f64, y2: f64) {
+    // create base rectangle
+    set_colour(&context, Colour::from_alpha_hex(0x3B4252DD));
+    draw_rounded_rec(&context, x1, y1, x2, y2, 15_f64);
+    context.fill();
+    // draw avatar ontop
+    let avatar_margin = 5_f64;
+    let avatar_size = (y2-y1)-(avatar_margin*2_f64);
+    let avatar_xc = x1+avatar_margin+(avatar_size/2_f64);
+    let yc = (y1+y2)/2_f64;
+    draw_avatar(context, avatar_xc, yc, avatar_size, user.avatar);
+}
+
+fn draw_avatar(context: &Context, xc: f64, yc: f64, size: f64, mut image: BufReader<Cursor<Vec<u8>>>) {
     // create image from bufreader
     let avatar_source = ImageSurface::create_from_png(&mut image)
         .expect("Failed to read avatar");
     // calculate scale from image size
     let scale = size / f64::from(avatar_source.get_width());
+    // paint background for transparent avatars
+    set_colour(&context, Colour::from_hex(0x2E3440));
+    draw_rounded_rec(&context, 
+        xc - 0.5*(scale*f64::from(avatar_source.get_width())), 
+        yc - 0.5*(scale*f64::from(avatar_source.get_height())), 
+        xc + 0.5*(scale*f64::from(avatar_source.get_width())), 
+        yc + 0.5*(scale*f64::from(avatar_source.get_height())),
+        10_f64);
+    context.fill();
     //scale entire canvas to scale image
     context.scale(scale, scale);
     //calculate x, y relative to scale
-    let avatar_x = left_margin/scale + xc/scale - 0.5 * f64::from(avatar_source.get_width());
+    let avatar_x = xc/scale - 0.5 * f64::from(avatar_source.get_width());
     let avatar_y = yc/scale - 0.5 * f64::from(avatar_source.get_height());
     //add avatar to canvas
     context.set_source_surface(&avatar_source, avatar_x, avatar_y);
@@ -92,18 +112,16 @@ fn draw_avatar(context: &Context, xc: f64, yc: f64, size: f64, left_margin: f64,
     context.scale(1_f64/scale, 1_f64/scale);
     //draw clipping mask for avatar
     draw_rounded_rec(&context, 
-        left_margin + xc - 0.5*(scale*f64::from(avatar_source.get_width())), 
+        xc - 0.5*(scale*f64::from(avatar_source.get_width())), 
         yc - 0.5*(scale*f64::from(avatar_source.get_height())), 
-        left_margin + xc + 0.5*(scale*f64::from(avatar_source.get_width())), 
+        xc + 0.5*(scale*f64::from(avatar_source.get_width())), 
         yc + 0.5*(scale*f64::from(avatar_source.get_height())),
-        20_f64);
+        10_f64);
     // clip and paint
     context.clip();
     context.paint();
     // make sure to reset clipping mask so others can draw
     context.reset_clip();
-    // return the amount of space used
-    left_margin + scale*f64::from(avatar_source.get_width())
 }
 
 fn draw_progress_bar(context: &Context, x1: f64, x2: f64, y: f64, thickness: f64, xp: i32, level_xp: i32) {
