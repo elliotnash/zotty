@@ -61,14 +61,14 @@ pub async fn rank(ctx: Context, msg: Message, args: Args) {
         
         let db_user;
         let rank;
+        let now = Instant::now();
         {
-            let now = Instant::now();
             let mut database = DATABASE.get().expect("Database not initialized").lock().await;
-            debug!("Rank command got lock on database in {} micro seconds", now.elapsed().as_micros());
             db_user = database.get_user(guild_id.to_string(), target.user.id.to_string()).await;
             rank = database.get_rank(guild_id.to_string(), &db_user).await;
-            drop(database);
         }
+        debug!("Rank command took {} micro seconds to query database", now.elapsed().as_micros());
+
         let now = Instant::now();
         let writer = generate_rank_card(target.user, db_user.clone(), rank).await;
         debug!("generating rank card took {}ms", now.elapsed().as_millis());

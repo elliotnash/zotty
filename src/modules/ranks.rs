@@ -39,7 +39,6 @@ pub async fn on_message(ctx: Context, msg: Message) {
     if has_tester_role {
         let now = Instant::now();
         let mut database = DATABASE.get().expect("Database not initialized").lock().await;
-        debug!("Message event got lock on database in {} micro seconds", now.elapsed().as_micros());
 
         let db_user = database.get_user(guild_id.to_string(), msg.author.id.to_string()).await;
         
@@ -57,9 +56,9 @@ pub async fn on_message(ctx: Context, msg: Message) {
             } else {
                 database.set_user_xp(guild_id.to_string(), msg.author.id.to_string(),
                     xp).await;
-                drop(database);
             }
         }
+        debug!("Message event locked database for {} micro seconds", now.elapsed().as_micros());
 
     }
 
