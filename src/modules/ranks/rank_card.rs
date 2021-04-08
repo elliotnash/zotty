@@ -46,7 +46,7 @@ fn generate(avatar: BufReader<Cursor<Vec<u8>>>, username: &str, user_discriminat
     context.fill();
 
     //draw avatar
-    draw_avatar(&context, 0.5 * (left_margin+10_f64-margin), 0.5 * height, 0.7, margin, avatar);
+    draw_avatar(&context, 0.5 * (left_margin+10_f64-margin), 0.5 * height, 190_f64, margin, avatar);
 
     //draw progress bar
     let progress_margin = 30_f64;
@@ -79,10 +79,12 @@ fn generate(avatar: BufReader<Cursor<Vec<u8>>>, username: &str, user_discriminat
     writer
 }
 
-fn draw_avatar(context: &Context, xc: f64, yc: f64, scale: f64, left_margin: f64, mut image: BufReader<Cursor<Vec<u8>>>) -> f64 {
+fn draw_avatar(context: &Context, xc: f64, yc: f64, size: f64, left_margin: f64, mut image: BufReader<Cursor<Vec<u8>>>) -> f64 {
     // create image from bufreader
     let avatar_source = ImageSurface::create_from_png(&mut image)
         .expect("Failed to read avatar");
+    // calculate scale from image size
+    let scale = size / f64::from(avatar_source.get_width());
     //scale entire canvas to scale image
     context.scale(scale, scale);
     //calculate x, y relative to scale
