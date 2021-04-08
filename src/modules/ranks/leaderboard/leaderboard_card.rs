@@ -56,7 +56,7 @@ fn generate(users: Vec<LUser>) -> BufWriter<Vec<u8>> {
     let width = f64::from(base.get_width());
     let height = f64::from(base.get_height());
     let margin = 7.5;
-    let num_entries = users.len() as f64;
+    let num_entries = 10_f64;
     let entry_height = (height-margin)/num_entries-margin;
 
     let mut y1 = margin;
