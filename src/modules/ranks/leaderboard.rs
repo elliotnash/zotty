@@ -7,6 +7,9 @@ use crate::commands::Args;
 use tracing::debug;
 use super::help;
 
+mod leaderboard_card;
+use leaderboard_card::generate_leaderboard_card;
+
 use crate::DATABASE;
 
 pub async fn leaderboard(ctx: Context, msg: Message, args: Args) {
@@ -55,7 +58,14 @@ pub async fn leaderboard(ctx: Context, msg: Message, args: Args) {
         };
         debug!("Leaderboard command took {} micro seconds to query database", now.elapsed().as_micros());
 
-        dbg!(db_users);
+        dbg!(&db_users);
+
+        let now = Instant::now();
+        let writer = generate_leaderboard_card(&ctx, db_users, 10*page_num).await;
+        debug!("generating leaderboard card took {}ms", now.elapsed().as_millis());
+
+        msg.channel_id.send_files(&ctx.http, vec![(writer.buffer(), "rank.png")], |m| {m}).await
+            .expect("Failed to send message");
 
     }
 }

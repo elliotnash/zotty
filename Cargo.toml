@@ -7,7 +7,8 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tokio = { version = "1.0", features = ["macros", "rt-multi-thread", "signal"] } #lazy
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread", "signal"] }
+futures = "0.3"
 serenity = { default-features = false, features = ["client", "gateway", "rustls_backend", "model", "cache"], version = "0.10" }
 cairo-rs = { version = "0.9.1", features = ["png"] }
 tracing = "0.1"
