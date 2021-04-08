@@ -4,7 +4,7 @@ use std::{f64::consts::PI, fs::File, io::{BufWriter, BufReader, Cursor}};
 
 use futures::{stream, StreamExt};
 
-use super::super::colour::{Colour, set_colour};
+use super::super::colour::{Colour, set_colour, format_descriminator};
 use crate::database::DBUser;
 use crate::CONFIG;
 
@@ -158,7 +158,7 @@ fn draw_username_text(context: &Context, x1: f64, yc: f64, username: &str, user_
     context.set_font_face(&font);
     // get formatted strings
     let username_string = format!("{}", username);
-    let discriminator_string = format!("#{}", user_discriminator);
+    let discriminator_string = format!("#{}", format_descriminator(user_discriminator));
     // get text extents
     let username_extents = context.text_extents(&username_string);
     let discriminator_extents = context.text_extents(&discriminator_string);

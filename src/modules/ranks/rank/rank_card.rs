@@ -2,7 +2,7 @@ use cairo::{ ImageSurface, FontFace, FontSlant, FontWeight, Context, LineCap };
 use serenity::model::prelude::User;
 use std::{f64::consts::PI, fs::File, io::{BufWriter, BufReader, Cursor}};
 
-use super::super::colour::{Colour, set_colour};
+use super::super::colour::{Colour, set_colour, format_descriminator};
 use crate::database::DBUser;
 use crate::CONFIG;
 
@@ -148,7 +148,7 @@ fn draw_username_text(context: &Context, x1: f64, x2: f64, y_bottom: f64, userna
         FontSlant::Normal, FontWeight::Normal);
     context.set_font_face(&font);
     // get text extents of both parts
-    let discriminator_string = format!("#{}", user_discriminator);
+    let discriminator_string = format!("#{}", format_descriminator(user_discriminator));
     let username_extents = context.text_extents(&username);
     let discriminator_extents = context.text_extents(&discriminator_string);
     // if bigger than screen, rescale
