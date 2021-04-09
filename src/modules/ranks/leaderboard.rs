@@ -65,9 +65,11 @@ pub async fn leaderboard(ctx: Context, msg: Message, args: Args) {
         let writer = generate_leaderboard_card(&ctx, db_users, 10*page_num).await;
         debug!("generating leaderboard card took {}ms", now.elapsed().as_millis());
 
+        let server_name = msg.guild_field(&ctx, |g| {g.name.clone()}).await.unwrap_or(String::new());
+        
         msg.channel_id.send_files(&ctx, vec![(writer.buffer(), "rank.png")], |m| {
             m.embed(|e| {
-                e.title("Leaderboard");
+                e.title(format!("{} Leaderboard", server_name));
                 e.attachment("rank.png")
             })
         }).await
