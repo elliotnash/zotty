@@ -58,11 +58,12 @@ fn generate(users: Vec<LUser>) -> BufWriter<Vec<u8>> {
     let margin = 7.5;
     let num_entries = 10_f64;
     let entry_height = (height-margin)/num_entries-margin;
+    let username_margin = 25_f64 + (users.last().unwrap().rank.to_string().len() as f64 *25_f64);
 
     let mut y1 = margin;
 
     for user in users {
-        draw_user_entry(&context, user, margin, y1, width-margin, y1+entry_height);
+        draw_user_entry(&context, user, margin, y1, width-margin, y1+entry_height, username_margin);
         y1 += entry_height+margin;
     }
 
@@ -73,7 +74,7 @@ fn generate(users: Vec<LUser>) -> BufWriter<Vec<u8>> {
     writer
 }
 
-fn draw_user_entry(context: &Context, user: LUser, x1: f64, y1: f64, x2: f64, y2: f64) {
+fn draw_user_entry(context: &Context, user: LUser, x1: f64, y1: f64, x2: f64, y2: f64, username_margin: f64) {
     // create base rectangle
     set_colour(&context, Colour::from_alpha_hex(0x2E3440FA));
     draw_rounded_rec(&context, x1, y1, x2, y2, 15_f64);
@@ -89,7 +90,6 @@ fn draw_user_entry(context: &Context, user: LUser, x1: f64, y1: f64, x2: f64, y2
     let rank_x = x1+avatar_margin+avatar_size+rank_margin;
     draw_rank_text(context, rank_x, yc, user.rank);
     // draw username + discriminator
-    let username_margin = 75_f64;
     let username_x = rank_x+username_margin;
     draw_username_text(context, username_x, yc, &user.user.name, user.user.discriminator);
 }
