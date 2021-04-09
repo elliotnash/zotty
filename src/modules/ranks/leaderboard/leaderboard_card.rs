@@ -92,6 +92,11 @@ fn draw_user_entry(context: &Context, user: LUser, x1: f64, y1: f64, x2: f64, y2
     // draw username + discriminator
     let username_x = rank_x+username_margin;
     draw_username_text(context, username_x, yc, &user.user.name, user.user.discriminator);
+    // draw level text
+    let level_margin = 20_f64;
+    let level_x = x2-level_margin;
+    draw_level_text(context, level_x, yc, user.db_user.level);
+
 }
 
 fn draw_avatar(context: &Context, xc: f64, yc: f64, size: f64, mut image: BufReader<Cursor<Vec<u8>>>) {
@@ -162,6 +167,22 @@ fn draw_username_text(context: &Context, x1: f64, yc: f64, username: &str, user_
     set_colour(context, Colour::from_hex(0xc2b59b));
     context.move_to(x1+username_extents.width+margin, yc+(0.5*discriminator_extents.height)-1_f64);
     context.text_path(&discriminator_string);
+    context.fill();
+}
+
+fn draw_level_text(context: &Context, x1: f64, yc: f64, level: i32) {
+    set_colour(context, Colour::from_hex(0xedeff3));
+    let font = FontFace::toy_create(&CONFIG.get().unwrap().modules.ranks.font_family, 
+        FontSlant::Normal, FontWeight::Normal);
+    context.set_font_face(&font);
+    context.set_font_size(35_f64);
+    // format text
+    let level_text = level.to_string();
+    // get text extents
+    let level_extents = context.text_extents(&level_text);
+    // draw text
+    context.move_to(x1-level_extents.width, yc+(0.5*level_extents.height)-1_f64);
+    context.text_path(&level_text);
     context.fill();
 }
 
