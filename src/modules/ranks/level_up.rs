@@ -6,7 +6,7 @@ use tracing::debug;
 use crate::DATABASE;
 use crate::CONFIG;
 
-pub async fn level_up(ctx: &Context, msg: &Message, level: i32) {
+pub async fn level_up(ctx: &Context, msg: &Message, target: Member, level: i32) {
 
     let now = Instant::now();
     let mut database = DATABASE.get().expect("Database not initialized").lock().await;
@@ -29,4 +29,16 @@ pub async fn level_up(ctx: &Context, msg: &Message, level: i32) {
     // send level up message
     msg.channel_id.say(&ctx.http, level_up_message)
         .await.expect("Unable to send message");
+
+    // apply level up roles if applicable
+    if let Some(role_id) = role_id {
+        give_level_roles(ctx, target, role_id).await;
+    }
+
+}
+
+async fn give_level_roles(ctx: &Context, mut target: Member, role_id: RoleId) {
+    if target.add_role(&ctx.http, role_id).await.is_err() {
+        debug!("Failed to add role to {}", target.user.name);
+    }
 }
