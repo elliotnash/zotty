@@ -4,6 +4,7 @@ use serenity::{
 use std::time::Instant;
 use tracing::debug;
 use crate::DATABASE;
+use crate::CONFIG;
 
 pub async fn level_up(ctx: &Context, msg: &Message, level: i32) {
 
@@ -15,7 +16,7 @@ pub async fn level_up(ctx: &Context, msg: &Message, level: i32) {
 
     let level_up_message = database.get_config(
         msg.guild_id.unwrap().to_string(), "level_up_message").await
-        .unwrap_or("GG %player%, you just advanced to level %level%".to_string());
+        .unwrap_or(CONFIG.get().unwrap().modules.ranks.default_level_up_message.clone());
 
     drop(database);
     debug!("Level up event locked database for {} micro seconds", now.elapsed().as_micros());

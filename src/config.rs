@@ -15,7 +15,8 @@ pub struct Colours {
     pub moderator: i32,
     pub music: i32,
     pub commands: i32,
-    pub error: i32
+    pub error: i32,
+    pub ranks: i32
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
@@ -36,7 +37,8 @@ pub struct Modules {
 
 #[derive(Debug, Deserialize)]
 pub struct Ranks {
-    pub font_family: String
+    pub font_family: String,
+    pub default_level_up_message: String
 }
 
 impl Config {

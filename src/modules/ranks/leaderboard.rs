@@ -11,6 +11,7 @@ mod leaderboard_card;
 use leaderboard_card::generate_leaderboard_card;
 
 use crate::DATABASE;
+use crate::CONFIG;
 
 pub async fn leaderboard(ctx: Context, msg: Message, args: Args) {
 
@@ -69,6 +70,7 @@ pub async fn leaderboard(ctx: Context, msg: Message, args: Args) {
         
         msg.channel_id.send_files(&ctx, vec![(writer.buffer(), "rank.png")], |m| {
             m.embed(|e| {
+                e.colour(CONFIG.get().unwrap().colours.ranks);
                 e.title(format!("{} Leaderboard", server_name));
                 e.attachment("rank.png")
             })

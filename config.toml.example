@@ -8,6 +8,7 @@ moderator = 0xF05101
 music = 0x7289DA
 commands = 0xC542F5
 error = 0xff0000
+ranks = 0x00ff00
 
 [database]
 db_type = "sqlite"
@@ -16,3 +17,4 @@ path = "./db.sqlite"
 [modules]
 [modules.ranks]
 font_family = "TT Norms Regular"
+default_level_up_message = "GG %player%, you just advanced to level %level%"
