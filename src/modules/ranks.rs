@@ -10,6 +10,7 @@ use crate::DATABASE;
 use super::help;
 
 mod colour;
+mod level_up;
 
 pub mod rank;
 pub mod leaderboard;
@@ -54,7 +55,7 @@ pub async fn on_message(ctx: Context, msg: Message) {
                 database.set_user_level(guild_id.to_string(), msg.author.id.to_string(),
                     db_user.level+1, xp-level_xp).await;
                 drop(database);
-                level_up(&ctx, &msg, db_user.level+1).await;
+                level_up::level_up(&ctx, &msg, db_user.level+1).await;
             } else {
                 database.set_user_xp(guild_id.to_string(), msg.author.id.to_string(),
                     xp).await;
@@ -64,10 +65,4 @@ pub async fn on_message(ctx: Context, msg: Message) {
 
     }
 
-}
-
-async fn level_up(ctx: &Context, msg: &Message, level: i32) {
-    msg.channel_id.say(&ctx.http, format!("GG {0}, you just advanced to level {1}!",
-        msg.author.mention().to_string(), level))
-        .await.expect("Unable to send message");
 }

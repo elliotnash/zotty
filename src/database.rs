@@ -1,6 +1,5 @@
 use chrono::{DateTime, Utc};
 use serenity::async_trait;
-use std::collections::HashMap;
 
 use crate::config::DatabaseType;
 use super::CONFIG;
@@ -29,7 +28,7 @@ pub trait Database: std::fmt::Debug + Send {
     // returns a list of users, sorted by rank
     async fn get_top_users(&mut self, guild_id: String, limit: i32, starting_rank: i32) -> Vec<DBUser>;
     // returns a HashMap of levels with their rewards
-    async fn get_rank_rewards(&mut self, guild_id: String) -> HashMap<i32, i64>;
+    async fn get_rank_reward(&mut self, guild_id: String, level: i32) -> i64;
 }
 
 pub async fn new_database() -> Box<dyn Database> {

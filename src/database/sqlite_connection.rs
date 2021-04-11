@@ -145,7 +145,7 @@ impl Database for SqliteConnection {
 
     }
 
-    async fn get_rank_rewards(&mut self, guild_id: String) -> HashMap<i32, i64> {
+    async fn get_rank_reward(&mut self, guild_id: String, level: i32) -> i64 {
 
         let pool = self.pool.clone();
         let conn = pool.get().expect("Failed to get sqlite connection");
@@ -160,16 +160,12 @@ impl Database for SqliteConnection {
         ", guild_id), params![]).expect("Failed to create tables");
 
         let mut query = conn.prepare(&format!("
-        SELECT level, role FROM '{}_rank_rewards' WHERE user_id = 2?;
-        ", guild_id)).expect("Failed to prepare query");
+        SELECT role FROM '{}_rank_rewards' WHERE level = {};
+        ", guild_id, level)).expect("Failed to prepare query");
 
-        let rewards_iter = query.query_map(params![], |row| {
-            let level: i32 = row.get("level").unwrap();
-            let role: i64 = row.get("role").unwrap();
-            Ok((level, role))
-        }).expect("Failed to query database");
-        
-        rewards_iter.map(|x| x.unwrap()).collect()
+        query.query_row(params![], |row| {
+            Ok(row.get("role").unwrap())
+        }).expect("Failed to query database")
 
     }
 
