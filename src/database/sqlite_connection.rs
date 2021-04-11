@@ -5,6 +5,7 @@ use serenity::async_trait;
 use std::time::Duration;
 use std::{fs::File, time::UNIX_EPOCH};
 use std::path::Path;
+use std::collections::HashMap;
 use path_absolutize::*;
 use tracing::info;
 
@@ -59,7 +60,7 @@ impl Database for SqliteConnection {
             .expect("Failed to insert ____ into user");
 
         let mut query = conn.prepare(&format!("
-        SELECT user_id, level, xp, last_xp FROM '{}' WHERE user_id = {};
+        SELECT user_id, level, xp, last_xp FROM '{}_ranks' WHERE user_id = {};
         ", guild_id, user_id)).expect("Failed to prepare query");
 
         query.query_row(params![], |row| {
@@ -83,7 +84,7 @@ impl Database for SqliteConnection {
         let conn = pool.get().expect("Failed to get sqlite connection");
 
         let mut query = conn.prepare(&format!("
-        SELECT COUNT() FROM '{0}_levels'
+        SELECT COUNT() FROM '{0}_ranks'
 	        WHERE level > {1} OR 
 		        (level = {1} AND xp> {2});
         ", guild_id, db_user.level, db_user.xp)).expect("Failed to query database");
@@ -99,7 +100,7 @@ impl Database for SqliteConnection {
         let conn = pool.get().expect("Failed to get sqlite connection");
 
         conn.execute(&format!("
-        UPDATE '{0}_levels' SET xp = {2}, last_xp = {3} WHERE user_id = {1};
+        UPDATE '{0}_ranks' SET xp = {2}, last_xp = {3} WHERE user_id = {1};
         ", guild_id, user_id, xp, Utc::now().timestamp()), params![])
             .expect("Failed to update user");
 
@@ -111,7 +112,7 @@ impl Database for SqliteConnection {
         let conn = pool.get().expect("Failed to get sqlite connection");
 
         conn.execute(&format!("
-        UPDATE '{0}_levels' SET level = {2}, xp = {3}, last_xp = {4} WHERE user_id = {1};
+        UPDATE '{0}_ranks' SET level = {2}, xp = {3}, last_xp = {4} WHERE user_id = {1};
         ", guild_id, user_id, level, xp, Utc::now().timestamp()), params![])
             .expect("Failed to update user");
 
@@ -124,7 +125,7 @@ impl Database for SqliteConnection {
         drop(pool);
 
         let mut query = conn.prepare(&format!("
-        SELECT user_id, level, xp, last_xp FROM '{0}_levels' ORDER BY level DESC, xp DESC LIMIT {1}, {2};
+        SELECT user_id, level, xp, last_xp FROM '{0}_ranks' ORDER BY level DESC, xp DESC LIMIT {1}, {2};
         ", guild_id, starting_rank, limit)).expect("Failed to query database");
 
         let db_user_iter = query.query_map(params![], |row| {
@@ -144,7 +145,7 @@ impl Database for SqliteConnection {
 
     }
 
-    async fn get_rank_rewards(&mut self, guild_id: String) -> DBUser {
+    async fn get_rank_rewards(&mut self, guild_id: String) -> HashMap<i32, i64> {
 
         let pool = self.pool.clone();
         let conn = pool.get().expect("Failed to get sqlite connection");
@@ -153,10 +154,8 @@ impl Database for SqliteConnection {
         //create table in db if it doesn't exist for this server
         conn.execute(&format!("
         CREATE TABLE IF NOT EXISTS '{}_rank_rewards' (
-            user_id INTEGER PRIMARY KEY,
-            level INTEGER NOT NULL DEFAULT 0,
-            xp INTEGER NOT NULL DEFAULT 0,
-            last_xp INTEGER NOT NULL DEFAULT 0
+            level INTEGER primary key,
+            role INTEGER NOT NULL
         );
         ", guild_id), params![]).expect("Failed to create tables");
 
@@ -164,18 +163,13 @@ impl Database for SqliteConnection {
         SELECT level, role FROM '{}_rank_rewards' WHERE user_id = 2?;
         ", guild_id)).expect("Failed to prepare query");
 
-        query.query_row(params![], |row| {
-            let duration: i64 = row.get("last_xp").unwrap();
-            let duration = UNIX_EPOCH + Duration::from_secs(duration as u64);
-            let datetime = DateTime::<Utc>::from(duration);
-            let user_id: i64 = row.get("user_id").unwrap();
-            Ok(DBUser {
-                user_id: user_id.to_string(),
-                level: row.get("level").unwrap(),
-                xp: row.get("xp").unwrap(),
-                last_xp: datetime
-            })
-        }).expect("Failed to query database")
+        let rewards_iter = query.query_map(params![], |row| {
+            let level: i32 = row.get("level").unwrap();
+            let role: i64 = row.get("role").unwrap();
+            Ok((level, role))
+        }).expect("Failed to query database");
+        
+        rewards_iter.map(|x| x.unwrap()).collect()
 
     }
 
