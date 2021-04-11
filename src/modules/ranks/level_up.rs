@@ -18,6 +18,10 @@ pub async fn level_up(ctx: &Context, msg: &Message, target: Member, level: i32) 
         msg.guild_id.unwrap().to_string(), "level_up_message").await
         .unwrap_or(CONFIG.get().unwrap().modules.ranks.default_level_up_message.clone());
 
+    let send_level_up_message = database.get_config(
+        msg.guild_id.unwrap().to_string(), "send_level_up_message")
+        .await.as_deref() == Some("true");
+
     drop(database);
     debug!("Level up event locked database for {} micro seconds", now.elapsed().as_micros());
 
@@ -26,9 +30,11 @@ pub async fn level_up(ctx: &Context, msg: &Message, target: Member, level: i32) 
         .replace("%player%", &msg.author.mention().to_string())
         .replace("%level%", &level.to_string());
 
-    // send level up message
-    msg.channel_id.say(&ctx.http, level_up_message)
-        .await.expect("Unable to send message");
+    // send level up message if enabled
+    if send_level_up_message {
+        msg.channel_id.say(&ctx.http, level_up_message)
+            .await.expect("Unable to send message");
+    }
 
     // apply level up roles if applicable
     if let Some(role_id) = role_id {
