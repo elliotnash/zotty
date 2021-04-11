@@ -5,7 +5,6 @@ use serenity::async_trait;
 use std::time::Duration;
 use std::{fs::File, time::UNIX_EPOCH};
 use std::path::Path;
-use std::collections::HashMap;
 use path_absolutize::*;
 use tracing::info;
 
@@ -145,7 +144,7 @@ impl Database for SqliteConnection {
 
     }
 
-    async fn get_rank_reward(&mut self, guild_id: String, level: i32) -> i64 {
+    async fn get_rank_reward(&mut self, guild_id: String, level: i32) -> Option<u64> {
 
         let pool = self.pool.clone();
         let conn = pool.get().expect("Failed to get sqlite connection");
@@ -165,7 +164,7 @@ impl Database for SqliteConnection {
 
         query.query_row(params![], |row| {
             Ok(row.get("role").unwrap())
-        }).expect("Failed to query database")
+        }).ok()
 
     }
 
