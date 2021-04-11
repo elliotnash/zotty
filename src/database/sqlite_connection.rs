@@ -45,7 +45,7 @@ impl Database for SqliteConnection {
 
         //create table in db if it doesn't exist for this server
         conn.execute(&format!("
-        CREATE TABLE IF NOT EXISTS '{}_levels' (
+        CREATE TABLE IF NOT EXISTS '{}_ranks' (
             user_id INTEGER PRIMARY KEY,
             level INTEGER NOT NULL DEFAULT 0,
             xp INTEGER NOT NULL DEFAULT 0,
@@ -54,13 +54,13 @@ impl Database for SqliteConnection {
         ", guild_id), params![]).expect("Failed to create tables");
 
         conn.execute(&format!("
-        INSERT OR IGNORE INTO '{0}_levels' values ({1}, 0, 0, 0);
+        INSERT OR IGNORE INTO '{0}_ranks' values ({1}, 0, 0, 0);
         ", guild_id, user_id), params![])
             .expect("Failed to insert ____ into user");
 
         let mut query = conn.prepare(&format!("
-        SELECT user_id, level, xp, last_xp FROM '{0}_levels' WHERE user_id = {1};
-        ", guild_id, user_id)).expect("Failed to query database");
+        SELECT user_id, level, xp, last_xp FROM '{}' WHERE user_id = {};
+        ", guild_id, user_id)).expect("Failed to prepare query");
 
         query.query_row(params![], |row| {
             let duration: i64 = row.get("last_xp").unwrap();
@@ -141,6 +141,41 @@ impl Database for SqliteConnection {
         }).expect("Failed to query database");
 
         db_user_iter.map(|s| s.unwrap()).collect()
+
+    }
+
+    async fn get_rank_rewards(&mut self, guild_id: String) -> DBUser {
+
+        let pool = self.pool.clone();
+        let conn = pool.get().expect("Failed to get sqlite connection");
+        drop(pool);
+
+        //create table in db if it doesn't exist for this server
+        conn.execute(&format!("
+        CREATE TABLE IF NOT EXISTS '{}_rank_rewards' (
+            user_id INTEGER PRIMARY KEY,
+            level INTEGER NOT NULL DEFAULT 0,
+            xp INTEGER NOT NULL DEFAULT 0,
+            last_xp INTEGER NOT NULL DEFAULT 0
+        );
+        ", guild_id), params![]).expect("Failed to create tables");
+
+        let mut query = conn.prepare(&format!("
+        SELECT level, role FROM '{}_rank_rewards' WHERE user_id = 2?;
+        ", guild_id)).expect("Failed to prepare query");
+
+        query.query_row(params![], |row| {
+            let duration: i64 = row.get("last_xp").unwrap();
+            let duration = UNIX_EPOCH + Duration::from_secs(duration as u64);
+            let datetime = DateTime::<Utc>::from(duration);
+            let user_id: i64 = row.get("user_id").unwrap();
+            Ok(DBUser {
+                user_id: user_id.to_string(),
+                level: row.get("level").unwrap(),
+                xp: row.get("xp").unwrap(),
+                last_xp: datetime
+            })
+        }).expect("Failed to query database")
 
     }
 

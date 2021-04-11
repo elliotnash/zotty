@@ -25,8 +25,10 @@ pub trait Database: std::fmt::Debug + Send {
     async fn set_user_xp(&mut self, guild_id: String, user_id: String, xp: i32);
     // sets a users xp and level
     async fn set_user_level(&mut self, guild_id: String, user_id: String, level: i32, xp: i32);
-    // gets a list of users, sorted by rank
+    // returns a list of users, sorted by rank
     async fn get_top_users(&mut self, guild_id: String, limit: i32, starting_rank: i32) -> Vec<DBUser>;
+    // returns a HashMap of levels with their rewards
+    async fn get_rank_rewards(&mut self, guild_id: String) -> DBUser;
 }
 
 pub async fn new_database() -> Box<dyn Database> {
