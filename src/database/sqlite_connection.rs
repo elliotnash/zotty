@@ -156,11 +156,62 @@ impl Database for SqliteConnection {
             level INTEGER primary key,
             role INTEGER NOT NULL
         );
-        ", guild_id), params![]).expect("Failed to create tables");
+        ", guild_id), params![]).expect("Failed to create table");
 
         let mut query = conn.prepare(&format!("
         SELECT role FROM '{}_rank_rewards' WHERE level = {};
         ", guild_id, level)).expect("Failed to prepare query");
+
+        query.query_row(params![], |row| {
+            Ok(row.get("role").unwrap())
+        }).ok()
+
+    }
+
+    async fn get_all_rank_rewards(&mut self, guild_id: String) -> Vec<(i32, u64)> {
+
+        let pool = self.pool.clone();
+        let conn = pool.get().expect("Failed to get sqlite connection");
+        drop(pool);
+
+        //create table in db if it doesn't exist for this server
+        conn.execute(&format!("
+        CREATE TABLE IF NOT EXISTS '{}_rank_rewards' (
+            level INTEGER primary key,
+            role INTEGER NOT NULL
+        );
+        ", guild_id), params![]).expect("Failed to create tables");
+
+        let mut query = conn.prepare(&format!("
+        SELECT level, role FROM '{}_rank_rewards';
+        ", guild_id)).expect("Failed to prepare query");
+
+        query.query_map(params![], |row| {
+            let level = row.get("level").unwrap();
+            let role = row.get("role").unwrap();
+            Ok((level, role))
+        }).expect("Failed to query database")
+            .map(|x|x.unwrap()).collect()
+
+    }
+
+    async fn get_config(&mut self, guild_id: String, key: &str) -> Option<String> {
+
+        let pool = self.pool.clone();
+        let conn = pool.get().expect("Failed to get sqlite connection");
+        drop(pool);
+
+        //create table in db if it doesn't exist for this server
+        conn.execute(&format!("
+        CREATE TABLE IF NOT EXISTS '{}_config' (
+            key TEXT primary key,
+            value TEXT NOT NULL
+        );
+        ", guild_id), params![]).expect("Failed to create table");
+
+        let mut query = conn.prepare(&format!("
+        SELECT value FROM '{0}_config' WHERE key = '{1}';
+        ", guild_id, key)).expect("Failed to prepare query");
 
         query.query_row(params![], |row| {
             Ok(row.get("role").unwrap())

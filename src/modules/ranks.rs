@@ -60,10 +60,11 @@ pub async fn on_message(ctx: Context, msg: Message) {
             } else {
                 database.set_user_xp(guild_id.to_string(), msg.author.id.to_string(),
                     xp).await;
+                debug!("Message event locked database for {} micro seconds", now.elapsed().as_micros());
             }
-        }
-        
+        } else {
         debug!("Message event locked database for {} micro seconds", now.elapsed().as_micros());
+        }
 
     }
 

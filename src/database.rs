@@ -29,6 +29,10 @@ pub trait Database: std::fmt::Debug + Send {
     async fn get_top_users(&mut self, guild_id: String, limit: i32, starting_rank: i32) -> Vec<DBUser>;
     // returns a HashMap of levels with their rewards
     async fn get_rank_reward(&mut self, guild_id: String, level: i32) -> Option<u64>;
+    // returns a HashMap of levels with their rewards
+    async fn get_all_rank_rewards(&mut self, guild_id: String) -> Vec<(i32, u64)>;
+    // returns a config setting as a string from a key
+    async fn get_config(&mut self, guild_id: String, key: &str) -> Option<String>;
 }
 
 pub async fn new_database() -> Box<dyn Database> {
