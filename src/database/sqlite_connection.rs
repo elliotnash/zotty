@@ -214,7 +214,7 @@ impl Database for SqliteConnection {
         ", guild_id, key)).expect("Failed to prepare query");
 
         query.query_row(params![], |row| {
-            Ok(row.get("role").unwrap())
+            Ok(row.get("value").unwrap())
         }).ok()
 
     }
