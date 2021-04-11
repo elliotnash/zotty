@@ -10,6 +10,7 @@ mod commands;
 mod modules;
 use modules::{
     help,
+    options,
     ranks
 };
 mod config;
@@ -52,6 +53,8 @@ impl EventHandler for Handler {
                 {tokio::spawn(ranks::rank::rank(ctx.clone(), msg.clone(), args.clone()));}
             "leaderboard" | "top" | "levels" =>
                 {tokio::spawn(ranks::leaderboard::leaderboard(ctx.clone(), msg.clone(), args.clone()));}
+            "config" =>
+                {tokio::spawn(options::config(ctx.clone(), msg.clone(), args.clone()));}
             _ => {}
         }
 

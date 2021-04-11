@@ -33,6 +33,8 @@ pub trait Database: std::fmt::Debug + Send {
     async fn get_all_rank_rewards(&mut self, guild_id: String) -> Vec<(i32, u64)>;
     // returns a config setting as a string from a key
     async fn get_config(&mut self, guild_id: String, key: &str) -> Option<String>;
+    // sets a config option
+    async fn set_config(&mut self, guild_id: String, key: &str, value: &str);
 }
 
 pub async fn new_database() -> Box<dyn Database> {

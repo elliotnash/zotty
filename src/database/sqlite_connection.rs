@@ -219,4 +219,24 @@ impl Database for SqliteConnection {
 
     }
 
+    async fn set_config(&mut self, guild_id: String, key: &str, value: &str) {
+
+        let pool = self.pool.clone();
+        let conn = pool.get().expect("Failed to get sqlite connection");
+        drop(pool);
+
+        //create table in db if it doesn't exist for this server
+        conn.execute(&format!("
+        CREATE TABLE IF NOT EXISTS '{}_config' (
+            key TEXT primary key,
+            value TEXT NOT NULL
+        );
+        ", guild_id), params![]).expect("Failed to create table");
+
+        conn.execute(&format!("
+        REPLACE INTO '{0}_config' VALUES({1}, {2});
+        ", guild_id, key, value), params![]).expect("Failed insert ____ into table");
+
+    }
+
 }
