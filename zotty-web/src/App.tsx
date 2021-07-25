@@ -10,9 +10,9 @@ function Index() {
   return <h2>Home</h2>;
 }
 
-type TParams = {id: string};
-function Page({match}: RouteComponentProps<TParams>) {
-  return <h2>This is a page with ID: {match.params.id} </h2>;
+type TParams = {guild_id: string};
+function ServerPage({match}: RouteComponentProps<TParams>) {
+  return <h2>Servers guild id is: {match.params.guild_id} </h2>;
 }
 
 function AppRouter() {
@@ -25,15 +25,15 @@ function AppRouter() {
               <Link to="/">Home</Link>
             </li>
             <li>
-              <Link to="/page/1">First Product</Link>
+              <Link to="/123213">First Guild</Link>
             </li>
             <li>
-              <Link to="/page/2">Second Product</Link>
+              <Link to="/213232">Second Guild</Link>
             </li>
           </ul>
         </nav>
-        <Route path="/" exact component={Index} />
-        <Route path="/page/:id" component={Page} />
+        <Route path="/" exact component={Index}/>
+        <Route path="/:guild_id" exact component={ServerPage}/>
       </div>
     </Router>
   );
