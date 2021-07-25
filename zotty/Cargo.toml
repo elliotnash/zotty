@@ -30,8 +30,8 @@ features = ["client", "gateway", "rustls_backend", "model", "cache"]
 version = "1.0"
 features = ["macros", "rt-multi-thread", "signal"]
 
-[dependencies.raqote]
-version = "0.8"
+[dependencies.skia-safe]
+version = "0.40"
 
 [dependencies.rocket]
 git =  "https://github.com/SergioBenitez/Rocket.git"

@@ -1,5 +1,4 @@
 use std::convert::TryFrom;
-use cairo::Context;
 
 #[derive(Debug)]
 pub struct Colour {
