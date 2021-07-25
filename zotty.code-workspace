@@ -7,5 +7,9 @@
 			"path": "zotty-web"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.watcherExclude": {
+			"**/target": true
+		}
+	}
 }
