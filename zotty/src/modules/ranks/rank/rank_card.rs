@@ -1,4 +1,4 @@
-use skia_safe::{Canvas, Codec, Color, Data, Paint, Path, Surface, RRect, Rect, PaintStyle};
+use skia_safe::{Canvas, Codec, Color, Data, Image, Paint, PaintStyle, Path, Picture, Pixmap, RRect, Rect, SamplingOptions, Surface, ClipOp};
 use serenity::model::prelude::User;
 use std::sync::RwLock;
 use std::{f32::consts::PI, fs::File, io::{BufWriter, BufReader, Cursor}};
@@ -30,14 +30,12 @@ pub async fn generate_rank_card(user: User, db_user: DBUser, rank: i32) -> BufWr
 
     let avatar =  reqwest::get(avatar_url).await.expect("Failed to download avatar").bytes().await.unwrap().to_vec();
 
-    let reader = BufReader::with_capacity(150_000, Cursor::new(avatar));
-
     tokio::task::spawn_blocking(move || {
-        generate(reader, &user.name, user.discriminator, rank, db_user.level, db_user.xp)
+        generate(&*avatar, &user.name, user.discriminator, rank, db_user.level, db_user.xp)
     }).await.unwrap()
 }
 
-fn generate(avatar: BufReader<Cursor<Vec<u8>>>, username: &str, user_discriminator: u16, 
+fn generate(avatar: &[u8], username: &str, user_discriminator: u16, 
         rank: i32, level: i32, xp: i32) -> BufWriter<Vec<u8>> {
     
     // get level xp with calculation
@@ -57,11 +55,11 @@ fn generate(avatar: BufReader<Cursor<Vec<u8>>>, username: &str, user_discriminat
     let margin = 40_f32;
     let left_margin = 250_f32;
     let rect = Rect::new(margin, margin, width-margin, height-margin);
-    surface.canvas().draw_round_rect(rect, 25_f32, 25_f32, &paint);
+    surface.canvas().draw_round_rect(rect, 25., 25., &paint);
     //draw_rounded_rec(&context, margin, margin, width-margin, height-margin, 25_f64);
 
     //draw avatar
-    draw_avatar(&context, 0.5 * (left_margin+10_f64-margin), 0.5 * height, 190_f64, margin, avatar);
+    draw_avatar(&mut surface, 0.5 * (left_margin+10.-margin), 0.5 * height, 190., margin, avatar);
 
     //draw progress bar
     let progress_margin = 30_f64;
@@ -69,7 +67,7 @@ fn generate(avatar: BufReader<Cursor<Vec<u8>>>, username: &str, user_discriminat
     draw_progress_bar(&context, left_margin+progress_margin, width-margin-progress_margin, 
         height-(margin+progress_margin), progress_thickness, xp, level_xp);
 
-    //draw username 
+    //draw username
     let username_magin = 15_f64;
     draw_username_text(&context, left_margin+progress_margin, width-(margin+progress_margin),
         height-(margin+progress_margin+username_magin), username, user_discriminator);
@@ -94,35 +92,30 @@ fn generate(avatar: BufReader<Cursor<Vec<u8>>>, username: &str, user_discriminat
     writer
 }
 
-fn draw_avatar(context: &Context, xc: f64, yc: f64, size: f64, left_margin: f64, mut image: BufReader<Cursor<Vec<u8>>>) -> f64 {
-    // create image from bufreader
-    let avatar_source = ImageSurface::create_from_png(&mut image)
+fn draw_avatar(surface: &mut Surface, xc: f32, yc: f32, size: f32, left_margin: f32, mut avatar_data: &[u8]) -> f32 {
+    // create image from byte slice
+    let skdata = Data::new_copy(avatar_data);
+    let mut codec = Codec::from_data(skdata).unwrap();
+    let avatar = codec.get_image(None, None)
         .expect("Failed to read avatar");
     // calculate scale from image size
-    let scale = size / f64::from(avatar_source.get_width());
-    //scale entire canvas to scale image
-    context.scale(scale, scale);
-    //calculate x, y relative to scale
-    let avatar_x = left_margin/scale + xc/scale - 0.5 * f64::from(avatar_source.get_width());
-    let avatar_y = yc/scale - 0.5 * f64::from(avatar_source.get_height());
-    //add avatar to canvas
-    context.set_source_surface(&avatar_source, avatar_x, avatar_y);
-    //reset scale
-    context.scale(1_f64/scale, 1_f64/scale);
-    //draw clipping mask for avatar
-    draw_rounded_rec(&context, 
-        left_margin + xc - 0.5*(scale*f64::from(avatar_source.get_width())), 
-        yc - 0.5*(scale*f64::from(avatar_source.get_height())), 
-        left_margin + xc + 0.5*(scale*f64::from(avatar_source.get_width())), 
-        yc + 0.5*(scale*f64::from(avatar_source.get_height())),
-        20_f64);
-    // clip and paint
-    context.clip();
-    context.paint();
-    // make sure to reset clipping mask so others can draw
-    context.reset_clip();
-    // return the amount of space used
-    left_margin + scale*f64::from(avatar_source.get_width())
+    let scale = size / (avatar.width() as f32);
+    // create rect to place image
+    let avatar_x = left_margin + xc - 0.5 * size;
+    let avatar_y = yc - 0.5 * size;
+    let rect = Rect::new(avatar_x, avatar_y, avatar_x+size, avatar_y+size);
+    // create rounded clipping mask and apply
+    surface.canvas().save();
+    let crrect = RRect::new_rect_xy(rect, 20., 20.);
+    surface.canvas().clip_rrect(crrect, ClipOp::Intersect, true);
+    //draw avatar on canvas
+    let paint = Paint::default();
+    surface.canvas().draw_image_rect(avatar, None, rect, paint);
+    // reset clipping mask
+    surface.canvas().restore();
+    // return the amount of space used 
+    //TODO remove probably
+    left_margin + size
 }
 
 fn draw_progress_bar(context: &Context, x1: f64, x2: f64, y: f64, thickness: f64, xp: i32, level_xp: i32) {
