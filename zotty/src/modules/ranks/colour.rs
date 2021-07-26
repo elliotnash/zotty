@@ -30,10 +30,10 @@ impl Colour {
     pub fn alpha_decimal(&self) -> f64 {f64::from(self.alpha)*0.00392156862}
 }
 
-pub fn set_colour(context: &Context, colour: Colour) {
-    context.set_source_rgba(colour.red_decimal(), colour.green_decimal(), 
-        colour.blue_decimal(), colour.alpha_decimal());
-}
+// pub fn set_colour(context: &Context, colour: Colour) {
+//     context.set_source_rgba(colour.red_decimal(), colour.green_decimal(), 
+//         colour.blue_decimal(), colour.alpha_decimal());
+// }
 
 pub fn format_descriminator(discriminator: impl ToString) -> String {
     let str = discriminator.to_string();

@@ -1,10 +1,27 @@
-use cairo::{ ImageSurface, FontFace, FontSlant, FontWeight, Context, LineCap };
+use skia_safe::{Surface, Canvas, Codec, Paint, Data};
 use serenity::model::prelude::User;
+use std::sync::RwLock;
 use std::{f64::consts::PI, fs::File, io::{BufWriter, BufReader, Cursor}};
+use once_cell::sync::Lazy;
 
-use super::super::colour::{Colour, set_colour, format_descriminator};
+use super::super::colour::{Colour, format_descriminator};
 use crate::database::DBUser;
 use crate::CONFIG;
+
+
+static BLANK_SURFACE: Lazy<RwLock<Surface>> = Lazy::new(|| RwLock::new(load_image_surface()));
+
+fn load_image_surface() -> Surface {
+    let data = std::fs::read("./rank.png").unwrap();
+    let skdata = Data::new_copy(&*data);
+    let mut codec = Codec::from_data(skdata).unwrap();
+    let image = codec.get_image(None, None).unwrap();
+    let mut surface = Surface::new_raster_n32_premul((image.dimensions().width, image.dimensions().height)).expect("no surface!");
+    let mut paint = Paint::default();
+    surface.canvas().draw_image(image, (0, 0), None);
+    surface.canvas().save();
+    surface
+}
 
 pub async fn generate_rank_card(user: User, db_user: DBUser, rank: i32) -> BufWriter<Vec<u8>> {
 
@@ -26,12 +43,8 @@ fn generate(avatar: BufReader<Cursor<Vec<u8>>>, username: &str, user_discriminat
     // get level xp with calculation
     let level_xp = super::super::get_level_xp(level);
 
-    // create surface from rank card
-    let mut file = File::open("rank.png")
-        .expect("Couldn’t open input file.");
-
-    let base = ImageSurface::create_from_png(&mut file)
-        .expect("Couldn't create a surface!");
+    // clone surface from blank surface
+    let surface = BLANK_SURFACE.read().unwrap().clone();
 
     let width = f64::from(base.get_width());
     let height = f64::from(base.get_height());
