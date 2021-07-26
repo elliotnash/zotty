@@ -68,13 +68,13 @@ fn generate(avatar: &[u8], username: &str, user_discriminator: u16,
         height-(margin+progress_margin), progress_thickness, xp, level_xp);
 
     //draw username
-    let username_magin = 15_f64;
+    let username_magin = 15_f32;
     draw_username_text(&context, left_margin+progress_margin, width-(margin+progress_margin),
         height-(margin+progress_margin+username_magin), username, user_discriminator);
 
     //draw xp text
     let xp_xc = 0.5 * (left_margin+ (width-margin));
-    let xp_xy = margin+60_f64;
+    let xp_xy = margin+60.;
     let xp_half_width = draw_xp_text(&context, xp_xc, xp_xy, xp, level_xp);
 
     //draw rank text
@@ -110,7 +110,7 @@ fn draw_avatar(surface: &mut Surface, xc: f32, yc: f32, size: f32, left_margin: 
     surface.canvas().clip_rrect(crrect, ClipOp::Intersect, true);
     //draw avatar on canvas
     let paint = Paint::default();
-    surface.canvas().draw_image_rect(avatar, None, rect, paint);
+    surface.canvas().draw_image_rect(avatar, None, rect, &paint);
     // reset clipping mask
     surface.canvas().restore();
     // return the amount of space used 
