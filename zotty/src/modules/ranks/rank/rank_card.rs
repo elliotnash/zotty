@@ -1,4 +1,4 @@
-use skia_safe::{Canvas, Codec, Color, Data, Image, Paint, PaintStyle, Path, Picture, Pixmap, RRect, Rect, SamplingOptions, Surface, ClipOp};
+use skia_safe::{Canvas, Codec, Color, Data, Image, Paint, PaintStyle, Path, Picture, Pixmap, RRect, Rect, SamplingOptions, Surface, ClipOp, PaintCap, Point};
 use serenity::model::prelude::User;
 use std::sync::RwLock;
 use std::{f32::consts::PI, fs::File, io::{BufWriter, BufReader, Cursor}};
@@ -62,9 +62,9 @@ fn generate(avatar: &[u8], username: &str, user_discriminator: u16,
     draw_avatar(&mut surface, 0.5 * (left_margin+10.-margin), 0.5 * height, 190., margin, avatar);
 
     //draw progress bar
-    let progress_margin = 30_f64;
-    let progress_thickness = 30_f64;
-    draw_progress_bar(&context, left_margin+progress_margin, width-margin-progress_margin, 
+    let progress_margin = 30_f32;
+    let progress_thickness = 30_f32;
+    draw_progress_bar(&mut surface, left_margin+progress_margin, width-margin-progress_margin, 
         height-(margin+progress_margin), progress_thickness, xp, level_xp);
 
     //draw username
@@ -118,23 +118,32 @@ fn draw_avatar(surface: &mut Surface, xc: f32, yc: f32, size: f32, left_margin: 
     left_margin + size
 }
 
-fn draw_progress_bar(context: &Context, x1: f64, x2: f64, y: f64, thickness: f64, xp: i32, level_xp: i32) {
-    set_colour(context, Colour::from_hex(0x434C5E));
-    context.set_line_width(thickness);
-    context.set_line_cap(LineCap::Round);
-    // draw backing
-    context.move_to(x1, y);
-    context.line_to(x2, y);
-    context.stroke();
-    // calculate length to draw
-    let progress = f64::from(xp) / f64::from(level_xp);
-    let bar_length = (x2-x1) * progress;
-    // draw bar
-    context.move_to(x1, y);
-    set_colour(context, Colour::from_hex(0x88C0D0));
-    context.line_to(x1+bar_length, y);
+//TODO move functions that take Surface to impl block if possible
 
-    context.stroke();
+fn draw_progress_bar(surface: &mut Surface, x1: f32, x2: f32, y: f32, thickness: f32, xp: i32, level_xp: i32) {
+    // set_colour(context, Colour::from_hex(0x434C5E));
+    // set colour and paint style
+    let mut paint = Paint::default();
+    paint.set_color(Color::from_rgb(67, 76, 94));
+    paint.set_style(PaintStyle::Stroke);
+    paint.set_stroke_width(thickness);
+    paint.set_stroke_cap(PaintCap::Round);
+    // create path and draw backing
+    let backing_path = Path::new();
+    backing_path.move_to(Point::new(x1, y));
+    backing_path.line_to(Point::new(x2, y));
+    surface.canvas().draw_path(&backing_path, &paint);
+    // calculate length to draw
+    let progress = xp as f32 / level_xp as f32;
+    let bar_length = (x2-x1) * progress;
+    // set new colour
+    paint.set_color(Color::from_rgb(136, 192, 208));
+    // set_colour(context, Colour::from_hex(0x88C0D0));
+    // create path and draw bar
+    let bar_path = Path::new();
+    bar_path.move_to(Point::new(x1, y));
+    bar_path.line_to(Point::new(x1+bar_length, y));
+    surface.canvas().draw_path(&bar_path, &paint);
 }
 
 fn draw_username_text(context: &Context, x1: f64, x2: f64, y_bottom: f64, username: &str, user_discriminator: u16) {
