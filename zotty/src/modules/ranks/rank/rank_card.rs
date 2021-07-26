@@ -1,7 +1,7 @@
-use skia_safe::{Surface, Canvas, Codec, Paint, Data};
+use skia_safe::{Canvas, Codec, Color, Data, Paint, Path, Surface, RRect, Rect, PaintStyle};
 use serenity::model::prelude::User;
 use std::sync::RwLock;
-use std::{f64::consts::PI, fs::File, io::{BufWriter, BufReader, Cursor}};
+use std::{f32::consts::PI, fs::File, io::{BufWriter, BufReader, Cursor}};
 use once_cell::sync::Lazy;
 
 use super::super::colour::{Colour, format_descriminator};
@@ -12,7 +12,7 @@ use crate::CONFIG;
 static BLANK_SURFACE: Lazy<RwLock<Surface>> = Lazy::new(|| RwLock::new(load_image_surface()));
 
 fn load_image_surface() -> Surface {
-    let data = std::fs::read("./rank.png").unwrap();
+    let data = std::fs::read("rank.png").unwrap();
     let skdata = Data::new_copy(&*data);
     let mut codec = Codec::from_data(skdata).unwrap();
     let image = codec.get_image(None, None).unwrap();
@@ -46,17 +46,19 @@ fn generate(avatar: BufReader<Cursor<Vec<u8>>>, username: &str, user_discriminat
     // clone surface from blank surface
     let surface = BLANK_SURFACE.read().unwrap().clone();
 
-    let width = f64::from(base.get_width());
-    let height = f64::from(base.get_height());
-    
-    let context = Context::new(&base);
+    let width = surface.width() as f32;
+    let height = surface.height() as f32;
 
     // create base rectangle
-    set_colour(&context, Colour::from_alpha_hex(0x2E3440EE));
-    let margin = 40_f64;
-    let left_margin = 250_f64;
-    draw_rounded_rec(&context, margin, margin, width-margin, height-margin, 25_f64);
-    context.fill();
+    let mut paint = Paint::default();
+    paint.set_color(Color::from_argb(238, 46, 52, 64));
+    paint.set_style(PaintStyle::Fill);
+    // set_colour(&context, Colour::from_alpha_hex(0x2E3440EE));
+    let margin = 40_f32;
+    let left_margin = 250_f32;
+    let rect = Rect::new(margin, margin, width-margin, height-margin);
+    surface.canvas().draw_round_rect(rect, 25_f32, 25_f32, paint);
+    //draw_rounded_rec(&context, margin, margin, width-margin, height-margin, 25_f64);
 
     //draw avatar
     draw_avatar(&context, 0.5 * (left_margin+10_f64-margin), 0.5 * height, 190_f64, margin, avatar);
