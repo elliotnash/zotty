@@ -57,7 +57,7 @@ fn generate(avatar: BufReader<Cursor<Vec<u8>>>, username: &str, user_discriminat
     let margin = 40_f32;
     let left_margin = 250_f32;
     let rect = Rect::new(margin, margin, width-margin, height-margin);
-    surface.canvas().draw_round_rect(rect, 25_f32, 25_f32, paint);
+    surface.canvas().draw_round_rect(rect, 25_f32, 25_f32, &paint);
     //draw_rounded_rec(&context, margin, margin, width-margin, height-margin, 25_f64);
 
     //draw avatar
