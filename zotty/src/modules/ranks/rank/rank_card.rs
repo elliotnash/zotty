@@ -129,7 +129,7 @@ fn draw_progress_bar(surface: &mut Surface, x1: f32, x2: f32, y: f32, thickness:
     paint.set_stroke_width(thickness);
     paint.set_stroke_cap(PaintCap::Round);
     // create path and draw backing
-    let backing_path = Path::new();
+    let mut backing_path = Path::new();
     backing_path.move_to(Point::new(x1, y));
     backing_path.line_to(Point::new(x2, y));
     surface.canvas().draw_path(&backing_path, &paint);
@@ -139,7 +139,7 @@ fn draw_progress_bar(surface: &mut Surface, x1: f32, x2: f32, y: f32, thickness:
     // set new colour
     paint.set_color(Color::from_rgb(136, 192, 208));
     // create path and draw bar
-    let bar_path = Path::new();
+    let mut bar_path = Path::new();
     bar_path.move_to(Point::new(x1, y));
     bar_path.line_to(Point::new(x1+bar_length, y));
     surface.canvas().draw_path(&bar_path, &paint);
@@ -190,7 +190,7 @@ fn draw_username_text(surface: &mut Surface, x1: f32, x2: f32, y_bottom: f32, us
 }
 
 fn draw_xp_text(surface: &mut Surface, xc: f32, yc: f32, xp: i32, level_xp: i32) -> f32 {
-    let paint = Paint::default();
+    let mut paint = Paint::default();
     paint.set_color(Color::from_rgb(237, 239, 243));
     let font = Font::new(load_typeface(), 30.);
     let seperation = 8_f32;
@@ -235,7 +235,7 @@ fn draw_rank_text(surface: &mut Surface, xc: f32, yc: f32, rank: i32) {
     let top_size = 25_f32;
     let bottom_size = 75_f32;
     let seperation = 8_f32;
-    let font = Font::new(load_typeface(), top_size);
+    let mut font = Font::new(load_typeface(), top_size);
     // format text
     let top_text = "RANK";
     let bottom_text = format!("#{}", rank);
@@ -271,7 +271,7 @@ fn draw_level_text(surface: &mut Surface, xc: f32, yc: f32, level: i32) {
     let top_size = 25_f32;
     let bottom_size = 75_f32;
     let seperation = 8_f32;
-    let font = Font::new(load_typeface(), top_size);
+    let mut font = Font::new(load_typeface(), top_size);
     // format text
     let top_text = "LEVEL";
     let bottom_text = format!("{}", level);
