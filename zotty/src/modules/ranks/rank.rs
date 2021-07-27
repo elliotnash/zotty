@@ -71,10 +71,10 @@ pub async fn rank(ctx: Context, msg: Message, args: Args) {
         debug!("Rank command took {} micro seconds to query database", now.elapsed().as_micros());
 
         let now = Instant::now();
-        let writer = generate_rank_card(target.user, db_user.clone(), rank).await;
+        let data = generate_rank_card(target.user, db_user.clone(), rank).await;
         debug!("generating rank card took {}ms", now.elapsed().as_millis());
 
-        msg.channel_id.send_files(&ctx.http, vec![(writer.buffer(), "rank.png")], |m| {m}).await
+        msg.channel_id.send_files(&ctx.http, vec![(data.as_bytes(), "rank.png")], |m| {m}).await
             .expect("Failed to send message");
 
     }
