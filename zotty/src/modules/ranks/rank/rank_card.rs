@@ -1,25 +1,14 @@
 use skia_safe::{Canvas, ClipOp, Codec, Color, Data, Font, FontStyle, Image, Paint, PaintCap, PaintStyle, Path, Picture, Pixmap, Point, RRect, Rect, SamplingOptions, Surface, TextBlob, Typeface, EncodedImageFormat};
 use serenity::model::prelude::User;
 use tracing::log::warn;
-use std::sync::RwLock;
-use std::{f32::consts::PI, fs::File, io::{BufWriter, BufReader, Cursor}};
-use once_cell::sync::Lazy;
+use std::fs;
 
-use super::super::colour::{Colour, format_descriminator};
+use super::super::colour::format_descriminator;
 use crate::database::DBUser;
 use crate::CONFIG;
 
-
-static BLANK_SURFACE: Lazy<RwLock<Surface>> = Lazy::new(|| RwLock::new(load_image_surface()));
-static TYPEFACE: Lazy<RwLock<Typeface>> = Lazy::new(|| RwLock::new(Typeface::from_name(&CONFIG.get().unwrap().modules.ranks.font_family, FontStyle::normal())
-    .unwrap_or_else(|| {
-        warn!("Failed to load typeface '{}'", &CONFIG.get().unwrap().modules.ranks.font_family);
-        warn!("Loading default typeface");
-        Typeface::default()
-    })));
-
 fn load_image_surface() -> Surface {
-    let data = std::fs::read("rank.png").unwrap();
+    let data = fs::read("rank.png").unwrap();
     let skdata = Data::new_copy(&*data);
     let mut codec = Codec::from_data(skdata).unwrap();
     let image = codec.get_image(None, None).unwrap();
@@ -28,6 +17,15 @@ fn load_image_surface() -> Surface {
     surface.canvas().draw_image(image, (0, 0), None);
     surface.canvas().save();
     surface
+}
+
+fn load_typeface() -> Typeface {
+    Typeface::from_name(&CONFIG.get().unwrap().modules.ranks.font_family, FontStyle::normal())
+        .unwrap_or_else(|| {
+            warn!("Failed to load typeface '{}'", &CONFIG.get().unwrap().modules.ranks.font_family);
+            warn!("Loading default typeface");
+            Typeface::default()
+        })
 }
 
 pub async fn generate_rank_card(user: User, db_user: DBUser, rank: i32) -> Data {
@@ -49,7 +47,7 @@ fn generate(avatar: &[u8], username: &str, user_discriminator: u16,
     let level_xp = super::super::get_level_xp(level);
 
     // clone surface from blank surface
-    let mut surface = BLANK_SURFACE.read().unwrap().clone();
+    let mut surface = load_image_surface();
 
     let width = surface.width() as f32;
     let height = surface.height() as f32;
@@ -152,7 +150,7 @@ fn draw_username_text(surface: &mut Surface, x1: f32, x2: f32, y_bottom: f32, us
     let xc = 0.5 * (x1 + x2);
     // create font
     let font_size = 50_f32;
-    let mut font = Font::new(TYPEFACE.read().unwrap().clone(), font_size);
+    let mut font = Font::new(load_typeface(), font_size);
     // get bounds of both parts
     let discriminator_string = format!("#{}", format_descriminator(user_discriminator));
     let username_blob = TextBlob::new(username, &font).unwrap();
@@ -194,7 +192,7 @@ fn draw_username_text(surface: &mut Surface, x1: f32, x2: f32, y_bottom: f32, us
 fn draw_xp_text(surface: &mut Surface, xc: f32, yc: f32, xp: i32, level_xp: i32) -> f32 {
     let paint = Paint::default();
     paint.set_color(Color::from_rgb(237, 239, 243));
-    let font = Font::new(TYPEFACE.read().unwrap().clone(), 30.);
+    let font = Font::new(load_typeface(), 30.);
     let seperation = 8_f32;
     // format text
     let top_text = format_i32(xp);
@@ -237,7 +235,7 @@ fn draw_rank_text(surface: &mut Surface, xc: f32, yc: f32, rank: i32) {
     let top_size = 25_f32;
     let bottom_size = 75_f32;
     let seperation = 8_f32;
-    let font = Font::new(TYPEFACE.read().unwrap().clone(), top_size);
+    let font = Font::new(load_typeface(), top_size);
     // format text
     let top_text = "RANK";
     let bottom_text = format!("#{}", rank);
@@ -273,7 +271,7 @@ fn draw_level_text(surface: &mut Surface, xc: f32, yc: f32, level: i32) {
     let top_size = 25_f32;
     let bottom_size = 75_f32;
     let seperation = 8_f32;
-    let font = Font::new(TYPEFACE.read().unwrap().clone(), top_size);
+    let font = Font::new(load_typeface(), top_size);
     // format text
     let top_text = "LEVEL";
     let bottom_text = format!("{}", level);
