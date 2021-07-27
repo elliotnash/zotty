@@ -1,5 +1,6 @@
-use skia_safe::{Canvas, Codec, Color, Data, Image, Paint, PaintStyle, Path, Picture, Pixmap, RRect, Rect, SamplingOptions, Surface, ClipOp, PaintCap, Point};
+use skia_safe::{Canvas, ClipOp, Codec, Color, Data, Font, FontStyle, Image, Paint, PaintCap, PaintStyle, Path, Picture, Pixmap, Point, RRect, Rect, SamplingOptions, Surface, TextBlob, Typeface};
 use serenity::model::prelude::User;
+use tracing::log::warn;
 use std::sync::RwLock;
 use std::{f32::consts::PI, fs::File, io::{BufWriter, BufReader, Cursor}};
 use once_cell::sync::Lazy;
@@ -10,6 +11,12 @@ use crate::CONFIG;
 
 
 static BLANK_SURFACE: Lazy<RwLock<Surface>> = Lazy::new(|| RwLock::new(load_image_surface()));
+static TYPEFACE: Lazy<RwLock<Typeface>> = Lazy::new(|| RwLock::new(Typeface::from_name(&CONFIG.get().unwrap().modules.ranks.font_family, FontStyle::normal())
+    .unwrap_or_else(|| {
+        warn!("Failed to load typeface '{}'", &CONFIG.get().unwrap().modules.ranks.font_family);
+        warn!("Loading default typeface");
+        Typeface::default()
+    })));
 
 fn load_image_surface() -> Surface {
     let data = std::fs::read("rank.png").unwrap();
@@ -51,12 +58,10 @@ fn generate(avatar: &[u8], username: &str, user_discriminator: u16,
     let mut paint = Paint::default();
     paint.set_color(Color::from_argb(238, 46, 52, 64));
     paint.set_style(PaintStyle::Fill);
-    // set_colour(&context, Colour::from_alpha_hex(0x2E3440EE));
     let margin = 40_f32;
     let left_margin = 250_f32;
     let rect = Rect::new(margin, margin, width-margin, height-margin);
     surface.canvas().draw_round_rect(rect, 25., 25., &paint);
-    //draw_rounded_rec(&context, margin, margin, width-margin, height-margin, 25_f64);
 
     //draw avatar
     draw_avatar(&mut surface, 0.5 * (left_margin+10.-margin), 0.5 * height, 190., margin, avatar);
@@ -69,7 +74,7 @@ fn generate(avatar: &[u8], username: &str, user_discriminator: u16,
 
     //draw username
     let username_magin = 15_f32;
-    draw_username_text(&context, left_margin+progress_margin, width-(margin+progress_margin),
+    draw_username_text(&mut surface, left_margin+progress_margin, width-(margin+progress_margin),
         height-(margin+progress_margin+username_magin), username, user_discriminator);
 
     //draw xp text
@@ -121,7 +126,6 @@ fn draw_avatar(surface: &mut Surface, xc: f32, yc: f32, size: f32, left_margin: 
 //TODO move functions that take Surface to impl block if possible
 
 fn draw_progress_bar(surface: &mut Surface, x1: f32, x2: f32, y: f32, thickness: f32, xp: i32, level_xp: i32) {
-    // set_colour(context, Colour::from_hex(0x434C5E));
     // set colour and paint style
     let mut paint = Paint::default();
     paint.set_color(Color::from_rgb(67, 76, 94));
@@ -138,7 +142,6 @@ fn draw_progress_bar(surface: &mut Surface, x1: f32, x2: f32, y: f32, thickness:
     let bar_length = (x2-x1) * progress;
     // set new colour
     paint.set_color(Color::from_rgb(136, 192, 208));
-    // set_colour(context, Colour::from_hex(0x88C0D0));
     // create path and draw bar
     let bar_path = Path::new();
     bar_path.move_to(Point::new(x1, y));
@@ -146,39 +149,48 @@ fn draw_progress_bar(surface: &mut Surface, x1: f32, x2: f32, y: f32, thickness:
     surface.canvas().draw_path(&bar_path, &paint);
 }
 
-fn draw_username_text(context: &Context, x1: f64, x2: f64, y_bottom: f64, username: &str, user_discriminator: u16) {
+fn draw_username_text(surface: &mut Surface, x1: f32, x2: f32, y_bottom: f32, username: &str, user_discriminator: u16) {
     let width = x2 - x1;
     let xc = 0.5 * (x1 + x2);
-    // set font size
-    let font_size = 50_f64;
-    context.set_font_size(font_size);
-    let font = FontFace::toy_create(&CONFIG.get().unwrap().modules.ranks.font_family, 
-        FontSlant::Normal, FontWeight::Normal);
-    context.set_font_face(&font);
-    // get text extents of both parts
+    // create font
+    let font_size = 50_f32;
+    let mut font = Font::new(TYPEFACE.read().unwrap().clone(), font_size);
+    // get bounds of both parts
     let discriminator_string = format!("#{}", format_descriminator(user_discriminator));
-    let username_extents = context.text_extents(&username);
-    let discriminator_extents = context.text_extents(&discriminator_string);
+    let username_blob = TextBlob::new(username, &font).unwrap();
+    let discriminator_blob = TextBlob::new(&discriminator_string, &font).unwrap();
     // if bigger than screen, rescale
-    let total_width = username_extents.width + 8_f64 + discriminator_extents.width;
+    let total_width = username_blob.bounds().width() + 8. + discriminator_blob.bounds().width();
     let scale = if total_width > width {
         width / total_width
-    } else {1_f64};
+    } else {1.};
     // rescale everything based off that scale
-    context.set_font_size(font_size*scale);
-    let username_extents = context.text_extents(&username);
-    let discriminator_extents = context.text_extents(&discriminator_string);
-    let yc = y_bottom-(discriminator_extents.height);
+    font.set_size(scale*font_size);
+    let username_blob = TextBlob::new(username, &font).unwrap();
+    let discriminator_blob = TextBlob::new(&discriminator_string, &font).unwrap();
+    let yc = y_bottom-(discriminator_blob.bounds().height());
     // draw username
-    set_colour(context, Colour::from_hex(0xd8dee9));
-    context.move_to(xc-(0.5*(username_extents.width+discriminator_extents.width))-(8_f64*scale), yc+(0.5*discriminator_extents.height));
-    context.text_path(&username);
-    context.fill();
+    let mut paint = Paint::default();
+    paint.set_style(PaintStyle::Fill);
+    paint.set_color(Color::from_rgb(216, 222, 233));
+    surface.canvas().draw_text_blob(
+        &username_blob,
+        Point::new(
+            xc-(0.5*(username_blob.bounds().width()+discriminator_blob.bounds().width()))-(8.*scale),
+            yc+(0.5*discriminator_blob.bounds().height())
+        ),
+        &paint
+    );
     // draw discriminator
-    set_colour(context, Colour::from_hex(0xc2b59b));
-    context.move_to(xc-(0.5*(discriminator_extents.width-username_extents.width)), yc+(0.5*discriminator_extents.height));
-    context.text_path(&discriminator_string);
-    context.fill();
+    paint.set_color(Color::from_rgb(194, 181, 155));
+    surface.canvas().draw_text_blob(
+        &discriminator_blob,
+        Point::new(
+            xc-(0.5*(discriminator_blob.bounds().width()-username_blob.bounds().width())),
+            yc+(0.5*discriminator_blob.bounds().height())
+        ),
+        &paint
+    );
 }
 
 fn draw_xp_text(context: &Context, xc: f64, yc: f64, xp: i32, level_xp: i32) -> f64 {
