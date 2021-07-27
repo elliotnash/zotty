@@ -282,19 +282,6 @@ fn draw_level_text(context: &Context, xc: f64, yc: f64, level: i32) {
     context.fill();
 }
 
-fn draw_rounded_rec(context: &Context, x1: f64, y1: f64,
-        x2: f64, y2: f64, radius: f64) {
-
-    let degrees = PI / 180.0;
-
-    context.new_sub_path();
-    context.arc(x2 - radius, y1 + radius, radius, -90_f64 * degrees, 0_f64 * degrees);
-    context.arc(x2 - radius, y2 - radius, radius, 0_f64 * degrees, 90_f64 * degrees);
-    context.arc(x1 + radius, y2 - radius, radius, 90_f64 * degrees, 180_f64 * degrees);
-    context.arc(x1 + radius, y1 + radius, radius, 180_f64 * degrees, 270_f64 * degrees);
-    context.close_path();
-}
-
 fn format_i32(num: i32) -> String {
     if num < 1000 {
         format!("{}", num)
