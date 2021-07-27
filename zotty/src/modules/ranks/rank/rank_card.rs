@@ -84,7 +84,7 @@ fn generate(avatar: &[u8], username: &str, user_discriminator: u16,
 
     //draw rank text
     let rank_xc = 0.5 * (left_margin+(xp_xc-xp_half_width));
-    draw_rank_text(&context, rank_xc, xp_xy, rank);
+    draw_rank_text(&mut surface, rank_xc, xp_xy, rank);
 
     //draw level text
     let level_xc = 0.5 * (xp_xc+(width-margin));
@@ -233,34 +233,40 @@ fn draw_xp_text(surface: &mut Surface, xc: f32, yc: f32, xp: i32, level_xp: i32)
     half_width
 }
 
-fn draw_rank_text(context: &Context, xc: f64, yc: f64, rank: i32) {
-    set_colour(context, Colour::from_hex(0xedeff3));
-    let font = FontFace::toy_create(&CONFIG.get().unwrap().modules.ranks.font_family, 
-        FontSlant::Normal, FontWeight::Normal);
-    context.set_font_face(&font);
-    let bottom_size = 75_f64;
-    let top_size = 25_f64;
-    let seperation = 8_f64;
+fn draw_rank_text(surface: &mut Surface, xc: f32, yc: f32, rank: i32) {
+    let mut paint = Paint::default();
+    paint.set_color(Color::from_rgb(237, 239, 243));
+    let top_size = 25_f32;
+    let bottom_size = 75_f32;
+    let seperation = 8_f32;
+    let font = Font::new(TYPEFACE.read().unwrap().clone(), top_size);
     // format text
     let top_text = "RANK";
     let bottom_text = format!("#{}", rank);
-    // get text extents
-    context.set_font_size(top_size);
-    let top_extents = context.text_extents(top_text);
-    context.set_font_size(bottom_size);
-    let bottom_extents = context.text_extents(&bottom_text);
+    // get text blobs
+    let top_blob = TextBlob::new(top_text, &font).unwrap();
+    font.set_size(bottom_size);
+    let bottom_blob = TextBlob::new(bottom_text, &font).unwrap();
     // get total height
-    let half_height = 0.5* (top_extents.height+seperation+bottom_extents.height);
+    let half_height = 0.5 * (top_blob.bounds().height() + seperation + bottom_blob.bounds().height());
     // draw top
-    context.set_font_size(top_size);
-    context.move_to(xc-(0.5*top_extents.width)+1_f64, (yc-half_height)+top_extents.height);
-    context.text_path(top_text);
-    context.fill();
+    surface.canvas().draw_text_blob(
+        top_blob,
+        Point::new(
+            xc-(0.5*top_blob.bounds().width())+1.,
+            (yc-half_height)+top_blob.bounds().height()
+        ),
+        &paint
+    );
     // draw bottom
-    context.set_font_size(bottom_size);
-    context.move_to(xc-(0.5*bottom_extents.width), yc+half_height);
-    context.text_path(&bottom_text);
-    context.fill();
+    surface.canvas().draw_text_blob(
+        bottom_blob,
+        Point::new(
+            xc-(0.5*bottom_blob.bounds().width()),
+            yc+half_height
+        ),
+        &paint
+    );
 }
 
 fn draw_level_text(context: &Context, xc: f64, yc: f64, level: i32) {
