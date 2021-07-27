@@ -22,6 +22,10 @@ regex = "1.4.3"
 serde = "1"
 toml = "0.5"
 
+[dependencies.rusqlite]
+version = "0.25.1"
+features = ["bundled"]
+
 [dependencies.serenity]
 version = "0.10"
 default-features = false

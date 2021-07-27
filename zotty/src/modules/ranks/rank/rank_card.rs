@@ -3,7 +3,7 @@ use serenity::model::prelude::User;
 use tracing::log::warn;
 use std::fs;
 
-use super::super::colour::format_descriminator;
+use super::super::image_utils::format_descriminator;
 use crate::database::DBUser;
 use crate::CONFIG;
 
