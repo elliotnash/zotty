@@ -9,7 +9,7 @@ use std::time::Instant;
 use crate::DATABASE;
 use super::help;
 
-mod colour;
+mod image_utils;
 mod level_up;
 
 pub mod rank;
