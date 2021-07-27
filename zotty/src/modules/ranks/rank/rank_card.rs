@@ -1,4 +1,4 @@
-use skia_safe::{Canvas, ClipOp, Codec, Color, Data, Font, FontStyle, Image, Paint, PaintCap, PaintStyle, Path, Picture, Pixmap, Point, RRect, Rect, SamplingOptions, Surface, TextBlob, Typeface, EncodedImageFormat};
+use skia_safe::{ClipOp, Codec, Color, Data, Font, FontStyle, Paint, PaintCap, PaintStyle, Path, Point, RRect, Rect, Surface, TextBlob, Typeface, EncodedImageFormat};
 use serenity::model::prelude::User;
 use tracing::log::warn;
 use std::fs;
@@ -13,7 +13,6 @@ fn load_image_surface() -> Surface {
     let mut codec = Codec::from_data(skdata).unwrap();
     let image = codec.get_image(None, None).unwrap();
     let mut surface = Surface::new_raster_n32_premul((image.dimensions().width, image.dimensions().height)).expect("no surface!");
-    let mut paint = Paint::default();
     surface.canvas().draw_image(image, (0, 0), None);
     surface.canvas().save();
     surface
@@ -93,14 +92,12 @@ fn generate(avatar: &[u8], username: &str, user_discriminator: u16,
         .expect("Failed to encode rank card to png")
 }
 
-fn draw_avatar(surface: &mut Surface, xc: f32, yc: f32, size: f32, left_margin: f32, mut avatar_data: &[u8]) -> f32 {
+fn draw_avatar(surface: &mut Surface, xc: f32, yc: f32, size: f32, left_margin: f32, avatar_data: &[u8]) -> f32 {
     // create image from byte slice
     let skdata = Data::new_copy(avatar_data);
     let mut codec = Codec::from_data(skdata).unwrap();
     let avatar = codec.get_image(None, None)
         .expect("Failed to read avatar");
-    // calculate scale from image size
-    let scale = size / (avatar.width() as f32);
     // create rect to place image
     let avatar_x = left_margin + xc - 0.5 * size;
     let avatar_y = yc - 0.5 * size;
