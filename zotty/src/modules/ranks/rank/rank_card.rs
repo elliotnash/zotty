@@ -1,4 +1,4 @@
-use skia_safe::{Canvas, ClipOp, Codec, Color, Data, Font, FontStyle, Image, Paint, PaintCap, PaintStyle, Path, Picture, Pixmap, Point, RRect, Rect, SamplingOptions, Surface, TextBlob, Typeface};
+use skia_safe::{Canvas, ClipOp, Codec, Color, Data, Font, FontStyle, Image, Paint, PaintCap, PaintStyle, Path, Picture, Pixmap, Point, RRect, Rect, SamplingOptions, Surface, TextBlob, Typeface, EncodedImageFormat};
 use serenity::model::prelude::User;
 use tracing::log::warn;
 use std::sync::RwLock;
@@ -30,7 +30,7 @@ fn load_image_surface() -> Surface {
     surface
 }
 
-pub async fn generate_rank_card(user: User, db_user: DBUser, rank: i32) -> BufWriter<Vec<u8>> {
+pub async fn generate_rank_card(user: User, db_user: DBUser, rank: i32) -> Data {
 
     let avatar_url = user.static_avatar_url().unwrap_or(user.default_avatar_url())
         .replace("webp", "png").replace("1024", "256");
@@ -43,13 +43,13 @@ pub async fn generate_rank_card(user: User, db_user: DBUser, rank: i32) -> BufWr
 }
 
 fn generate(avatar: &[u8], username: &str, user_discriminator: u16, 
-        rank: i32, level: i32, xp: i32) -> BufWriter<Vec<u8>> {
+        rank: i32, level: i32, xp: i32) -> Data {
     
     // get level xp with calculation
     let level_xp = super::super::get_level_xp(level);
 
     // clone surface from blank surface
-    let surface = BLANK_SURFACE.read().unwrap().clone();
+    let mut surface = BLANK_SURFACE.read().unwrap().clone();
 
     let width = surface.width() as f32;
     let height = surface.height() as f32;
@@ -91,10 +91,8 @@ fn generate(avatar: &[u8], username: &str, user_discriminator: u16,
     draw_level_text(&mut surface, level_xc, xp_xy, level);
 
     // write to buffer and return
-    let mut writer = BufWriter::with_capacity(350_000, Vec::<u8>::new());
-    base.write_to_png(&mut writer)
-        .expect("Couldn’t write to BufWriter");
-    writer
+    surface.image_snapshot().encode_to_data(EncodedImageFormat::PNG)
+        .expect("Failed to encode rank card to png")
 }
 
 fn draw_avatar(surface: &mut Surface, xc: f32, yc: f32, size: f32, left_margin: f32, mut avatar_data: &[u8]) -> f32 {
