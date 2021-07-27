@@ -80,7 +80,7 @@ fn generate(avatar: &[u8], username: &str, user_discriminator: u16,
     //draw xp text
     let xp_xc = 0.5 * (left_margin+ (width-margin));
     let xp_xy = margin+60.;
-    let xp_half_width = draw_xp_text(&context, xp_xc, xp_xy, xp, level_xp);
+    let xp_half_width = draw_xp_text(&mut surface, xp_xc, xp_xy, xp, level_xp);
 
     //draw rank text
     let rank_xc = 0.5 * (left_margin+(xp_xc-xp_half_width));
@@ -193,32 +193,43 @@ fn draw_username_text(surface: &mut Surface, x1: f32, x2: f32, y_bottom: f32, us
     );
 }
 
-fn draw_xp_text(context: &Context, xc: f64, yc: f64, xp: i32, level_xp: i32) -> f64 {
-    set_colour(context, Colour::from_hex(0xedeff3));
-    context.set_font_size(30_f64);
-    let font = FontFace::toy_create(&CONFIG.get().unwrap().modules.ranks.font_family, 
-        FontSlant::Normal, FontWeight::Normal);
-    context.set_font_face(&font);
-    let seperation = 8_f64;
+fn draw_xp_text(surface: &mut Surface, xc: f32, yc: f32, xp: i32, level_xp: i32) -> f32 {
+    let paint = Paint::default();
+    paint.set_color(Color::from_rgb(237, 239, 243));
+    let font = Font::new(TYPEFACE.read().unwrap().clone(), 30.);
+    let seperation = 8_f32;
     // format text
     let top_text = format_i32(xp);
     let bottom_text = format_i32(level_xp);
-    // get text extents
-    let top_extents = context.text_extents(&top_text);
-    let bottom_extents = context.text_extents(&bottom_text);
+    // get text blobs
+    let top_blob = TextBlob::new(&top_text, &font).unwrap();
+    let bottom_blob = TextBlob::new(&bottom_text, &font).unwrap();
     // draw top text
-    context.move_to(xc-(0.5*top_extents.width), yc-seperation);
-    context.text_path(&top_text);
+    surface.canvas().draw_text_blob(
+        top_blob,
+        Point::new(
+            xc-(0.5*top_blob.bounds().width()),
+            yc-seperation
+        ),
+        &paint
+    );
     // draw bottom text
-    context.move_to(xc-(0.5*bottom_extents.width), yc+bottom_extents.height+seperation);
-    context.text_path(&bottom_text);
-    context.fill();
+    surface.canvas().draw_text_blob(
+        bottom_blob,
+        Point::new(
+            xc-(0.5*bottom_blob.bounds().width()),
+            yc+bottom_blob.bounds().height()+seperation
+        ),
+        &paint
+    );
     // draw seperator
-    let half_width = 0.5 * top_extents.width.max(bottom_extents.width);
-    context.set_line_width(2_f64);
-    context.move_to(xc-half_width, yc);
-    context.line_to(xc+half_width, yc);
-    context.stroke();
+    let half_width = 0.5 * top_blob.bounds().width().max(bottom_blob.bounds().width());
+    paint.set_style(PaintStyle::Stroke);
+    paint.set_stroke_width(2.);
+    let mut path = Path::new();
+    path.move_to(Point::new(xc-half_width, yc));
+    path.line_to(Point::new(xc+half_width, yc));
+    surface.canvas().draw_path(&path, &paint);
     half_width
 }
 
