@@ -202,16 +202,16 @@ fn draw_xp_text(surface: &mut Surface, xc: f32, yc: f32, xp: i32, level_xp: i32)
     let bottom_blob = TextBlob::new(&bottom_text, &font).unwrap();
     // draw top text
     surface.canvas().draw_text_blob(
-        top_blob,
+        &top_blob,
         Point::new(
-            xc-(0.5*top_blob.bounds().width()),
+            xc-(0.5* top_blob.bounds().width()),
             yc-seperation
         ),
         &paint
     );
     // draw bottom text
     surface.canvas().draw_text_blob(
-        bottom_blob,
+        &bottom_blob,
         Point::new(
             xc-(0.5*bottom_blob.bounds().width()),
             yc+bottom_blob.bounds().height()+seperation
@@ -247,7 +247,7 @@ fn draw_rank_text(surface: &mut Surface, xc: f32, yc: f32, rank: i32) {
     let half_height = 0.5 * (top_blob.bounds().height() + seperation + bottom_blob.bounds().height());
     // draw top
     surface.canvas().draw_text_blob(
-        top_blob,
+        &top_blob,
         Point::new(
             xc-(0.5*top_blob.bounds().width())+1.,
             (yc-half_height)+top_blob.bounds().height()
@@ -256,7 +256,7 @@ fn draw_rank_text(surface: &mut Surface, xc: f32, yc: f32, rank: i32) {
     );
     // draw bottom
     surface.canvas().draw_text_blob(
-        bottom_blob,
+        &bottom_blob,
         Point::new(
             xc-(0.5*bottom_blob.bounds().width()),
             yc+half_height
@@ -283,7 +283,7 @@ fn draw_level_text(surface: &mut Surface, xc: f32, yc: f32, level: i32) {
     let half_height = 0.5* (top_blob.bounds().height()+seperation+bottom_blob.bounds().height());
     // draw top
     surface.canvas().draw_text_blob(
-        top_blob,
+        &top_blob,
         Point::new(
             xc-(0.5*top_blob.bounds().width()),
             (yc-half_height)+top_blob.bounds().height()
@@ -292,7 +292,7 @@ fn draw_level_text(surface: &mut Surface, xc: f32, yc: f32, level: i32) {
     );
     // draw bottom
     surface.canvas().draw_text_blob(
-        bottom_blob,
+        &bottom_blob,
         Point::new(
             xc-(0.5*bottom_blob.bounds().width()),
             yc+half_height
