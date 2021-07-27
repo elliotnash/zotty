@@ -53,6 +53,7 @@ fn generate(avatar: &[u8], username: &str, user_discriminator: u16,
 
     // create base rectangle
     let mut paint = Paint::default();
+    paint.set_anti_alias(true);
     paint.set_color(Color::from_argb(238, 46, 52, 64));
     paint.set_style(PaintStyle::Fill);
     let margin = 40_f32;
@@ -107,7 +108,8 @@ fn draw_avatar(surface: &mut Surface, xc: f32, yc: f32, size: f32, left_margin: 
     let crrect = RRect::new_rect_xy(rect, 20., 20.);
     surface.canvas().clip_rrect(crrect, ClipOp::Intersect, true);
     //draw avatar on canvas
-    let paint = Paint::default();
+    let mut paint = Paint::default();
+    paint.set_anti_alias(true);
     surface.canvas().draw_image_rect(avatar, None, rect, &paint);
     // reset clipping mask
     surface.canvas().restore();
@@ -121,6 +123,7 @@ fn draw_avatar(surface: &mut Surface, xc: f32, yc: f32, size: f32, left_margin: 
 fn draw_progress_bar(surface: &mut Surface, x1: f32, x2: f32, y: f32, thickness: f32, xp: i32, level_xp: i32) {
     // set colour and paint style
     let mut paint = Paint::default();
+    paint.set_anti_alias(true);
     paint.set_color(Color::from_rgb(67, 76, 94));
     paint.set_style(PaintStyle::Stroke);
     paint.set_stroke_width(thickness);
@@ -164,6 +167,7 @@ fn draw_username_text(surface: &mut Surface, x1: f32, x2: f32, y_bottom: f32, us
     let yc = y_bottom-(discriminator_blob.bounds().height());
     // draw username
     let mut paint = Paint::default();
+    paint.set_anti_alias(true);
     paint.set_style(PaintStyle::Fill);
     paint.set_color(Color::from_rgb(216, 222, 233));
     surface.canvas().draw_text_blob(
@@ -188,6 +192,7 @@ fn draw_username_text(surface: &mut Surface, x1: f32, x2: f32, y_bottom: f32, us
 
 fn draw_xp_text(surface: &mut Surface, xc: f32, yc: f32, xp: i32, level_xp: i32) -> f32 {
     let mut paint = Paint::default();
+    paint.set_anti_alias(true);
     paint.set_color(Color::from_rgb(237, 239, 243));
     let font = Font::new(load_typeface(), 30.);
     let seperation = 8_f32;
@@ -228,6 +233,7 @@ fn draw_xp_text(surface: &mut Surface, xc: f32, yc: f32, xp: i32, level_xp: i32)
 
 fn draw_rank_text(surface: &mut Surface, xc: f32, yc: f32, rank: i32) {
     let mut paint = Paint::default();
+    paint.set_anti_alias(true);
     paint.set_color(Color::from_rgb(237, 239, 243));
     let top_size = 25_f32;
     let bottom_size = 75_f32;
@@ -264,6 +270,7 @@ fn draw_rank_text(surface: &mut Surface, xc: f32, yc: f32, rank: i32) {
 
 fn draw_level_text(surface: &mut Surface, xc: f32, yc: f32, level: i32) {
     let mut paint = Paint::default();
+    paint.set_anti_alias(true);
     paint.set_color(Color::from_rgb(237, 239, 243));
     let top_size = 25_f32;
     let bottom_size = 75_f32;
