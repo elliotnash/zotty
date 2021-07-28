@@ -11,7 +11,6 @@ use super::help;
 //use leaderboard_card::generate_leaderboard_card;
 
 use crate::DATABASE;
-use crate::CONFIG;
 
 pub async fn leaderboard(ctx: Context, msg: Message, args: Args) {
 
@@ -62,7 +61,6 @@ pub async fn leaderboard(ctx: Context, msg: Message, args: Args) {
         // make bot start typing
         let _typing = msg.channel_id.start_typing(&ctx.http).unwrap();
 
-        let now = Instant::now();
         // let writer = generate_leaderboard_card(&ctx, db_users, 10*page_num).await;
         // debug!("generating leaderboard card took {}ms", now.elapsed().as_millis());
 
