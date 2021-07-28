@@ -15,41 +15,21 @@ use skia_safe::{
     RRect,
     Rect,
     Surface,
-    Typeface,
     EncodedImageFormat,
     utils::text_utils::Align
 };
 use serenity::model::prelude::User;
-use std::fs;
 
 use super::super::image_utils::format_descriminator;
-use crate::database::DBUser;
-
-fn load_image_surface() -> Surface {
-    let data = fs::read("rank.png").unwrap();
-    let skdata = Data::new_copy(&*data);
-    let mut codec = Codec::from_data(skdata).unwrap();
-    let image = codec.get_image(None, None).unwrap();
-    let mut surface = Surface::new_raster_n32_premul((image.dimensions().width, image.dimensions().height)).expect("no surface!");
-    surface.canvas().draw_image(image, (0, 0), None);
-    surface.canvas().save();
-    surface
-}
-
-fn load_typeface(fontweight: FontWeight) -> Typeface {
-    let path = match fontweight {
-        FontWeight::Light => {"font-light.otf"}
-        _default => {"font.otf"}
-    };
-    let data = fs::read(path).unwrap();
-    let skdata = Data::new_copy(&*data);
-    Typeface::from_data(skdata, 0).unwrap()
-}
-
-enum FontWeight{
-    Light,
-    Regular
-}
+use crate::{
+    database::DBUser,
+    modules::ranks::image_utils::{
+        FontWeight,
+        load_typeface,
+        BackgroundImage,
+        load_image_surface
+    }
+};
 
 pub async fn generate_rank_card(user: User, db_user: DBUser, rank: i32) -> Data {
 
@@ -70,7 +50,7 @@ fn generate(avatar: &[u8], username: &str, user_discriminator: u16,
     let level_xp = super::super::get_level_xp(level);
 
     // clone surface from blank surface
-    let mut surface = load_image_surface();
+    let mut surface = load_image_surface(BackgroundImage::Rank);
 
     let width = surface.width() as f32;
     let height = surface.height() as f32;

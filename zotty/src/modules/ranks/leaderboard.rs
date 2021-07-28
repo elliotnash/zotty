@@ -7,10 +7,10 @@ use crate::commands::Args;
 use tracing::debug;
 use super::help;
 
-//mod leaderboard_card;
-//use leaderboard_card::generate_leaderboard_card;
+mod leaderboard_card;
+use leaderboard_card::generate_leaderboard_card;
 
-use crate::DATABASE;
+use crate::{DATABASE, CONFIG};
 
 pub async fn leaderboard(ctx: Context, msg: Message, args: Args) {
 
@@ -61,19 +61,19 @@ pub async fn leaderboard(ctx: Context, msg: Message, args: Args) {
         // make bot start typing
         let _typing = msg.channel_id.start_typing(&ctx.http).unwrap();
 
-        // let writer = generate_leaderboard_card(&ctx, db_users, 10*page_num).await;
-        // debug!("generating leaderboard card took {}ms", now.elapsed().as_millis());
+        let card_data = generate_leaderboard_card(&ctx, db_users, 10*page_num).await;
+        debug!("generating leaderboard card took {}ms", now.elapsed().as_millis());
 
-        // let server_name = msg.guild_field(&ctx, |g| {g.name.clone()}).await.unwrap_or(String::new());
+        let server_name = msg.guild_field(&ctx, |g| {g.name.clone()}).await.unwrap_or(String::new());
         
-        // msg.channel_id.send_files(&ctx, vec![(writer.buffer(), "rank.png")], |m| {
-        //     m.embed(|e| {
-        //         e.colour(CONFIG.get().unwrap().colours.ranks);
-        //         e.title(format!("{} Leaderboard", server_name));
-        //         e.attachment("rank.png")
-        //     })
-        // }).await
-        //     .expect("Failed to send message");
+        msg.channel_id.send_files(&ctx, vec![(card_data.as_bytes(), "leaderboard.png")], |m| {
+            m.embed(|e| {
+                e.colour(CONFIG.get().unwrap().colours.ranks);
+                e.title(format!("{} Leaderboard", server_name));
+                e.attachment("leaderboard.png")
+            })
+        }).await
+            .expect("Failed to send message");
 
     }
 }
