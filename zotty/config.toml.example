@@ -16,5 +16,4 @@ path = "./db.sqlite"
 
 [modules]
 [modules.ranks]
-font_family = "TT Norms Regular"
 default_level_up_message = "GG %player%, you just advanced to level %level%"
