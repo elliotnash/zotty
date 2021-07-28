@@ -1,5 +1,6 @@
 use skia_safe::{ClipOp, Codec, Color, Data, Font, FontStyle, Paint, PaintCap, PaintStyle, Path, Point, RRect, Rect, Surface, TextBlob, Typeface, EncodedImageFormat, utils::text_utils::Align};
 use serenity::model::prelude::User;
+use tracing::debug;
 use tracing::log::warn;
 use std::fs;
 
@@ -18,10 +19,19 @@ fn load_image_surface() -> Surface {
     surface
 }
 
-fn load_typeface() -> Typeface {
-    let data = fs::read("font.otf").unwrap();
+fn load_typeface(fontweight: FontWeight) -> Typeface {
+    let path = match fontweight {
+        FontWeight::light => {"font-light.otf"}
+        default => {"font.otf"}
+    };
+    let data = fs::read(path).unwrap();
     let skdata = Data::new_copy(&*data);
     Typeface::from_data(skdata, 0).unwrap()
+}
+
+enum FontWeight{
+    light,
+    regular
 }
 
 pub async fn generate_rank_card(user: User, db_user: DBUser, rank: i32) -> Data {
@@ -152,7 +162,7 @@ fn draw_username_text(surface: &mut Surface, x1: f32, x2: f32, y_bottom: f32, us
     paint.set_color(Color::from_rgb(216, 222, 233));
     // create font
     let font_size = 50_f32;
-    let mut font = Font::new(load_typeface(), font_size);
+    let mut font = Font::new(load_typeface(FontWeight::regular), font_size);
     // get bounds of both parts
     let discriminator_string = format!("#{}", format_descriminator(user_discriminator));
     let username_blob = TextBlob::new(username, &font).unwrap();
@@ -162,8 +172,6 @@ fn draw_username_text(surface: &mut Surface, x1: f32, x2: f32, y_bottom: f32, us
     let scale = if total_width > width {
         width / total_width
     } else {1.};
-    // rescale everything based off that scale
-    surface.canvas().draw_str_align("this text is a test", Point::new(100.,100.), &font, &paint, Align::Left);
     font.set_size(scale*font_size);
     let username_blob = TextBlob::new(username, &font).unwrap();
     let discriminator_blob = TextBlob::new(&discriminator_string, &font).unwrap();
@@ -193,34 +201,36 @@ fn draw_xp_text(surface: &mut Surface, xc: f32, yc: f32, xp: i32, level_xp: i32)
     let mut paint = Paint::default();
     paint.set_anti_alias(true);
     paint.set_color(Color::from_rgb(237, 239, 243));
-    let font = Font::new(load_typeface(), 30.);
+    let font = Font::new(load_typeface(FontWeight::light), 30.);
     let seperation = 8_f32;
     // format text
     let top_text = format_i32(xp);
     let bottom_text = format_i32(level_xp);
-    // get text blobs
-    let top_blob = TextBlob::new(&top_text, &font).unwrap();
-    let bottom_blob = TextBlob::new(&bottom_text, &font).unwrap();
+    // get text bounds
+    let top_bounds = font.measure_str(&top_text, Some(&paint)).1;
+    let bottom_bounds = font.measure_str(&bottom_text, Some(&paint)).1;
     // draw top text
-    surface.canvas().draw_text_blob(
-        &top_blob,
+    surface.canvas().draw_str_align(
+        top_text,
         Point::new(
-            xc-(0.5* top_blob.bounds().width()),
-            yc-seperation
+            xc, yc - seperation
         ),
-        &paint
+        &font,
+        &paint,
+        Align::Center
     );
     // draw bottom text
-    surface.canvas().draw_text_blob(
-        &bottom_blob,
+    surface.canvas().draw_str_align(
+        bottom_text,
         Point::new(
-            xc-(0.5*bottom_blob.bounds().width()),
-            yc+bottom_blob.bounds().height()+seperation
+            xc, yc + seperation + bottom_bounds.height()
         ),
-        &paint
+        &font,
+        &paint,
+        Align::Center
     );
     // draw seperator
-    let half_width = 0.5 * top_blob.bounds().width().max(bottom_blob.bounds().width());
+    let half_width = 0.5 * top_bounds.width().max(bottom_bounds.width());
     paint.set_style(PaintStyle::Stroke);
     paint.set_stroke_width(2.);
     let mut path = Path::new();
@@ -237,33 +247,35 @@ fn draw_rank_text(surface: &mut Surface, xc: f32, yc: f32, rank: i32) {
     let top_size = 25_f32;
     let bottom_size = 75_f32;
     let seperation = 8_f32;
-    let mut font = Font::new(load_typeface(), top_size);
+    let top_font = Font::new(load_typeface(FontWeight::light), top_size);
+    let bottom_font = Font::new(load_typeface(FontWeight::regular), bottom_size);
     // format text
     let top_text = "RANK";
     let bottom_text = format!("#{}", rank);
-    // get text blobs
-    let top_blob = TextBlob::new(top_text, &font).unwrap();
-    font.set_size(bottom_size);
-    let bottom_blob = TextBlob::new(bottom_text, &font).unwrap();
+    // get text bounds
+    let top_bounds = top_font.measure_str(top_text, Some(&paint)).1;
+    let bottom_bounds = bottom_font.measure_str(&bottom_text, Some(&paint)).1;
     // get total height
-    let half_height = 0.5 * (top_blob.bounds().height() + seperation + bottom_blob.bounds().height());
+    let half_height = 0.5 * (top_bounds.height() + seperation + bottom_bounds.height());
     // draw top
-    surface.canvas().draw_text_blob(
-        &top_blob,
+    surface.canvas().draw_str_align(
+        top_text,
         Point::new(
-            xc-(0.5*top_blob.bounds().width())+1.,
-            (yc-half_height)+top_blob.bounds().height()
+            xc, yc - half_height + top_bounds.height()
         ),
-        &paint
+        &top_font,
+        &paint,
+        Align::Center
     );
     // draw bottom
-    surface.canvas().draw_text_blob(
-        &bottom_blob,
+    surface.canvas().draw_str_align(
+        &bottom_text,
         Point::new(
-            xc-(0.5*bottom_blob.bounds().width()),
-            yc+half_height
+            xc, yc+half_height
         ),
-        &paint
+        &bottom_font,
+        &paint,
+        Align::Center
     );
 }
 
@@ -274,33 +286,35 @@ fn draw_level_text(surface: &mut Surface, xc: f32, yc: f32, level: i32) {
     let top_size = 25_f32;
     let bottom_size = 75_f32;
     let seperation = 8_f32;
-    let mut font = Font::new(load_typeface(), top_size);
+    let top_font = Font::new(load_typeface(FontWeight::light), top_size);
+    let bottom_font = Font::new(load_typeface(FontWeight::regular), bottom_size);
     // format text
     let top_text = "LEVEL";
     let bottom_text = format!("{}", level);
-    // get text blobs
-    let top_blob = TextBlob::new(top_text, &font).unwrap();
-    font.set_size(bottom_size);
-    let bottom_blob = TextBlob::new(&bottom_text, &font).unwrap();
+    // get text bounds
+    let top_bounds = top_font.measure_str(top_text, Some(&paint)).1;
+    let bottom_bounds = bottom_font.measure_str(&bottom_text, Some(&paint)).1;
     // get total height
-    let half_height = 0.5* (top_blob.bounds().height()+seperation+bottom_blob.bounds().height());
+    let half_height = 0.5* (top_bounds.height()+seperation+bottom_bounds.height());
     // draw top
-    surface.canvas().draw_text_blob(
-        &top_blob,
+    surface.canvas().draw_str_align(
+        top_text,
         Point::new(
-            xc-(0.5*top_blob.bounds().width()),
-            (yc-half_height)+top_blob.bounds().height()
+            xc, yc - half_height + top_bounds.height()
         ),
-        &paint
+        &top_font,
+        &paint,
+        Align::Center
     );
     // draw bottom
-    surface.canvas().draw_text_blob(
-        &bottom_blob,
+    surface.canvas().draw_str_align(
+        &bottom_text,
         Point::new(
-            xc-(0.5*bottom_blob.bounds().width()),
-            yc+half_height
+            xc, yc+half_height
         ),
-        &paint
+        &bottom_font,
+        &paint,
+        Align::Center
     );
 }
 
