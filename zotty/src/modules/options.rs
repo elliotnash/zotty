@@ -1,8 +1,6 @@
 use serenity::{
     model::prelude::*, prelude::*
 };
-use std::time::Instant;
-use tracing::debug;
 use super::help;
 use crate::{DATABASE, commands::Args};
 
@@ -17,8 +15,6 @@ pub async fn config(ctx: Context, msg: Message, args: Args) {
     //Don't award points to bots
     if msg.author.bot {return;};
 
-    let guild_id = if let Some(guild_id) = msg.guild_id {guild_id} else {return;};
-
     let target = if let Ok(target) = 
         guild_id.member(&ctx, msg.author.id).await {
             target
@@ -29,8 +25,7 @@ pub async fn config(ctx: Context, msg: Message, args: Args) {
     
 
     if has_admin {
-        let now = Instant::now();
-        let mut database = DATABASE.get().expect("Database not initialized").lock().await;
+        let _database = DATABASE.get().expect("Database not initialized").lock().await;
         
         match args.current().unwrap_or("") {
             "set" => {
