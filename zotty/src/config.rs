@@ -1,6 +1,8 @@
 use std::fs;
 use serde::Deserialize;
 
+use crate::HOME_DIR;
+
 #[derive(Debug, Deserialize)]
 pub struct Config {
     pub token: String,
@@ -26,8 +28,7 @@ pub enum DatabaseType {
 }
 #[derive(Debug, Deserialize)]
 pub struct DatabaseOptions {
-    pub db_type: DatabaseType,
-    pub path: String
+    pub db_type: DatabaseType
 }
 
 #[derive(Debug, Deserialize)]
@@ -42,8 +43,12 @@ pub struct Ranks {
 
 impl Config {
     pub fn from_file() -> Self {
-        let config_file = fs::read_to_string("./config.toml")
-            .expect("Something went wrong reading the file");
+        let mut config_path = HOME_DIR.get().unwrap().clone();
+        config_path.push("resources");
+        config_path.push("config");
+        config_path.set_extension("toml");
+        let config_file = fs::read_to_string(config_path)
+            .expect("Error reading config file");
         toml::from_str(&config_file).unwrap()
     }
 }

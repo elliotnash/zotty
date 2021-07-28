@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use serenity::async_trait;
 
-use crate::config::DatabaseType;
+use crate::{HOME_DIR, config::DatabaseType};
 use super::CONFIG;
 
 pub mod sqlite_connection;
@@ -40,7 +40,11 @@ pub trait Database: std::fmt::Debug + Send {
 pub async fn new_database() -> Box<dyn Database> {
     match CONFIG.get().unwrap().database.db_type {
         DatabaseType::Sqlite => {
-            Box::new((SqliteConnection::new(&CONFIG.get().unwrap().database.path)).await)
+            let mut sqlite_path = HOME_DIR.get().unwrap().clone();
+            sqlite_path.push("resources");
+            sqlite_path.push("db");
+            sqlite_path.set_extension("sqlite");
+            Box::new(SqliteConnection::new(sqlite_path.to_str().unwrap()).await)
         }
     }
 }
