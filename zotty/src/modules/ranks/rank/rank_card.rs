@@ -129,7 +129,7 @@ fn draw_avatar(surface: &mut Surface, xc: f32, yc: f32, size: f32, left_margin: 
     let rect = Rect::new(avatar_x, avatar_y, avatar_x+size, avatar_y+size);
     // create rounded clipping mask and apply
     surface.canvas().save();
-    let crrect = RRect::new_rect_xy(rect, 20., 20.);
+    let crrect = RRect::new_rect_xy(rect, 18., 18.);
     surface.canvas().clip_rrect(crrect, ClipOp::Intersect, true);
     //draw avatar on canvas
     let mut paint = Paint::default();
