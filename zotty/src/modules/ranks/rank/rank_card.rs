@@ -1,4 +1,4 @@
-use skia_safe::{ClipOp, Codec, Color, Data, Font, FontStyle, Paint, PaintCap, PaintStyle, Path, Point, RRect, Rect, Surface, TextBlob, Typeface, EncodedImageFormat};
+use skia_safe::{ClipOp, Codec, Color, Data, Font, FontStyle, Paint, PaintCap, PaintStyle, Path, Point, RRect, Rect, Surface, TextBlob, Typeface, EncodedImageFormat, utils::text_utils::Align};
 use serenity::model::prelude::User;
 use tracing::log::warn;
 use std::fs;
@@ -19,12 +19,9 @@ fn load_image_surface() -> Surface {
 }
 
 fn load_typeface() -> Typeface {
-    Typeface::from_name(&CONFIG.get().unwrap().modules.ranks.font_family, FontStyle::normal())
-        .unwrap_or_else(|| {
-            warn!("Failed to load typeface '{}'", &CONFIG.get().unwrap().modules.ranks.font_family);
-            warn!("Loading default typeface");
-            Typeface::default()
-        })
+    let data = fs::read("font.otf").unwrap();
+    let skdata = Data::new_copy(&*data);
+    Typeface::from_data(skdata, 0).unwrap()
 }
 
 pub async fn generate_rank_card(user: User, db_user: DBUser, rank: i32) -> Data {
@@ -148,6 +145,11 @@ fn draw_progress_bar(surface: &mut Surface, x1: f32, x2: f32, y: f32, thickness:
 fn draw_username_text(surface: &mut Surface, x1: f32, x2: f32, y_bottom: f32, username: &str, user_discriminator: u16) {
     let width = x2 - x1;
     let xc = 0.5 * (x1 + x2);
+    // create paint
+    let mut paint = Paint::default();
+    paint.set_anti_alias(true);
+    paint.set_style(PaintStyle::Fill);
+    paint.set_color(Color::from_rgb(216, 222, 233));
     // create font
     let font_size = 50_f32;
     let mut font = Font::new(load_typeface(), font_size);
@@ -161,15 +163,12 @@ fn draw_username_text(surface: &mut Surface, x1: f32, x2: f32, y_bottom: f32, us
         width / total_width
     } else {1.};
     // rescale everything based off that scale
+    surface.canvas().draw_str_align("this text is a test", Point::new(100.,100.), &font, &paint, Align::Left);
     font.set_size(scale*font_size);
     let username_blob = TextBlob::new(username, &font).unwrap();
     let discriminator_blob = TextBlob::new(&discriminator_string, &font).unwrap();
     let yc = y_bottom-(discriminator_blob.bounds().height());
     // draw username
-    let mut paint = Paint::default();
-    paint.set_anti_alias(true);
-    paint.set_style(PaintStyle::Fill);
-    paint.set_color(Color::from_rgb(216, 222, 233));
     surface.canvas().draw_text_blob(
         &username_blob,
         Point::new(
