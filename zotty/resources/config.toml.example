@@ -12,7 +12,6 @@ ranks = 0x00ff00
 
 [database]
 db_type = "sqlite"
-path = "./db.sqlite"
 
 [modules]
 [modules.ranks]

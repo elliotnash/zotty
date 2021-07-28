@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{path::PathBuf, sync::Arc};
 use tokio::sync::Mutex;
 use tokio::task;
 use once_cell::sync::OnceCell;
@@ -19,6 +19,7 @@ mod database;
 use database::Database;
 
 static CONFIG: OnceCell<Config> = OnceCell::new();
+static HOME_DIR: OnceCell<PathBuf> = OnceCell::new();
 static DATABASE: OnceCell<Arc<Mutex<Box<dyn Database>>>> = OnceCell::new();
 
 pub struct ShardManagerContainer;
@@ -68,6 +69,8 @@ async fn main() {
     // initialize logger
     tracing_subscriber::fmt::init();
 
+    //initialize home dir
+    HOME_DIR.set(PathBuf::from(env!("CARGO_MANIFEST_DIR"))).unwrap();
     //initialize config
     CONFIG.set(Config::from_file()).expect("Failed to load config");
     //initialize database
@@ -88,7 +91,7 @@ async fn main() {
     tokio::spawn(async move {
         tokio::signal::ctrl_c().await.expect("Could not register ctrl+c handler");
         println!();
-        info!("ETechBot is shutting down");
+        info!("Zotty is shutting down");
         shard_manager.lock().await.shutdown_all().await;
     });
 

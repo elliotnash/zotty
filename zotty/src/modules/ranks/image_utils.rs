@@ -1,12 +1,17 @@
 use skia_safe::{Codec, Data, Surface, Typeface};
+use crate::HOME_DIR;
 use std::fs;
 
 pub fn load_image_surface(bg_image: BackgroundImage) -> Surface {
-    let path = match bg_image {
-        BackgroundImage::Rank => {"rank.png"}
-        BackgroundImage::Leaderboard => {"leaderboard.png"}
+    let asset_name = match bg_image {
+        BackgroundImage::Rank => {"rank"}
+        BackgroundImage::Leaderboard => {"leaderboard"}
     };
-    let data = fs::read(path).unwrap();
+    let mut asset_path = HOME_DIR.get().unwrap().clone();
+    asset_path.push("resources");
+    asset_path.push(asset_name);
+    asset_path.set_extension("png");
+    let data = fs::read(asset_path).unwrap();
     let skdata = Data::new_copy(&*data);
     let mut codec = Codec::from_data(skdata).unwrap();
     let image = codec.get_image(None, None).unwrap();
@@ -22,11 +27,15 @@ pub enum BackgroundImage{
 }
 
 pub fn load_typeface(fontweight: FontWeight) -> Typeface {
-    let path = match fontweight {
-        FontWeight::Light => {"font-light.otf"}
-        FontWeight::Regular => {"font.otf"}
+    let asset_name = match fontweight {
+        FontWeight::Light => {"font-light"}
+        FontWeight::Regular => {"font"}
     };
-    let data = fs::read(path).unwrap();
+    let mut asset_path = HOME_DIR.get().unwrap().clone();
+    asset_path.push("resources");
+    asset_path.push(asset_name);
+    asset_path.set_extension("otf");
+    let data = fs::read(asset_path).unwrap();
     let skdata = Data::new_copy(&*data);
     Typeface::from_data(skdata, 0).unwrap()
 }
