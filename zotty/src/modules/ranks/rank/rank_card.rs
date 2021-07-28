@@ -1,7 +1,5 @@
-use skia_safe::{ClipOp, Codec, Color, Data, Font, FontStyle, Paint, PaintCap, PaintStyle, Path, Point, RRect, Rect, Surface, TextBlob, Typeface, EncodedImageFormat, utils::text_utils::Align};
+use skia_safe::{ClipOp, Codec, Color, Data, Font, SamplingOptions, FilterMode, MipmapMode, Paint, PaintCap, PaintStyle, Path, Point, RRect, Rect, Surface, TextBlob, Typeface, EncodedImageFormat, utils::text_utils::Align};
 use serenity::model::prelude::User;
-use tracing::debug;
-use tracing::log::warn;
 use std::fs;
 
 use super::super::image_utils::format_descriminator;
@@ -117,7 +115,8 @@ fn draw_avatar(surface: &mut Surface, xc: f32, yc: f32, size: f32, left_margin: 
     //draw avatar on canvas
     let mut paint = Paint::default();
     paint.set_anti_alias(true);
-    surface.canvas().draw_image_rect(avatar, None, rect, &paint);
+    let sampling = SamplingOptions::new(FilterMode::Linear, MipmapMode::Nearest);
+    surface.canvas().draw_image_rect_with_sampling_options(avatar, None, rect, sampling, &paint);
     // reset clipping mask
     surface.canvas().restore();
     // return the amount of space used 
