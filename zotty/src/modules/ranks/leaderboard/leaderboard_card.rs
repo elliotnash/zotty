@@ -17,7 +17,6 @@ use skia_safe::{
     utils::text_utils::Align
 };
 use serenity::{http::CacheHttp, model::{id::UserId, prelude::User}};
-use std::f64::consts::PI;
 
 use futures::{stream, StreamExt};
 
@@ -31,7 +30,6 @@ use crate::{
         FontWeight
     }
 };
-use crate::CONFIG;
 
 #[derive(Debug)]
 struct LUser {
@@ -117,7 +115,7 @@ fn draw_user_entry(surface: &mut Surface, user: LUser, x1: f32, y1: f32, x2: f32
 
 }
 
-fn draw_avatar(surface: &mut Surface, xc: f32, yc: f32, size: f32, mut avatar_data: &[u8]) {
+fn draw_avatar(surface: &mut Surface, xc: f32, yc: f32, size: f32, avatar_data: &[u8]) {
     // create image from byte slice
     let skdata = Data::new_copy(avatar_data);
     let mut codec = Codec::from_data(skdata).unwrap();
