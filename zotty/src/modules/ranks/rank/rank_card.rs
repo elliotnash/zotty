@@ -1,10 +1,29 @@
-use skia_safe::{ClipOp, Codec, Color, Data, Font, SamplingOptions, FilterMode, MipmapMode, Paint, PaintCap, PaintStyle, Path, Point, RRect, Rect, Surface, TextBlob, Typeface, EncodedImageFormat, utils::text_utils::Align};
+use skia_safe::{
+    ClipOp,
+    Codec,
+    Color,
+    Data,
+    Font,
+    SamplingOptions,
+    FilterMode,
+    MipmapMode,
+    Paint,
+    PaintCap,
+    PaintStyle,
+    Path,
+    Point,
+    RRect,
+    Rect,
+    Surface,
+    Typeface,
+    EncodedImageFormat,
+    utils::text_utils::Align
+};
 use serenity::model::prelude::User;
 use std::fs;
 
 use super::super::image_utils::format_descriminator;
 use crate::database::DBUser;
-use crate::CONFIG;
 
 fn load_image_surface() -> Surface {
     let data = fs::read("rank.png").unwrap();
@@ -19,8 +38,8 @@ fn load_image_surface() -> Surface {
 
 fn load_typeface(fontweight: FontWeight) -> Typeface {
     let path = match fontweight {
-        FontWeight::light => {"font-light.otf"}
-        default => {"font.otf"}
+        FontWeight::Light => {"font-light.otf"}
+        _default => {"font.otf"}
     };
     let data = fs::read(path).unwrap();
     let skdata = Data::new_copy(&*data);
@@ -28,8 +47,8 @@ fn load_typeface(fontweight: FontWeight) -> Typeface {
 }
 
 enum FontWeight{
-    light,
-    regular
+    Light,
+    Regular
 }
 
 pub async fn generate_rank_card(user: User, db_user: DBUser, rank: i32) -> Data {
@@ -162,7 +181,7 @@ fn draw_username_text(surface: &mut Surface, x1: f32, x2: f32, y_bottom: f32, us
     // create font
     let font_size = 50_f32;
     let seperator = 8_f32;
-    let mut font = Font::new(load_typeface(FontWeight::regular), font_size);
+    let mut font = Font::new(load_typeface(FontWeight::Regular), font_size);
     // get bounds of both parts
     let discriminator_string = format!("#{}", format_descriminator(user_discriminator));
     let username_bounds = font.measure_str(&username, Some(&paint)).1;
@@ -205,7 +224,7 @@ fn draw_xp_text(surface: &mut Surface, xc: f32, yc: f32, xp: i32, level_xp: i32)
     let mut paint = Paint::default();
     paint.set_anti_alias(true);
     paint.set_color(Color::from_rgb(237, 239, 243));
-    let font = Font::new(load_typeface(FontWeight::light), 30.);
+    let font = Font::new(load_typeface(FontWeight::Light), 30.);
     let seperation = 8_f32;
     let extra_extend = 4_f32;
     // format text
@@ -252,8 +271,9 @@ fn draw_rank_text(surface: &mut Surface, xc: f32, yc: f32, rank: i32) {
     let top_size = 25_f32;
     let bottom_size = 75_f32;
     let seperation = 8_f32;
-    let top_font = Font::new(load_typeface(FontWeight::light), top_size);
-    let bottom_font = Font::new(load_typeface(FontWeight::regular), bottom_size);
+    let top_font = Font::new(load_typeface(FontWeight::Light), top_size);
+    let mut bottom_font = Font::new(load_typeface(FontWeight::Regular), bottom_size);
+    bottom_font.set_subpixel(true);
     // format text
     let top_text = "RANK";
     let bottom_text = format!("#{}", rank);
@@ -291,8 +311,8 @@ fn draw_level_text(surface: &mut Surface, xc: f32, yc: f32, level: i32) {
     let top_size = 25_f32;
     let bottom_size = 75_f32;
     let seperation = 8_f32;
-    let top_font = Font::new(load_typeface(FontWeight::light), top_size);
-    let bottom_font = Font::new(load_typeface(FontWeight::regular), bottom_size);
+    let top_font = Font::new(load_typeface(FontWeight::Light), top_size);
+    let bottom_font = Font::new(load_typeface(FontWeight::Regular), bottom_size);
     // format text
     let top_text = "LEVEL";
     let bottom_text = format!("{}", level);

@@ -37,7 +37,6 @@ pub struct Modules {
 
 #[derive(Debug, Deserialize)]
 pub struct Ranks {
-    pub font_family: String,
     pub default_level_up_message: String
 }
 
