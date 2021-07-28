@@ -162,38 +162,43 @@ fn draw_username_text(surface: &mut Surface, x1: f32, x2: f32, y_bottom: f32, us
     paint.set_color(Color::from_rgb(216, 222, 233));
     // create font
     let font_size = 50_f32;
+    let seperator = 8_f32;
     let mut font = Font::new(load_typeface(FontWeight::regular), font_size);
     // get bounds of both parts
     let discriminator_string = format!("#{}", format_descriminator(user_discriminator));
-    let username_blob = TextBlob::new(username, &font).unwrap();
-    let discriminator_blob = TextBlob::new(&discriminator_string, &font).unwrap();
+    let username_bounds = font.measure_str(&username, Some(&paint)).1;
+    let discriminator_bounds = font.measure_str(&discriminator_string, Some(&paint)).1;
     // if bigger than screen, rescale
-    let total_width = username_blob.bounds().width() + 8. + discriminator_blob.bounds().width();
+    let total_width = username_bounds.width() + seperator + discriminator_bounds.width();
     let scale = if total_width > width {
         width / total_width
     } else {1.};
     font.set_size(scale*font_size);
-    let username_blob = TextBlob::new(username, &font).unwrap();
-    let discriminator_blob = TextBlob::new(&discriminator_string, &font).unwrap();
-    let yc = y_bottom-(discriminator_blob.bounds().height());
+    let username_bounds = font.measure_str(&username, Some(&paint)).1;
+    let discriminator_bounds = font.measure_str(&discriminator_string, Some(&paint)).1;
+    // calculate height
+    let max_top = username_bounds.top.max(discriminator_bounds.top);
+    let half_height = 0.5 * (0.-max_top);
     // draw username
-    surface.canvas().draw_text_blob(
-        &username_blob,
+    surface.canvas().draw_str_align(
+        username,
         Point::new(
-            xc-(0.5*(username_blob.bounds().width()+discriminator_blob.bounds().width()))-(8.*scale),
-            yc+(0.5*discriminator_blob.bounds().height())
+            xc-(0.5*(username_bounds.width()+discriminator_bounds.width())), y_bottom - half_height
         ),
-        &paint
+        &font,
+        &paint,
+        Align::Left
     );
     // draw discriminator
     paint.set_color(Color::from_rgb(194, 181, 155));
-    surface.canvas().draw_text_blob(
-        &discriminator_blob,
+    surface.canvas().draw_str_align(
+        &discriminator_string,
         Point::new(
-            xc-(0.5*(discriminator_blob.bounds().width()-username_blob.bounds().width())),
-            yc+(0.5*discriminator_blob.bounds().height())
+            xc-(0.5*(discriminator_bounds.width()-username_bounds.width())), y_bottom - half_height
         ),
-        &paint
+        &font,
+        &paint,
+        Align::Left
     );
 }
 
@@ -203,6 +208,7 @@ fn draw_xp_text(surface: &mut Surface, xc: f32, yc: f32, xp: i32, level_xp: i32)
     paint.set_color(Color::from_rgb(237, 239, 243));
     let font = Font::new(load_typeface(FontWeight::light), 30.);
     let seperation = 8_f32;
+    let extra_extend = 4_f32;
     // format text
     let top_text = format_i32(xp);
     let bottom_text = format_i32(level_xp);
@@ -234,8 +240,8 @@ fn draw_xp_text(surface: &mut Surface, xc: f32, yc: f32, xp: i32, level_xp: i32)
     paint.set_style(PaintStyle::Stroke);
     paint.set_stroke_width(2.);
     let mut path = Path::new();
-    path.move_to(Point::new(xc-half_width, yc));
-    path.line_to(Point::new(xc+half_width, yc));
+    path.move_to(Point::new(xc-half_width-extra_extend, yc));
+    path.line_to(Point::new(xc+half_width+extra_extend, yc));
     surface.canvas().draw_path(&path, &paint);
     half_width
 }
