@@ -44,3 +44,6 @@ version = "1"
 [dependencies.rocket]
 git =  "https://github.com/SergioBenitez/Rocket.git"
 features = ["json"]
+
+[dependencies.rocket_cors]
+git = "https://github.com/lawliet89/rocket_cors"
