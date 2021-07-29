@@ -8,15 +8,15 @@ use crate::CONFIG;
 #[get("/ping")]
 async fn ping() -> Json<OAuthInfo> {
     Json(OAuthInfo{
-        api_url: CONFIG.get().unwrap().web.oauth.api_url.clone(),
-        client_id: CONFIG.get().unwrap().web.oauth.client_id.clone()
+        api_url: &CONFIG.get().unwrap().web.oauth.api_url,
+        client_id: &CONFIG.get().unwrap().web.oauth.client_id
     })
 }
 
 #[derive(Serialize)]
 struct OAuthInfo{
-    pub api_url: String,
-    pub client_id: String
+    pub api_url: &'static str,
+    pub client_id: &'static str
 }
 
 pub async fn rocket() {
