@@ -1,4 +1,5 @@
 use rocket::Config;
+use crate::CONFIG;
 
 #[get("/ping")]
 async fn ping() -> &'static str {
@@ -6,7 +7,8 @@ async fn ping() -> &'static str {
 }
 
 pub async fn rocket() {
-    let config = Config::default();
+    let mut config = Config::default();
+    config.port = CONFIG.get().unwrap().web.port;
     rocket::build()
         .configure(config)
         .mount("/api", routes![ping])
