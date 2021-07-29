@@ -5,6 +5,7 @@ import {
   RouteComponentProps
 } from "react-router-dom";
 import Login from "./Login";
+import Authorize from "./Authorize";
 
 function Index() {
   return (
@@ -27,7 +28,7 @@ function AppRouter() {
       <div>
         <Route path="/" exact component={Index}/>
         <Route path="/login" exact component={Login}/>
-        <Route path="/guild/:guild_id" exact component={ServerPage}/>
+        <Route path="/authorize" exact component={Authorize}/>
       </div>
     </Router>
   );

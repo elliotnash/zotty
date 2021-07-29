@@ -1,7 +1,6 @@
 import React from "react";
 import { RouteComponentProps } from "react-router-dom";
 import axios from "axios";
-import BuildUrl from "build-url";
 import {BACKEND_URL} from ".";
 
 interface OAuthInfo{
@@ -13,10 +12,6 @@ interface LoginProps extends RouteComponentProps {
 interface LoginStates{
 }
 export default class Login extends React.Component<LoginProps, LoginStates> {
-  constructor(props: LoginProps) {
-    super(props);
-  }
-
   render() {
     return (
       <div></div>
@@ -24,26 +19,28 @@ export default class Login extends React.Component<LoginProps, LoginStates> {
   }
   componentDidMount() {
     // ping api, recieve oauth info
+    let pingUrl = new URL(BACKEND_URL);
+    pingUrl.pathname = "/api/ping";
+    console.log(pingUrl);
+
     axios.get(
-      BuildUrl(BACKEND_URL, {path: '/api/ping'})
+      pingUrl.toString()
     ).then((response) => {
       let oauthInfo = response.data as OAuthInfo;
       // construct redirect url
-      let redirectUrl = BuildUrl(window.location.origin, {
-        path: "/authorize"
-      });
+      let redirectUrl = new URL(window.location.origin);
+      redirectUrl.pathname = "/authorize";
       // construct discord oauth url
-      let oauthUrl = BuildUrl(oauthInfo.api_url, {
-        path: "/oauth2/authorize",
-        queryParams: {
-          client_id: oauthInfo.client_id,
-          redirect_uri: redirectUrl,
-          response_type: "code",
-          scope: "identify guilds",
-          prompt: "consent"
-        }
-      })
-      window.location.replace(oauthUrl);
+      let oauthUrl = new URL(oauthInfo.api_url);
+      oauthUrl.pathname = "/oauth2/authorize";
+      oauthUrl.search = new URLSearchParams({
+        client_id: oauthInfo.client_id,
+        redirect_uri: redirectUrl.toString(),
+        response_type: "code",
+        scope: "identify guilds",
+        prompt: "consent"
+      }).toString();
+      window.location.replace(oauthUrl.toString());
     });
   }
 }
