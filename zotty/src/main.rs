@@ -1,3 +1,4 @@
+#[macro_use] extern crate rocket;
 use std::{path::PathBuf, sync::Arc};
 use tokio::sync::Mutex;
 use tokio::task;
@@ -17,6 +18,8 @@ mod config;
 use config::Config;
 mod database;
 use database::Database;
+
+mod web;
 
 static CONFIG: OnceCell<Config> = OnceCell::new();
 static HOME_DIR: OnceCell<PathBuf> = OnceCell::new();
