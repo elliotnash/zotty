@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.sass';
 import App from './App';
 import axios from 'axios';
+import BuildUrl from 'build-url';
 
 export const BACKEND_URL = get_backend_url();
 function get_backend_url(): string {
@@ -21,7 +22,7 @@ ReactDOM.render(
 );
 
 axios.get(
-  BACKEND_URL+"/api/ping"
+  BuildUrl(BACKEND_URL, {path: '/api/ping'})
 ).then((response) => {
-  console.log(response.data)
+  console.log(response.data);
 });
