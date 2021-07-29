@@ -1,4 +1,5 @@
 use actix_web::{get, App, HttpResponse, HttpServer, Responder};
+use actix_cors::Cors;
 use serde::Serialize;
 use crate::CONFIG;
 
@@ -20,7 +21,9 @@ struct OAuthInfo{
 
 pub async fn run() {
     HttpServer::new(|| {
+        let cors = Cors::permissive();
         App::new()
+            .wrap(cors)
             .service(ping)
     })
         .workers(8)
