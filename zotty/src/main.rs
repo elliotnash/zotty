@@ -1,4 +1,3 @@
-#[macro_use] extern crate rocket;
 use std::{path::PathBuf, sync::Arc};
 use tokio::sync::Mutex;
 use tokio::task;
@@ -66,9 +65,7 @@ impl EventHandler for Handler {
 }
 
 //init client
-#[tokio::main]
-async fn main() {
-
+fn main() {
     // initialize logger
     tracing_subscriber::fmt::init();
 
@@ -76,6 +73,29 @@ async fn main() {
     HOME_DIR.set(PathBuf::from(env!("CARGO_MANIFEST_DIR"))).unwrap();
     //initialize config
     CONFIG.set(Config::from_file()).expect("Failed to load config");
+
+    // spawn actix tokio runtime
+    actix_web::rt::System::with_tokio_rt(|| {
+        tokio::runtime::Builder::new_multi_thread()
+            .enable_all()
+            .worker_threads(8)
+            .thread_name("main-tokio")
+            .build()
+            .unwrap()
+    })
+    .block_on(actix_main());
+}
+
+async fn actix_main() {
+    // spawn main tokio thread (for serenity)
+    tokio::spawn(async move {
+        tokio_main().await;
+    });
+    // run actix blocking
+    web::run().await;
+}
+
+async fn tokio_main() {
     //initialize database
     DATABASE.set(Arc::new(Mutex::new(database::new_database().await))).expect("Unable to connect to database");
 
@@ -96,11 +116,6 @@ async fn main() {
         if let Err(why) = client.start().await {
             error!("Client error: {:?}", why);
         }
-    });
-
-    // spawn rocket rest server in new thread
-    tokio::spawn(async move {
-        web::rocket().await;
     });
 
     tokio::signal::ctrl_c().await.expect("Could not register ctrl+c handler");
