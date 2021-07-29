@@ -1,5 +1,4 @@
 use rocket::Config;
-//use rocket_contrib::json::Json;
 
 #[get("/ping")]
 async fn ping() -> &'static str {

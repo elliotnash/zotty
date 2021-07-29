@@ -44,6 +44,12 @@ pub struct Ranks {
 
 #[derive(Debug, Deserialize)]
 pub struct Web {
+    pub port: u16,
+    pub oauth: OAuth
+}
+
+#[derive(Debug, Deserialize)]
+pub struct OAuth {
     pub api_url: String,
     pub client_id: String,
     pub client_secret: String
