@@ -16,3 +16,8 @@ db_type = "sqlite"
 [modules]
 [modules.ranks]
 default_level_up_message = "GG %player%, you just advanced to level %level%"
+
+[web]
+api_url = "https://discord.com/api/v9"
+client_id = "CLIENT_ID"
+client_secret = "CLIENT_SECRET"

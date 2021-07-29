@@ -9,7 +9,8 @@ pub struct Config {
     pub prefix: String,
     pub colours: Colours,
     pub database: DatabaseOptions,
-    pub modules: Modules
+    pub modules: Modules,
+    pub web: Web
 }
 #[derive(Debug, Deserialize)]
 pub struct Colours {
@@ -39,6 +40,13 @@ pub struct Modules {
 #[derive(Debug, Deserialize)]
 pub struct Ranks {
     pub default_level_up_message: String
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Web {
+    pub api_url: String,
+    pub client_id: String,
+    pub client_secret: String
 }
 
 impl Config {
