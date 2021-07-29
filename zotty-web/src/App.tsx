@@ -5,9 +5,12 @@ import {
   Link,
   RouteComponentProps
 } from "react-router-dom";
+import { BACKEND_URL } from ".";
 
 function Index() {
-  return <h2>Home</h2>;
+  return (
+    <h2>{BACKEND_URL}</h2>
+  );
 }
 
 type TParams = {guild_id: string};
