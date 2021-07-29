@@ -1,15 +1,18 @@
-import React from "react";
 import {
   BrowserRouter as Router,
   Route,
   Link,
   RouteComponentProps
 } from "react-router-dom";
-import { BACKEND_URL } from ".";
+import Login from "./Login";
 
 function Index() {
   return (
-    <h2>{BACKEND_URL}</h2>
+    <div>
+      <span>HOME</span>
+      <br/>
+      <Link to="/login">login</Link>
+    </div>
   );
 }
 
@@ -22,21 +25,9 @@ function AppRouter() {
   return (
     <Router>
       <div>
-        <nav>
-          <ul>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-            <li>
-              <Link to="/123213">First Guild</Link>
-            </li>
-            <li>
-              <Link to="/213232">Second Guild</Link>
-            </li>
-          </ul>
-        </nav>
         <Route path="/" exact component={Index}/>
-        <Route path="/:guild_id" exact component={ServerPage}/>
+        <Route path="/login" exact component={Login}/>
+        <Route path="/guild/:guild_id" exact component={ServerPage}/>
       </div>
     </Router>
   );
