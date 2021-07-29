@@ -91,15 +91,21 @@ async fn main() {
 
     let shard_manager = client.shard_manager.clone();
 
+    // spawn serenity client in new thread
     tokio::spawn(async move {
-        tokio::signal::ctrl_c().await.expect("Could not register ctrl+c handler");
-        println!();
-        info!("Zotty is shutting down");
-        shard_manager.lock().await.shutdown_all().await;
+        if let Err(why) = client.start().await {
+            error!("Client error: {:?}", why);
+        }
     });
 
-    if let Err(why) = client.start().await {
-        error!("Client error: {:?}", why);
-    }
+    // spawn rocket rest server in new thread
+    tokio::spawn(async move {
+        web::rocket().await;
+    });
+
+    tokio::signal::ctrl_c().await.expect("Could not register ctrl+c handler");
+    println!();
+    info!("Zotty is shutting down");
+    shard_manager.lock().await.shutdown_all().await;
 
 }

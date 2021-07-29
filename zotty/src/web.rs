@@ -1,15 +1,15 @@
-use tracing::debug;
+use rocket::Config;
+//use rocket_contrib::json::Json;
 
-
-#[get("/")]
-fn index() -> &'static str {
-    "Hello, world!"
+#[get("/ping")]
+async fn ping() -> &'static str {
+    "pong"
 }
 
 pub async fn rocket() {
-    debug!("Firing up webserver");
-    println!("TEST");
+    let config = Config::default();
     rocket::build()
-        .mount("/", routes![index])
-        .launch().await;
+        .configure(config)
+        .mount("/api", routes![ping])
+        .launch().await.expect("Failed to create rocket server");
 }
