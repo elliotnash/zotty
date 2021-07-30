@@ -37,14 +37,16 @@ async fn login(cred: web::Json<LoginCredentials>) -> Result<impl Responder> {
         .header(reqwest::header::CONTENT_TYPE, "application/x-www-form-urlencoded")
         .body(serde_urlencoded::to_string(&token_request).unwrap())
         .send().await.unwrap();
-    let resp_text = resp.text().await.unwrap();
-    let token_response_result: Result<AccessTokenResponse, serde_json::Error> = serde_json::from_str(&resp_text);
-    if let Ok(token_response) = token_response_result {
-        Ok(HttpResponse::Ok().json(token_response))
-    } else {
-        let error: DiscordError = serde_json::from_str(&resp_text).unwrap();
-        Ok(HttpResponse::Ok().json(error))
-    }
+    let resp_json: AccessTokenResponse = resp.json().await.unwrap();
+    Ok(HttpResponse::Ok().json(resp_json))
+    // let resp_text = resp.text().await.unwrap();
+    // let token_response_result: Result<AccessTokenResponse, serde_json::Error> = serde_json::from_str(&resp_text);
+    // if let Ok(token_response) = token_response_result {
+    //     Ok(HttpResponse::Ok().json(token_response))
+    // } else {
+    //     let error: DiscordError = serde_json::from_str(&resp_text).unwrap();
+    //     Ok(HttpResponse::Ok().json(error))
+    // }
 }
 #[derive(Deserialize, Debug)]
 struct LoginCredentials{
@@ -60,7 +62,13 @@ struct AccessTokenRequest{
     pub redirect_uri: String
 }
 #[derive(Serialize, Deserialize, Debug)]
-struct AccessTokenResponse{
+#[serde(untagged)]
+enum AccessTokenResponse{
+    Ok(AccessTokenOkResponse),
+    Err(DiscordError)
+}
+#[derive(Serialize, Deserialize, Debug)]
+struct AccessTokenOkResponse{
     pub access_token: String,
     pub token_type: String,
     pub expires_in: u32,
