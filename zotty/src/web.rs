@@ -95,7 +95,7 @@ async fn user_me(request: HttpRequest) -> Result<impl Responder> {
         Ok(HttpResponse::Ok().json(resp_json))
     } else {
         let resp_json: DiscordError = resp.json().await.unwrap();
-        Ok(HttpResponse::Forbidden().json(resp_json))
+        Ok(HttpResponse::Unauthorized().json(resp_json))
     }
 }
 #[derive(Serialize, Deserialize, Debug)]
