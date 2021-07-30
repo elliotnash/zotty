@@ -1,9 +1,15 @@
 import React from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { withCookies, Cookies } from "react-cookie";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import {BACKEND_URL} from ".";
 
+interface DiscordUser {
+  id: number,
+  username: string,
+  discriminator: string,
+  avatar: string
+}
 interface AccessTokenResponse{
   access_token: string,
   token_type: string,
@@ -15,11 +21,21 @@ interface AuthorizeProps extends RouteComponentProps {
   cookies: Cookies
 }
 interface AuthorizeStates{
+  user: DiscordUser | undefined
 }
 class Login extends React.Component<AuthorizeProps, AuthorizeStates> {
+
+  constructor(props: AuthorizeProps) {
+    super(props);
+
+    this.state = {
+      user: undefined
+    };
+  }
+
   render() {
     return (
-      <div></div>
+      <div>{`${this.state.user?.username}#${this.state.user?.discriminator}`}</div>
     );
   }
   componentDidMount() {
@@ -33,15 +49,25 @@ class Login extends React.Component<AuthorizeProps, AuthorizeStates> {
     axios.post(loginUrl.toString(), {
       code: auth_code,
       redirect_uri: redirectUrl.toString()
-    }).then((response) => {
+    }).then((response: AxiosResponse<AccessTokenResponse>) => {
       // set cookies with token data
-      let token_response: AccessTokenResponse = response.data;
-      this.props.cookies.set("access_token", token_response.access_token, {
-        path: "/", sameSite: "lax", maxAge: token_response.expires_in-1000
+      this.props.cookies.set("access_token", response.data.access_token, {
+        path: "/", sameSite: "lax", maxAge: response.data.expires_in-1000
       });
-      this.props.cookies.set("refresh_token", token_response.refresh_token, {
+      this.props.cookies.set("refresh_token", response.data.refresh_token, {
         path: "/", sameSite: "lax", maxAge: 2147483647
       });
+      // set auth header for all axios
+      axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access_token}`
+      // attempt to fetch user
+      let meUrl = new URL(BACKEND_URL);
+      meUrl.pathname = "/api/users/@me";
+      axios.get(meUrl.toString()).then((response: AxiosResponse<DiscordUser>) => {
+        this.setState(() => ({
+          user: response.data
+        }));
+      })
+
     }).catch((err) => {
       // if invalid code, redirect to login page again
       console.log(err.response.data);
