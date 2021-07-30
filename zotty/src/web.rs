@@ -2,9 +2,9 @@ use actix_web::{App, HttpRequest, HttpResponse, HttpServer, Responder, Result, g
 use actix_cors::Cors;
 use lazy_static::lazy_static;
 use reqwest::Client;
+use actix_files::{Files, NamedFile};
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
-use crate::CONFIG;
+use crate::{CONFIG, HOME_DIR};
 
 lazy_static! {
     static ref REQWEST: Client = Client::new();
@@ -109,11 +109,20 @@ struct DiscordUser {
 pub async fn run() {
     HttpServer::new(|| {
         let cors = Cors::permissive();
+        let mut build_dir = HOME_DIR.get().unwrap().clone();
+        build_dir.pop();
+        build_dir.push("zotty-web");
+        build_dir.push("build");
+        let mut index_path = build_dir.clone();
+        index_path.push("index.html");
         App::new()
             .wrap(cors)
             .service(ping)
             .service(login)
             .service(user_me)
+            .service(Files::new("/", build_dir)
+                .index_file("index.html")
+                .default_handler(NamedFile::open(index_path).unwrap()))
     })
         .workers(8)
         .bind(("127.0.0.1", CONFIG.get().unwrap().web.port))

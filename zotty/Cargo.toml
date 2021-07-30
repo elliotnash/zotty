@@ -52,3 +52,6 @@ version = "4.0.0-beta.8"
 
 [dependencies.actix-cors]
 version = "0.6.0-beta.2"
+
+[dependencies.actix-files]
+version = "0.6.0-beta.6"
