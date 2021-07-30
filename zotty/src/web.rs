@@ -1,10 +1,13 @@
-use actix_web::{App, HttpResponse, HttpServer, Responder, Result, get, post, web};
+use actix_web::{App, HttpRequest, HttpResponse, HttpServer, Responder, Result, get, post, web};
 use actix_cors::Cors;
 use lazy_static::lazy_static;
-use reqwest::{Client, StatusCode};
+use reqwest::Client;
 use serde::{Deserialize, Serialize};
-use tracing::debug;
 use crate::CONFIG;
+
+lazy_static! {
+    static ref REQWEST: Client = Client::new();
+}
 
 #[get("/api/ping")]
 async fn ping() -> impl Responder {
@@ -23,9 +26,6 @@ struct OAuthInfo{
 
 #[post("/api/login")]
 async fn login(cred: web::Json<LoginCredentials>) -> Result<impl Responder> {
-    lazy_static! {
-        static ref REQWEST: Client = Client::new();
-    }
     let token_request = AccessTokenRequest {
         client_id: &CONFIG.get().unwrap().web.oauth.client_id,
         client_secret: &CONFIG.get().unwrap().web.oauth.client_secret,
@@ -72,6 +72,28 @@ struct DiscordError{
     pub error_description: String,
 }
 
+#[get("/api/users/@me")]
+async fn user_me(request: HttpRequest) -> Result<impl Responder> {
+    let auth_header = request.headers().get("Authorization").unwrap().to_str().unwrap();
+    let resp = REQWEST.get(format!("{}/users/@me", CONFIG.get().unwrap().web.oauth.api_url))
+        .header("Authorization", auth_header)
+        .send().await.unwrap();
+    if resp.status().is_success() {
+        let resp_json: DiscordUser = resp.json().await.unwrap();
+        Ok(HttpResponse::Ok().json(resp_json))
+    } else {
+        let resp_json: DiscordError = resp.json().await.unwrap();
+        Ok(HttpResponse::Forbidden().json(resp_json))
+    }
+}
+#[derive(Serialize, Deserialize, Debug)]
+struct DiscordUser {
+    pub id: String,
+    pub username: String,
+    pub discriminator: String,
+    pub avatar: String
+}
+
 pub async fn run() {
     HttpServer::new(|| {
         let cors = Cors::permissive();
@@ -79,6 +101,7 @@ pub async fn run() {
             .wrap(cors)
             .service(ping)
             .service(login)
+            .service(user_me)
     })
         .workers(8)
         .bind(("127.0.0.1", CONFIG.get().unwrap().web.port))
