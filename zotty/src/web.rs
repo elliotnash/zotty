@@ -1,7 +1,7 @@
 use actix_web::{App, HttpResponse, HttpServer, Responder, Result, get, post, web};
 use actix_cors::Cors;
 use lazy_static::lazy_static;
-use reqwest::Client;
+use reqwest::{Client, StatusCode};
 use serde::{Deserialize, Serialize};
 use tracing::debug;
 use crate::CONFIG;
@@ -37,16 +37,13 @@ async fn login(cred: web::Json<LoginCredentials>) -> Result<impl Responder> {
         .header(reqwest::header::CONTENT_TYPE, "application/x-www-form-urlencoded")
         .body(serde_urlencoded::to_string(&token_request).unwrap())
         .send().await.unwrap();
-    let resp_json: AccessTokenResponse = resp.json().await.unwrap();
-    Ok(HttpResponse::Ok().json(resp_json))
-    // let resp_text = resp.text().await.unwrap();
-    // let token_response_result: Result<AccessTokenResponse, serde_json::Error> = serde_json::from_str(&resp_text);
-    // if let Ok(token_response) = token_response_result {
-    //     Ok(HttpResponse::Ok().json(token_response))
-    // } else {
-    //     let error: DiscordError = serde_json::from_str(&resp_text).unwrap();
-    //     Ok(HttpResponse::Ok().json(error))
-    // }
+    if resp.status().is_success() {
+        let resp_json: AccessTokenResponse = resp.json().await.unwrap();
+        Ok(HttpResponse::Ok().json(resp_json))
+    } else {
+        let resp_json: DiscordError = resp.json().await.unwrap();
+        Ok(HttpResponse::BadRequest().json(resp_json))
+    }
 }
 #[derive(Deserialize, Debug)]
 struct LoginCredentials{
@@ -62,13 +59,7 @@ struct AccessTokenRequest{
     pub redirect_uri: String
 }
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(untagged)]
-enum AccessTokenResponse{
-    Ok(AccessTokenOkResponse),
-    Err(DiscordError)
-}
-#[derive(Serialize, Deserialize, Debug)]
-struct AccessTokenOkResponse{
+struct AccessTokenResponse{
     pub access_token: String,
     pub token_type: String,
     pub expires_in: u32,
