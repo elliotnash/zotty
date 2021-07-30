@@ -1,8 +1,7 @@
 import {
   BrowserRouter as Router,
   Route,
-  Link,
-  RouteComponentProps
+  Link
 } from "react-router-dom";
 import Login from "./Login";
 import Authorize from "./Authorize";
@@ -15,11 +14,6 @@ function Index() {
       <Link to="/login">login</Link>
     </div>
   );
-}
-
-type TParams = {guild_id: string};
-function ServerPage({match}: RouteComponentProps<TParams>) {
-  return <h2>Servers guild id is: {match.params.guild_id} </h2>;
 }
 
 function AppRouter() {
