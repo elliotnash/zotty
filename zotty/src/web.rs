@@ -3,6 +3,7 @@ use actix_cors::Cors;
 use lazy_static::lazy_static;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use crate::CONFIG;
 
 lazy_static! {
@@ -67,9 +68,20 @@ struct AccessTokenResponse{
     pub scope: String
 }
 #[derive(Serialize, Deserialize, Debug)]
-struct DiscordError{
+#[serde(untagged)]
+enum DiscordError{
+    OAuthError(OAuthError),
+    GatewayError(GatewayError)
+}
+#[derive(Serialize, Deserialize, Debug)]
+struct OAuthError{
     pub error: String,
     pub error_description: String,
+}
+#[derive(Serialize, Deserialize, Debug)]
+struct GatewayError{
+    pub code: i32,
+    pub message: String,
 }
 
 #[get("/api/users/@me")]
