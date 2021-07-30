@@ -20,6 +20,6 @@ export default class Login extends React.Component<AuthorizeProps, AuthorizeStat
   componentDidMount() {
     // parse url for auth token
     let auth_params = new URLSearchParams(window.location.search);
-    console.log(auth_params);
+    let auth_code = auth_params.get("code");
   }
 }
