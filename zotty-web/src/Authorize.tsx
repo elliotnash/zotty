@@ -21,5 +21,19 @@ export default class Login extends React.Component<AuthorizeProps, AuthorizeStat
     // parse url for auth token
     let auth_params = new URLSearchParams(window.location.search);
     let auth_code = auth_params.get("code");
+    let redirectUrl = new URL(window.location.origin);
+    redirectUrl.pathname = window.location.pathname;
+    let loginUrl = new URL(BACKEND_URL);
+    loginUrl.pathname = "/api/login";
+    axios.post(loginUrl.toString(), {
+      code: auth_code,
+      redirect_uri: redirectUrl.toString()
+    }).then((response) => {
+       console.log(response.data);
+    }).catch((err) => {
+      // if invalid code, redirect to login page again
+      console.log(err.response.data);
+      this.props.history.push("/login");
+    })
   }
 }
