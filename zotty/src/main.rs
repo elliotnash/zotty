@@ -3,7 +3,7 @@ use tokio::sync::Mutex;
 use tokio::task;
 use once_cell::sync::OnceCell;
 
-use serenity::{async_trait, client::bridge::gateway::ShardManager, model::{channel::Message, gateway::Ready}, prelude::*};
+use serenity::{async_trait, client::{Cache, bridge::gateway::ShardManager}, model::{channel::Message, gateway::Ready}, prelude::*};
 use tracing::{error, info, debug};
 
 mod commands;
@@ -23,6 +23,7 @@ mod web;
 static CONFIG: OnceCell<Config> = OnceCell::new();
 static HOME_DIR: OnceCell<PathBuf> = OnceCell::new();
 static DATABASE: OnceCell<Arc<Mutex<Box<dyn Database>>>> = OnceCell::new();
+static CACHE: OnceCell<Arc<Cache>> = OnceCell::new();
 
 pub struct ShardManagerContainer;
 
@@ -34,11 +35,12 @@ struct Handler;
 
 #[async_trait]
 impl EventHandler for Handler {
-    async fn ready(&self, _: Context, ready: Ready) {
+    async fn ready(&self, ctx: Context, ready: Ready) {
+        // set cache once cell
+        CACHE.set(ctx.cache).expect("Failed to set cache");
         info!("{} is connected!", ready.user.name);
     }
     async fn message(&self, ctx: Context, msg: Message) {
-
         //dispatch message event to modules that need it
         task::spawn(ranks::on_message(ctx.clone(), msg.clone()));
 
@@ -50,7 +52,7 @@ impl EventHandler for Handler {
         let args = commands::Args::parse(content.as_str());
 
         match args.command.as_str() {
-            "help" => 
+            "help" =>
                 {tokio::spawn(help::help(ctx.clone(), msg.clone(), args.clone()));}
             "rank" | "level" => 
                 {tokio::spawn(ranks::rank::rank(ctx.clone(), msg.clone(), args.clone()));}

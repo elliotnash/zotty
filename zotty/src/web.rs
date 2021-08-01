@@ -2,9 +2,10 @@ use actix_web::{App, HttpRequest, HttpResponse, HttpServer, Responder, Result, g
 use actix_cors::Cors;
 use lazy_static::lazy_static;
 use reqwest::Client;
+use array_tool::vec::Intersect;
 use actix_files::{Files, NamedFile};
 use serde::{Deserialize, Serialize};
-use crate::{CONFIG, HOME_DIR};
+use crate::{CACHE, CONFIG, HOME_DIR};
 
 lazy_static! {
     static ref REQWEST: Client = Client::new();
@@ -106,6 +107,40 @@ struct DiscordUser {
     pub avatar: String
 }
 
+#[get("/api/users/@me/guilds")]
+async fn guild_me(request: HttpRequest) -> Result<impl Responder> {
+    // fetch users guild from discord
+    let auth_header = request.headers().get("Authorization").unwrap().to_str().unwrap();
+    let resp = REQWEST.get(format!("{}/users/@me/guilds", CONFIG.get().unwrap().web.oauth.api_url))
+        .header("Authorization", auth_header)
+        .send().await.unwrap();
+    if resp.status().is_success() {
+        let user_pguilds = resp.json::<Vec<PartialGuild>>().await.unwrap();
+        let user_guilds = user_pguilds.iter().map(|p| p.id.clone()).collect();
+        // fetch bots guilds from serentiy
+        if let Some(cache) = CACHE.get() {
+            let bot_guilds: Vec<String> = cache.guilds().await.iter().map(|g| g.to_string()).collect();
+            let intersect_guilds = bot_guilds.intersect(user_guilds);
+            let intersect_pguilds: Vec<PartialGuild> = user_pguilds.iter().cloned().filter(|g| intersect_guilds.contains(&g.id)).collect();
+            Ok(HttpResponse::Ok().json(intersect_pguilds))
+        } else {
+            Ok(HttpResponse::InternalServerError().body("Server starting"))
+        }
+        
+    } else {
+        let resp_json: DiscordError = resp.json().await.unwrap();
+        Ok(HttpResponse::Unauthorized().json(resp_json))
+    }
+}
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct PartialGuild {
+    pub id: String,
+    pub name: String,
+    pub icon: Option<String>,
+    pub owner: bool,
+    pub permissions: String,
+}
+
 pub async fn run() {
     HttpServer::new(|| {
         let cors = Cors::permissive();
@@ -120,6 +155,7 @@ pub async fn run() {
             .service(ping)
             .service(login)
             .service(user_me)
+            .service(guild_me)
             .service(Files::new("/", build_dir)
                 .index_file("index.html")
                 .default_handler(NamedFile::open(index_path).unwrap()))
