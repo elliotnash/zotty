@@ -1,6 +1,6 @@
 import React from "react";
 import { RouteComponentProps } from "react-router-dom";
-import { withCookies, Cookies } from "react-cookie";
+import Cookies from "universal-cookie";
 import axios, { AxiosResponse } from "axios";
 import {BACKEND_URL} from ".";
 
@@ -22,9 +22,10 @@ interface AuthorizeProps extends RouteComponentProps {
 }
 interface AuthorizeStates{
 }
-class Login extends React.Component<AuthorizeProps, AuthorizeStates> {
+export default class Login extends React.Component<AuthorizeProps, AuthorizeStates> {
 
   constructor(props: AuthorizeProps) {
+    props.cookies = new Cookies;
     super(props);
 
     this.state = {
@@ -79,4 +80,3 @@ class Login extends React.Component<AuthorizeProps, AuthorizeStates> {
     })
   }
 }
-export default withCookies(Login);

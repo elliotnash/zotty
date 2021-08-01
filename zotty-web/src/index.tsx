@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { CookiesProvider } from "react-cookie";
 import './index.sass';
 import App from './App';
 
@@ -14,10 +13,8 @@ function get_backend_url(): string {
 }
 
 ReactDOM.render(
-  <CookiesProvider>
-    <React.StrictMode>
-      <App/>
-    </React.StrictMode>
-  </CookiesProvider>,
+  <React.StrictMode>
+    <App/>
+  </React.StrictMode>,
   document.getElementById('root')
 );
