@@ -21,7 +21,6 @@ interface AuthorizeProps extends RouteComponentProps {
   cookies: Cookies
 }
 interface AuthorizeStates{
-  user: DiscordUser | undefined
 }
 class Login extends React.Component<AuthorizeProps, AuthorizeStates> {
 
@@ -35,7 +34,7 @@ class Login extends React.Component<AuthorizeProps, AuthorizeStates> {
 
   render() {
     return (
-      <div>{`${this.state.user?.username}#${this.state.user?.discriminator}`}</div>
+      <div></div>
     );
   }
   componentDidMount() {
@@ -66,7 +65,12 @@ class Login extends React.Component<AuthorizeProps, AuthorizeStates> {
         this.setState(() => ({
           user: response.data
         }));
-      })
+        this.props.cookies.set("user", response.data, {
+          path: "/", sameSite: "lax"
+        });
+        // authentication complete, redirect to home page
+        this.props.history.push("/");
+      });
 
     }).catch((err) => {
       // if invalid code, redirect to login page again
