@@ -4,8 +4,8 @@ import {
   Route,
   Link
 } from "react-router-dom";
-import { login } from "./login";
-import Authorize from "./Authorize";
+import { login } from "./utils/login";
+import Authorize from "./routes/Authorize";
 
 class Index extends React.Component {
   login() { login(); };

@@ -2,7 +2,7 @@ import React from "react";
 import { RouteComponentProps } from "react-router-dom";
 import Cookies from "universal-cookie";
 import axios, { AxiosResponse } from "axios";
-import {BACKEND_URL} from ".";
+import {BACKEND_URL} from "..";
 
 interface DiscordUser {
   id: number,

@@ -1,7 +1,7 @@
 import Cookies from "universal-cookie";
 import axios from "axios";
 import { nanoid } from 'nanoid'
-import {BACKEND_URL} from ".";
+import {BACKEND_URL} from "..";
 
 interface OAuthInfo{
   api_url: string,
