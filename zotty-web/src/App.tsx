@@ -4,19 +4,29 @@ import {
   Route,
   Link
 } from "react-router-dom";
-import Login from "./Login";
+import { login } from "./login";
 import Authorize from "./Authorize";
 
 class Index extends React.Component {
+  login() { login(); };
   render() {
     return (
       <div>
         <span>HOME</span>
         <br/>
-        <Link to="/login">login</Link>
+        <button onClick={this.login}>login</button>
       </div>
     );
-  }
+  };
+}
+
+class Login extends React.Component {
+  render() {
+    return (
+      <div></div>
+    );
+  };
+  componentDidMount() { login() };
 }
 
 export default class App extends React.Component {

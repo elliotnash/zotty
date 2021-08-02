@@ -42,6 +42,19 @@ export default class Login extends React.Component<AuthorizeProps, AuthorizeStat
     // parse url for auth token
     let auth_params = new URLSearchParams(window.location.search);
     let auth_code = auth_params.get("code");
+    let dc_state = auth_params.get("state");
+    // get cookie state var and redirect var
+    let cookie_state = this.props.cookies.get("state");
+    let redirect_path = this.props.cookies.get("redirect_path");
+    // delete cookies
+    this.props.cookies.remove("state");
+    this.props.cookies.remove("redirect_path");
+    if (dc_state !== cookie_state) {
+      // state not equal, redirect to login
+      console.log(`Invalid state: state is ${cookie_state} but returned ${dc_state}`);
+      this.props.history.push("/login");
+      return;
+    }
     let redirectUrl = new URL(window.location.origin);
     redirectUrl.pathname = window.location.pathname;
     let loginUrl = new URL(BACKEND_URL);
@@ -69,8 +82,8 @@ export default class Login extends React.Component<AuthorizeProps, AuthorizeStat
         this.props.cookies.set("user", response.data, {
           path: "/", sameSite: "lax"
         });
-        // authentication complete, redirect to home page
-        this.props.history.push("/");
+        // authentication complete, redirect to redirect path
+        this.props.history.push(redirect_path);
       });
 
     }).catch((err) => {
