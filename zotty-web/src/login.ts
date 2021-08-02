@@ -23,12 +23,12 @@ export function login(redirect_path=window.location.pathname) {
     let state = nanoid();
     // set state cookie
     cookies.set("state", state, {
-      path: "/", sameSite: "lax", maxAge: 2147483647
+      sameSite: "lax", maxAge: 2147483647
     });
     // set redirect_url cookie
     if (redirect_path)
     cookies.set("redirect_path", redirect_path, {
-      path: "/", sameSite: "lax", maxAge: 2147483647
+      sameSite: "lax", maxAge: 2147483647
     });
     // construct redirect url
     let redirectUrl = new URL(window.location.origin);

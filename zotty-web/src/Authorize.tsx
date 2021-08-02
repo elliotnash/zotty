@@ -65,10 +65,10 @@ export default class Login extends React.Component<AuthorizeProps, AuthorizeStat
     }).then((response: AxiosResponse<AccessTokenResponse>) => {
       // set cookies with token data
       this.props.cookies.set("access_token", response.data.access_token, {
-        path: "/", sameSite: "lax", maxAge: response.data.expires_in-1000
+        sameSite: "lax", maxAge: response.data.expires_in-1000
       });
       this.props.cookies.set("refresh_token", response.data.refresh_token, {
-        path: "/", sameSite: "lax", maxAge: 2147483647
+        sameSite: "lax", maxAge: 2147483647
       });
       // set auth header for all axios
       axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access_token}`
@@ -80,7 +80,7 @@ export default class Login extends React.Component<AuthorizeProps, AuthorizeStat
           user: response.data
         }));
         this.props.cookies.set("user", response.data, {
-          path: "/", sameSite: "lax"
+          sameSite: "lax"
         });
         // authentication complete, redirect to redirect path
         this.props.history.push(redirect_path);
