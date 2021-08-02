@@ -47,8 +47,8 @@ export default class Login extends React.Component<AuthorizeProps, AuthorizeStat
     let cookie_state = this.props.cookies.get("state");
     let redirect_path = this.props.cookies.get("redirect_path");
     // delete cookies
-    this.props.cookies.remove("state");
-    this.props.cookies.remove("redirect_path");
+    this.props.cookies.remove("state", {path: "/", sameSite: "lax"});
+    this.props.cookies.remove("redirect_path", {path: "/", sameSite: "lax"});
     if (dc_state !== cookie_state) {
       // state not equal, redirect to login
       console.log(`Invalid state: state is ${cookie_state} but returned ${dc_state}`);
@@ -65,10 +65,10 @@ export default class Login extends React.Component<AuthorizeProps, AuthorizeStat
     }).then((response: AxiosResponse<AccessTokenResponse>) => {
       // set cookies with token data
       this.props.cookies.set("access_token", response.data.access_token, {
-        sameSite: "lax", maxAge: response.data.expires_in-1000
+        path: "/", sameSite: "lax", maxAge: response.data.expires_in-1000
       });
       this.props.cookies.set("refresh_token", response.data.refresh_token, {
-        sameSite: "lax", maxAge: 2147483647
+        path: "/", sameSite: "lax", maxAge: 2147483647
       });
       // set auth header for all axios
       axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access_token}`
@@ -80,7 +80,7 @@ export default class Login extends React.Component<AuthorizeProps, AuthorizeStat
           user: response.data
         }));
         this.props.cookies.set("user", response.data, {
-          sameSite: "lax"
+          path: "/", sameSite: "lax"
         });
         // authentication complete, redirect to redirect path
         this.props.history.push(redirect_path);

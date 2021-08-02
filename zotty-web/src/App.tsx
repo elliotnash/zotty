@@ -26,7 +26,7 @@ class Login extends React.Component {
       <div></div>
     );
   };
-  componentDidMount() { login() };
+  componentDidMount() { login("/") };
 }
 
 export default class App extends React.Component {
