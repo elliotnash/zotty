@@ -2,7 +2,7 @@ import React from "react";
 import {
   BrowserRouter as Router,
   Route,
-  Link
+  RouteComponentProps
 } from "react-router-dom";
 import { login } from "./utils/login";
 import Authorize from "./routes/Authorize";
@@ -20,22 +20,27 @@ class Index extends React.Component {
   };
 }
 
-class Login extends React.Component {
-  render() {
-    return (
-      <div></div>
-    );
-  };
-  componentDidMount() { login("/") };
+declare global {
+  interface Window { authorize: {():void};}
+}
+interface AuthorizeProps{}
+interface AuthorizeStates{}
+export default class App extends React.Component<AuthorizeProps, AuthorizeStates> {
+
+  constructor(props: AuthorizeProps){
+    super(props);
+    window.authorize = this.authorize;
 }
 
-export default class App extends React.Component {
+  authorize() {
+    console.log("AUTHORIZE FUCKTION CALLED");
+  }
+
   render() {
     return (
       <Router>
         <div>
           <Route path="/" exact component={Index}/>
-          <Route path="/login" exact component={Login}/>
           <Route path="/authorize" exact component={Authorize}/>
         </div>
       </Router>

@@ -4,6 +4,7 @@ import Cookies from "universal-cookie";
 import axios, { AxiosResponse } from "axios";
 import {BACKEND_URL} from "..";
 
+const cookies = new Cookies();
 interface DiscordUser {
   id: number,
   username: string,
@@ -17,15 +18,11 @@ interface AccessTokenResponse{
   refresh_token: string,
   scope: string
 }
-interface AuthorizeProps extends RouteComponentProps {
-  cookies: Cookies
-}
-interface AuthorizeStates{
-}
+interface AuthorizeProps extends RouteComponentProps {}
+interface AuthorizeStates{}
 export default class Login extends React.Component<AuthorizeProps, AuthorizeStates> {
 
   constructor(props: AuthorizeProps) {
-    props.cookies = new Cookies;
     super(props);
 
     this.state = {
@@ -44,11 +41,10 @@ export default class Login extends React.Component<AuthorizeProps, AuthorizeStat
     let auth_code = auth_params.get("code");
     let dc_state = auth_params.get("state");
     // get cookie state var and redirect var
-    let cookie_state = this.props.cookies.get("state");
-    let redirect_path = this.props.cookies.get("redirect_path");
+    let cookie_state = cookies.get("state");
     // delete cookies
-    this.props.cookies.remove("state", {path: "/", sameSite: "lax"});
-    this.props.cookies.remove("redirect_path", {path: "/", sameSite: "lax"});
+    cookies.remove("state", {path: "/", sameSite: "lax"});
+    cookies.remove("redirect_path", {path: "/", sameSite: "lax"});
     if (dc_state !== cookie_state) {
       // state not equal, redirect to login
       console.log(`Invalid state: state is ${cookie_state} but returned ${dc_state}`);
@@ -64,10 +60,10 @@ export default class Login extends React.Component<AuthorizeProps, AuthorizeStat
       redirect_uri: redirectUrl.toString()
     }).then((response: AxiosResponse<AccessTokenResponse>) => {
       // set cookies with token data
-      this.props.cookies.set("access_token", response.data.access_token, {
+      cookies.set("access_token", response.data.access_token, {
         path: "/", sameSite: "lax", maxAge: response.data.expires_in-1000
       });
-      this.props.cookies.set("refresh_token", response.data.refresh_token, {
+      cookies.set("refresh_token", response.data.refresh_token, {
         path: "/", sameSite: "lax", maxAge: 2147483647
       });
       // set auth header for all axios
@@ -79,17 +75,18 @@ export default class Login extends React.Component<AuthorizeProps, AuthorizeStat
         this.setState(() => ({
           user: response.data
         }));
-        this.props.cookies.set("user", response.data, {
+        cookies.set("user", response.data, {
           path: "/", sameSite: "lax"
         });
-        // authentication complete, redirect to redirect path
-        this.props.history.push(redirect_path);
+        // authentication complete, close oauth window or redirect
+        window.opener?.authorize();
+        window.close();
       });
 
     }).catch((err) => {
       // if invalid code, redirect to login page again
       console.log(err.response.data);
-      this.props.history.push("/login");
+      window.close();
     })
   }
 }

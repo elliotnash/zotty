@@ -8,13 +8,25 @@ interface OAuthInfo{
   client_id: string
 }
 
-const cookies = new Cookies;
-export function login(redirect_path=window.location.pathname) {
+const cookies = new Cookies();
+export function login() {
+  // create oauth window, need to do it now else calling window.open 
+  // from other context gets blocked by browser popup blocker
+  // we'll set content later
+  const width = 500;
+  const height = 800;
+  const left = window.screenX + (window.outerWidth - width) / 2;
+  const top = window.screenY + (window.outerHeight - height) / 2.5;
+
+  const windowFeatures = `toolbar=0,scrollbars=0,status=0,resizable=0,location=0,menuBar=0,width=${width},height=${height},top=${top},left=${left}`;
+  let oauth_window = window.open(
+      "",
+      "Login",
+      windowFeatures
+  );
   // ping api, recieve oauth info
   let pingUrl = new URL(BACKEND_URL);
   pingUrl.pathname = "/api/ping";
-  console.log(pingUrl);
-
   axios.get(
     pingUrl.toString()
   ).then((response) => {
@@ -23,11 +35,6 @@ export function login(redirect_path=window.location.pathname) {
     let state = nanoid();
     // set state cookie
     cookies.set("state", state, {
-      path: "/", sameSite: "lax", maxAge: 2147483647
-    });
-    // set redirect_url cookie
-    if (redirect_path)
-    cookies.set("redirect_path", redirect_path, {
       path: "/", sameSite: "lax", maxAge: 2147483647
     });
     // construct redirect url
@@ -44,6 +51,7 @@ export function login(redirect_path=window.location.pathname) {
       prompt: "consent",
       state
     }).toString();
-    window.location.replace(oauthUrl.toString());
+    // set oauth window url
+    oauth_window?.location.replace(oauthUrl.toString());
   });
 }
