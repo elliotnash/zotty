@@ -8,13 +8,24 @@ import { login } from "./utils/login";
 import Authorize from "./routes/Authorize";
 
 class Index extends React.Component {
-  login() { login(); };
   render() {
     return (
       <div>
         <span>HOME</span>
         <br/>
-        <button onClick={this.login}>login</button>
+        <button onClick={login}>login</button>
+      </div>
+    );
+  };
+}
+
+class Login extends React.Component {
+  render() {
+    return (
+      <div>s
+        <span>LOGIN</span>
+        <br/>
+        <button onClick={login}>login</button>
       </div>
     );
   };
