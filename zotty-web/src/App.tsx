@@ -5,24 +5,14 @@ import {
   RouteComponentProps
 } from "react-router-dom";
 import { login } from "./utils/login";
+import Home from "./routes/Home";
 import Authorize from "./routes/Authorize";
-
-class Index extends React.Component {
-  render() {
-    return (
-      <div>
-        <span>HOME</span>
-        <br/>
-        <button onClick={login}>login</button>
-      </div>
-    );
-  };
-}
+import Header from "./components/Header";
 
 class Login extends React.Component {
   render() {
     return (
-      <div>s
+      <div>
         <span>LOGIN</span>
         <br/>
         <button onClick={login}>login</button>
@@ -51,8 +41,10 @@ export default class App extends React.Component<AuthorizeProps, AuthorizeStates
     return (
       <Router>
         <div>
-          <Route path="/" exact component={Index}/>
-          <Route path="/authorize" exact component={Authorize}/>
+          <Header>
+            <Route path="/" exact component={Home}/>
+            <Route path="/authorize" exact component={Authorize}/>
+          </Header>
         </div>
       </Router>
     );
