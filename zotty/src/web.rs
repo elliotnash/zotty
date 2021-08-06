@@ -161,6 +161,6 @@ pub async fn run() {
                 .default_handler(NamedFile::open(index_path).unwrap()))
     })
         .workers(8)
-        .bind(("127.0.0.1", CONFIG.get().unwrap().web.port))
+        .bind(("0.0.0.0", CONFIG.get().unwrap().web.port))
         .unwrap().run().await.unwrap();
 }

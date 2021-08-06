@@ -10,7 +10,7 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
     return (
       <div>
         <div id="header-div">
-          <button id="login-btn" className="btn" onClick={login}>LOG IN</button>
+          <div id="login-btn" className="btn" onClick={login}>LOG IN</div>
         </div>
         {/*render all child components bellow*/}
         {this.props.children}

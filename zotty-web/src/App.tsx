@@ -7,7 +7,6 @@ import {
 import { login } from "./utils/login";
 import Home from "./routes/Home";
 import Authorize from "./routes/Authorize";
-import Header from "./components/Header";
 
 class Login extends React.Component {
   render() {
@@ -40,12 +39,8 @@ export default class App extends React.Component<AuthorizeProps, AuthorizeStates
   render() {
     return (
       <Router>
-        <div>
-          <Header>
-            <Route path="/" exact component={Home}/>
-            <Route path="/authorize" exact component={Authorize}/>
-          </Header>
-        </div>
+        <Route path="/authorize" exact component={Authorize}/>
+        <Route path="/" exact component={Home}/>
       </Router>
     );
   }
