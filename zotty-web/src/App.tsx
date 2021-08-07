@@ -12,11 +12,11 @@ import Authorize from "./routes/Authorize";
 class Login extends React.Component {
   render() {
     return (
-      <div>
+      <React.Fragment>
         <span>LOGIN</span>
         <br/>
         <button onClick={login}>login</button>
-      </div>
+      </React.Fragment>
     );
   };
 }

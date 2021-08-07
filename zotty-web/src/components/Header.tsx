@@ -35,7 +35,7 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
   }
   render() {
     return (
-      <div>
+      <React.Fragment>
         <div id="header-div">
           <div id="login-btn-container">
             <div id="login-btn" className="btn" data-avatar={this.state.avatar} onClick={login}>
@@ -47,7 +47,7 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
         </div>
         {/*render all child components bellow*/}
         {this.props.children}
-      </div>
+      </React.Fragment>
     );
   };
   avatarClick(event: React.MouseEvent) {

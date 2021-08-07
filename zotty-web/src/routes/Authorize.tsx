@@ -10,9 +10,7 @@ interface AuthorizeProps extends RouteComponentProps {}
 interface AuthorizeStates{}
 class Authorize extends React.Component<AuthorizeProps, AuthorizeStates> {
   render() {
-    return (
-      <div></div>
-    );
+    return null;
   }
   componentDidMount() {
     // parse url for auth token
