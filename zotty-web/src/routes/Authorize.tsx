@@ -12,10 +12,6 @@ export default class Login extends React.Component<AuthorizeProps, AuthorizeStat
 
   constructor(props: AuthorizeProps) {
     super(props);
-
-    this.state = {
-      user: undefined
-    };
   }
 
   render() {
@@ -60,11 +56,8 @@ export default class Login extends React.Component<AuthorizeProps, AuthorizeStat
       let meUrl = new URL(BACKEND_URL);
       meUrl.pathname = "/api/users/@me";
       axios.get(meUrl.toString()).then((response: AxiosResponse<DiscordUser>) => {
-        this.setState(() => ({
-          user: response.data
-        }));
         // authentication complete, close oauth window or redirect
-        window.opener?.authorize();
+        window.opener?.authorize(response.data);
         window.close();
       });
 
