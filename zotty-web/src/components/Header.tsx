@@ -40,7 +40,7 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
           <div id="login-btn-container">
             <div id="login-btn" className="btn" data-avatar={this.state.avatar} onClick={login}>
               <span id="login-text" data-avatar={this.state.avatar}>LOG IN</span>
-              <img id="header-avatar" data-avatar={this.state.avatar} 
+              <img id="header-avatar" data-avatar={this.state.avatar} onClick={this.avatarClick}
                 src={this.state.avatarUrl} alt="" width="32" height="32"/>
             </div>
           </div>
@@ -50,5 +50,9 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
       </div>
     );
   };
+  avatarClick(event: React.MouseEvent) {
+    event.stopPropagation()
+    console.log("AVATAR CLICKKKKKEEEEDDD");
+  }
 }
 export default withRouter(Header);
