@@ -48,8 +48,7 @@ export default class App extends React.Component<AppProps, AppStates> {
 
   authorize(user: DiscordUser) {
     console.log("AUTHORIZE FUCKTION CALLED");
-    console.log(user);
-    this.setState(() => ({ user }));
+    this.setState({ user });
   }
 
   render() {
