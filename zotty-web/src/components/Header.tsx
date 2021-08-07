@@ -2,10 +2,18 @@ import React from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import './Header.sass';
 import { login } from "../utils/login";
+import { DiscordUser } from "../types";
 
-interface HeaderProps extends RouteComponentProps {};
+interface HeaderProps extends RouteComponentProps {
+  user: DiscordUser | undefined
+};
 interface HeaderStates{};
 class Header extends React.Component<HeaderProps, HeaderStates> {
+  componentDidUpdate(prevProps: HeaderProps, prevState: HeaderStates) {
+    if (this.props.user !== prevProps.user) {
+      console.log("OHHH DADDDY YOU UPDATED MY USER VAR SO HARDDD");
+    }
+  }
   render() {
     return (
       <div>

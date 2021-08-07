@@ -1,5 +1,5 @@
 import React from "react";
-import { RouteComponentProps } from "react-router-dom";
+import { RouteComponentProps, withRouter } from "react-router-dom";
 import Cookies from "universal-cookie";
 import axios, { AxiosResponse } from "axios";
 import { DiscordUser, AccessTokenResponse } from "../types";
@@ -8,12 +8,7 @@ import {BACKEND_URL} from "..";
 const cookies = new Cookies();
 interface AuthorizeProps extends RouteComponentProps {}
 interface AuthorizeStates{}
-export default class Login extends React.Component<AuthorizeProps, AuthorizeStates> {
-
-  constructor(props: AuthorizeProps) {
-    super(props);
-  }
-
+class Authorize extends React.Component<AuthorizeProps, AuthorizeStates> {
   render() {
     return (
       <div></div>
@@ -68,3 +63,4 @@ export default class Login extends React.Component<AuthorizeProps, AuthorizeStat
     })
   }
 }
+export default withRouter(Authorize);

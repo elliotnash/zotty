@@ -1,8 +1,7 @@
 import React from "react";
 import {
   BrowserRouter as Router,
-  Route,
-  RouteComponentProps
+  Route
 } from "react-router-dom";
 import { DiscordUser } from "./types";
 import { login } from "./utils/login";
@@ -26,7 +25,9 @@ declare global {
   interface Window { authorize: {(user: DiscordUser):void};}
 }
 interface AppProps{}
-interface AppStates{}
+interface AppStates{
+  user: DiscordUser | undefined
+}
 export default class App extends React.Component<AppProps, AppStates> {
 
   headerRef: React.Ref<typeof Header>;
@@ -54,8 +55,15 @@ export default class App extends React.Component<AppProps, AppStates> {
   render() {
     return (
       <Router>
-        <Route path="/authorize" exact component={Authorize}/>
-        <Route path="/" exact component={Home}/>
+        <Route path="/authorize" exact>
+          <Authorize/>
+        </Route>
+        <Route path="/" exact>
+          <Home user={this.state.user}/>
+        </Route>
+        <Route path="/login" exact>
+          <Login/>
+        </Route>
       </Router>
     );
   }
