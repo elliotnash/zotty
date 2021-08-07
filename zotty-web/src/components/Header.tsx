@@ -9,12 +9,16 @@ interface HeaderProps extends RouteComponentProps {
   user: DiscordUser | undefined
 };
 interface HeaderStates{
-  avatarUrl: string | undefined
+  avatarUrl: string | undefined,
+  avatar: boolean
 };
 class Header extends React.Component<HeaderProps, HeaderStates> {
   constructor(props: HeaderProps){
     super(props);
-    this.state = {avatarUrl: undefined};
+    this.state = {
+      avatarUrl: undefined,
+      avatar: false
+    };
   }
   componentDidUpdate(prevProps: HeaderProps, prevState: HeaderStates) {
     if (this.props.user !== prevProps.user) {
@@ -24,6 +28,8 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
         let avatarUrl = getAvatarUrl(this.props.user, 64);
         console.log(avatarUrl);
         this.setState({avatarUrl});
+        // set toAvatar state to 1 to start animation
+        this.setState({avatar: true});
       }
     }
   }
@@ -31,9 +37,12 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
     return (
       <div>
         <div id="header-div">
-          <div id="login-btn" className="btn" onClick={login}>
-            <span id="login-text">LOG IN</span>
-            <img id="header-avatar" src={this.state.avatarUrl} alt="" width="32" height="32"/>
+          <div id="login-btn-container">
+            <div id="login-btn" className="btn" data-avatar={this.state.avatar} onClick={login}>
+              <span id="login-text" data-avatar={this.state.avatar}>LOG IN</span>
+              <img id="header-avatar" data-avatar={this.state.avatar} 
+                src={this.state.avatarUrl} alt="" width="32" height="32"/>
+            </div>
           </div>
         </div>
         {/*render all child components bellow*/}
