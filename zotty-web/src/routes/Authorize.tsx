@@ -2,22 +2,10 @@ import React from "react";
 import { RouteComponentProps } from "react-router-dom";
 import Cookies from "universal-cookie";
 import axios, { AxiosResponse } from "axios";
+import { DiscordUser, AccessTokenResponse } from "../types";
 import {BACKEND_URL} from "..";
 
 const cookies = new Cookies();
-interface DiscordUser {
-  id: number,
-  username: string,
-  discriminator: string,
-  avatar: string
-}
-interface AccessTokenResponse{
-  access_token: string,
-  token_type: string,
-  expires_in: number,
-  refresh_token: string,
-  scope: string
-}
 interface AuthorizeProps extends RouteComponentProps {}
 interface AuthorizeStates{}
 export default class Login extends React.Component<AuthorizeProps, AuthorizeStates> {
@@ -75,9 +63,6 @@ export default class Login extends React.Component<AuthorizeProps, AuthorizeStat
         this.setState(() => ({
           user: response.data
         }));
-        cookies.set("user", response.data, {
-          path: "/", sameSite: "lax"
-        });
         // authentication complete, close oauth window or redirect
         window.opener?.authorize();
         window.close();
