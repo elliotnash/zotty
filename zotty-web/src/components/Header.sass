@@ -24,7 +24,7 @@ div
       filter: brightness(75%)
       transition: all 0.05s ease
   .btn[data-avatar='true']
-    transition: all 0.5s ease
+    transition: all 0.5s ease-out
     width: 32px
     border-radius: 20px
 
@@ -45,9 +45,9 @@ div
   opacity: 0
 
 #header-avatar[data-avatar='true']
-  animation: avatar 0.5s ease
+  animation: avatar 0.5s ease-out
   display: block
-  opacity: 100%
+  opacity: 1
 
 @keyframes avatar
   0%
@@ -55,5 +55,5 @@ div
     opacity: 0
   100%
     display: block
-    opacity: 100%
+    opacity: 1
     

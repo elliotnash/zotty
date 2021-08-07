@@ -5,7 +5,7 @@ import App from './App';
 
 export const BACKEND_URL = get_backend_url();
 function get_backend_url(): string {
-  let dev_url = "http://localhost:8000";
+  let dev_url = "";
   if (dev_url !== "")
     return dev_url
   else
