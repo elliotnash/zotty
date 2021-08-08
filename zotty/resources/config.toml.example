@@ -8,7 +8,7 @@ moderator = 0xF05101
 music = 0x7289DA
 commands = 0xC542F5
 error = 0xff0000
-ranks = 0x00ff00
+ranks = 0xd6c400
 
 [database]
 db_type = "sqlite"
