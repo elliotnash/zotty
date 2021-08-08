@@ -1,4 +1,4 @@
-import React from "react";
+import React, { createRef } from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import './Header.sass';
 import UserMenu from "./UserMenu";
@@ -37,6 +37,7 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
       }
     }
   }
+  avatarRef = createRef<HTMLImageElement>();
   render() {
     return (
       <React.Fragment>
@@ -45,9 +46,9 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
             <div id="login-btn" className="btn" data-avatar={this.state.avatar} onClick={login}>
               <span id="login-text" data-avatar={this.state.avatar}>LOG IN</span>
               <img id="header-avatar" data-avatar={this.state.avatar} onClick={this.avatarClick}
-                src={this.state.avatarUrl} alt=""/>
+                src={this.state.avatarUrl} alt="" ref={this.avatarRef}/>
             </div>
-            <UserMenu isOpen={this.state.menuOpen} setIsOpen={(menuOpen) => {this.setState({menuOpen})}}/>
+            <UserMenu isOpen={this.state.menuOpen} setIsOpen={(menuOpen) => {this.setState({menuOpen})}} openRef={this.avatarRef}/>
           </div>
         </div>
         {/*render all child components bellow*/}
@@ -58,9 +59,8 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
   avatarClick(event: React.MouseEvent) {
     // prevent divs underneath from being clicked
     event.stopPropagation()
-    // open menu if not open
-    if (!this.state.menuOpen)
-      this.setState({menuOpen: true});
+    // toggle menu
+    this.setState({menuOpen: !this.state.menuOpen});
   }
 }
 export default withRouter(Header);

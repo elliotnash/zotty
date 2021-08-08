@@ -1,4 +1,4 @@
-import React, { createRef } from "react";
+import React, { createRef, RefObject } from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import './UserMenu.sass';
 
@@ -18,7 +18,8 @@ const MenuItem = withRouter(class MenuItem extends React.Component<MenuItemProps
 
 interface UserMenuProps extends RouteComponentProps {
   isOpen: boolean,
-  setIsOpen: (state: boolean)=>void
+  setIsOpen: (state: boolean)=>void,
+  openRef: RefObject<HTMLElement>
 };
 interface UserMenuStates{};
 class UserMenu extends React.Component<UserMenuProps, UserMenuStates> {
@@ -32,10 +33,14 @@ class UserMenu extends React.Component<UserMenuProps, UserMenuStates> {
   componentDidMount() {document.addEventListener('mousedown', this.handleClickOutside);}
   componentWillUnmount() {document.removeEventListener('mousedown', this.handleClickOutside);}
   handleClickOutside(event: MouseEvent) {
-    if (event.target instanceof HTMLElement && this.menuRef && !this.menuRef.current?.contains(event.target)) {
-      //clicked outside menu. we will close if open
+    if (event.target instanceof HTMLElement && this.menuRef 
+    && !this.menuRef.current?.contains(event.target) && this.props.openRef
+    && !this.props.openRef?.current?.contains(event.target)) {
+      //clicked outside menu. we will close if open. wait till click propagates to avatar
       if (this.props.isOpen){
-        this.props.setIsOpen(false);
+        setTimeout(() => {
+          this.props.setIsOpen(false);
+        }, 100);
       }
     }
   }
