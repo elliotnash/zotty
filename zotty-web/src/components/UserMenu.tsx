@@ -47,7 +47,7 @@ class UserMenu extends React.Component<UserMenuProps, UserMenuStates> {
 
   render() {
     return (
-      <div ref={this.menuRef} className="menu-div" style={this.props.isOpen ? undefined: {display: 'none'}}>
+      <div ref={this.menuRef} className={this.props.isOpen ? 'menu-div' : 'menu-div-hidden'}>
         <MenuItem text="Servers"/>
         <MenuItem text="Log Out"/>
       </div>

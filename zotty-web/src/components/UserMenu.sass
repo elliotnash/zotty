@@ -8,6 +8,13 @@ div
     height: auto
     width: 100px
     padding: 0 0 5px 0
+    transition: all 0.1s
+
+  .menu-div-hidden
+    @extend div, .menu-div
+    visibility: hidden
+    transform: scaleX(50%)
+    opacity: 0
 
 div
   .menu-item-div
