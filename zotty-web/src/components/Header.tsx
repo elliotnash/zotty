@@ -22,6 +22,7 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
       avatar: false,
       menuOpen: false
     };
+    this.avatarClick = this.avatarClick.bind(this);
   }
   componentDidUpdate(prevProps: HeaderProps, prevState: HeaderStates) {
     if (this.props.user !== prevProps.user) {
@@ -46,7 +47,7 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
               <img id="header-avatar" data-avatar={this.state.avatar} onClick={this.avatarClick}
                 src={this.state.avatarUrl} alt=""/>
             </div>
-            <UserMenu/>
+            <UserMenu isOpen={this.state.menuOpen} setIsOpen={(menuOpen) => {this.setState({menuOpen})}}/>
           </div>
         </div>
         {/*render all child components bellow*/}
@@ -55,8 +56,11 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
     );
   };
   avatarClick(event: React.MouseEvent) {
+    // prevent divs underneath from being clicked
     event.stopPropagation()
-    console.log("AVATAR CLICKKKKKEEEEDDD");
+    // open menu if not open
+    if (!this.state.menuOpen)
+      this.setState({menuOpen: true});
   }
 }
 export default withRouter(Header);
