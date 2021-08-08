@@ -10,14 +10,16 @@ interface HeaderProps extends RouteComponentProps {
 };
 interface HeaderStates{
   avatarUrl: string | undefined,
-  avatar: boolean
+  avatar: boolean,
+  menuOpen: boolean
 };
 class Header extends React.Component<HeaderProps, HeaderStates> {
   constructor(props: HeaderProps){
     super(props);
     this.state = {
       avatarUrl: undefined,
-      avatar: false
+      avatar: false,
+      menuOpen: false
     };
   }
   componentDidUpdate(prevProps: HeaderProps, prevState: HeaderStates) {
@@ -44,6 +46,7 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
                 src={this.state.avatarUrl} alt=""/>
             </div>
           </div>
+          <Menu/>
         </div>
         {/*render all child components bellow*/}
         {this.props.children}
