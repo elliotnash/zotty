@@ -1,6 +1,7 @@
 import React from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import './Header.sass';
+import UserMenu from "./UserMenu";
 import { login } from "../utils/login";
 import { DiscordUser } from "../types";
 import { getAvatarUrl } from "../utils/discord";
@@ -45,8 +46,8 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
               <img id="header-avatar" data-avatar={this.state.avatar} onClick={this.avatarClick}
                 src={this.state.avatarUrl} alt=""/>
             </div>
+            <UserMenu/>
           </div>
-          <Menu/>
         </div>
         {/*render all child components bellow*/}
         {this.props.children}

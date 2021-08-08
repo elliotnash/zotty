@@ -7,7 +7,9 @@ interface MenuStates{};
 class UserMenu extends React.Component<MenuProps, MenuStates> {
   render() {
     return (
-      <div/>
+      <div id="menu-div">
+
+      </div>
     );
   }
 }
