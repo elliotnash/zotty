@@ -3,15 +3,24 @@
   background-color: var(--secondary-bg-color)
   border-radius: 5px
   top: 50px
-  right: 0
+  right: -20px
   height: auto
-  width: 150px
+  width: 100px
+  padding: 0 0 5px 0
 
 div
   .menu-item-div
-    height: 35px
+    display: flex
+    height: 30px
     width: auto
-    margin: 5px
+    margin: 5px 5px 0px 5px
     border-radius: 5px
+    cursor: pointer
+    justify-content: center
+    align-content: center
     &:hover
-      background-color: #99A7A8
+      background-color: var(--primary-bg-color)
+
+.menu-item-text
+  margin: auto
+  color: var(--font-color)
