@@ -10,14 +10,14 @@ interface HeaderProps extends RouteComponentProps {
   user: DiscordUser | undefined
 }
 interface HeaderStates{
-  avatar: boolean,
+  avatarUrl: string,
   menuOpen: boolean
 }
 class Header extends React.Component<HeaderProps, HeaderStates> {
   constructor(props: HeaderProps){
     super(props);
     this.state = {
-      avatar: !!this.props.user,
+      avatarUrl: "",
       menuOpen: false
     };
     this.avatarClick = this.avatarClick.bind(this);
@@ -27,11 +27,10 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
       if (this.props.user) {
         // we just logged in
         // set toAvatar state to 1 to start animation
-        this.setState({avatar: true});
+        this.setState({avatarUrl: getAvatarUrl(this.props.user, 64)});
       } else {
         // we just logged out
         console.log("header recieved logout");
-        this.setState({avatar: false});
       }
     }
   }
@@ -46,13 +45,18 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
         <React.Fragment>
           <div id="header-div">
             <span id="title-span">ZOTTY</span>
-            <div id="login-btn-container">
-              <div id="login-btn" className="btn" data-avatar={this.state.avatar} onClick={newLogin}>
-                <span id="login-text" data-avatar={this.state.avatar}>LOG IN</span>
-                <img id="header-avatar" data-avatar={this.state.avatar} onClick={this.avatarClick}
-                  src={getAvatarUrl(this.props.user, 64)} alt="" ref={this.avatarRef}/>
+            <div id="login-container-container" className="container-container">
+              <div id="login-btn-container" className="btn-container" data-hidden={!!this.props.user}>
+                <div id="login-btn" className="btn btn-animation" data-avatar={!!this.props.user} onClick={newLogin}>
+                  <span id="login-text" data-avatar={!!this.props.user}>LOG IN</span>
+                </div>
               </div>
-              <UserMenu isOpen={this.state.menuOpen} setIsOpen={(menuOpen) => {this.setState({menuOpen});}} openRef={this.avatarRef}/>
+              <div id="avatar-btn-container" className="btn-container" data-hidden={!this.props.user}>
+                <UserMenu isOpen={this.state.menuOpen} setIsOpen={(menuOpen) => {this.setState({menuOpen});}} openRef={this.avatarRef}/>
+                <img id="header-avatar" data-avatar={!!this.props.user} onClick={this.avatarClick}
+                  src={this.state.avatarUrl} alt="" ref={this.avatarRef}/>
+                <span id="username-span" data-avatar={!!this.props.user}>icanflyit</span>
+              </div>
             </div>
           </div>
           {/*render all child components bellow*/}
