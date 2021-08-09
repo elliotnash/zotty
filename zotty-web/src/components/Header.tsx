@@ -53,9 +53,11 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
               </div>
               <div id="avatar-btn-container" className="btn-container" data-hidden={!this.props.user}>
                 <UserMenu isOpen={this.state.menuOpen} setIsOpen={(menuOpen) => {this.setState({menuOpen});}} openRef={this.avatarRef}/>
-                <img id="header-avatar" data-avatar={!!this.props.user} onClick={this.avatarClick}
-                  src={this.state.avatarUrl} alt="" ref={this.avatarRef}/>
-                <span id="username-span" data-avatar={!!this.props.user}>{this.props.user?.username}</span>
+                <div className="avatar-container" onClick={this.avatarClick}>
+                  <img id="header-avatar" data-avatar={!!this.props.user}
+                    src={this.state.avatarUrl} alt="" ref={this.avatarRef}/>
+                  <span id="username-span" data-avatar={!!this.props.user}>{this.props.user?.username}</span>
+                </div>
               </div>
             </div>
           </div>
