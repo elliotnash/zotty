@@ -8,6 +8,7 @@ import { cookieLogin, newLogin } from "./utils/auth";
 import Home from "./routes/Home";
 import Authorize from "./routes/Authorize";
 import Cookies from "universal-cookie";
+import Header from "./components/Header";
 
 class Login extends React.Component {
   render() {
@@ -70,15 +71,17 @@ export default class App extends React.Component<AppProps, AppStates> {
   render() {
     return (
       <Router>
-        <Route path="/authorize" exact>
-          <Authorize/>
-        </Route>
-        <Route path="/" exact>
-          <Home user={this.state.user}/>
-        </Route>
-        <Route path="/login" exact>
-          <Login/>
-        </Route>
+        <Header user={this.state.user}>
+          <Route path="/authorize" exact>
+            <Authorize/>
+          </Route>
+          <Route path="/" exact>
+            <Home user={this.state.user}/>
+          </Route>
+          <Route path="/login" exact>
+            <Login/>
+          </Route>
+        </Header>
       </Router>
     );
   }
