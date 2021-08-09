@@ -29,7 +29,8 @@ declare global {
 }
 interface AppProps{}
 interface AppStates{
-  user: DiscordUser | undefined
+  user: DiscordUser | undefined,
+  loaded: boolean
 }
 export default class App extends React.Component<AppProps, AppStates> {
 
@@ -44,7 +45,8 @@ export default class App extends React.Component<AppProps, AppStates> {
     window.logout = this.logout.bind(this);
     // add user state
     this.state = {
-      user: undefined
+      user: undefined,
+      loaded: false
     };
   }
 

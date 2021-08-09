@@ -58,66 +58,77 @@ export function newLogin() {
 }
 
 function getAccessToken() {
-  let accessToken: string | undefined = cookies.get("access_token");
-  if (accessToken){
-    return accessToken;
-  } else {
-    refresh();
-  }
+  return new Promise<string>((resolve, reject) => {
+    let accessToken: string | undefined = cookies.get("access_token");
+    if (accessToken){
+      resolve(accessToken);
+    } else {
+      refresh().then(() => {
+        reject();
+      });
+    }
+  });
 }
 
 export function cookieLogin() {
-  let accessToken = getAccessToken();
-  // if token is undefined, return
-  if (!accessToken) {return;};
-  // we now have access token, set axios auth header and make req
-  axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-  // get user obj and set login state
-  let meUrl = new URL(BACKEND_URL);
-  meUrl.pathname = "/api/users/@me";
-  axios.get(meUrl.toString()).then((response: AxiosResponse<DiscordUser>) => {
-    // authentication complete, update main state
-    window.login(response.data);
-  }).catch((err) => {
-    console.log(err)
-    console.log("invalid access token, requesting new token using refresh code");
-    cookies.remove("access_token", {path: "/", sameSite: "lax"});
-    let accessToken = getAccessToken();
-    if (!accessToken) {
-      console.log("refresh token invalid");
-      return;
-    }
-    // we now have access token, set axios auth header and make req
-    axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-    axios.get(meUrl.toString()).then((response: AxiosResponse<DiscordUser>) => {
-      // authentication complete, update main state
-      window.login(response.data);
+  return new Promise<void>((resolve) => {
+    getAccessToken().catch(() => {resolve();}).then((accessToken) => {
+      // we now have access token, set axios auth header and make req
+      axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+      // get user obj and set login state
+      let meUrl = new URL(BACKEND_URL);
+      meUrl.pathname = "/api/users/@me";
+      axios.get(meUrl.toString()).then((response: AxiosResponse<DiscordUser>) => {
+        // authentication complete, update main state
+        window.login(response.data);
+      }).catch((err) => {
+        console.log(err)
+        console.log("invalid access token, requesting new token using refresh code");
+        cookies.remove("access_token", {path: "/", sameSite: "lax"});
+        getAccessToken().catch(() => {
+          console.log("refresh token invalid");
+          resolve();
+        }).then((accessToken) => {
+          // we now have access token, set axios auth header and make req
+          axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+          axios.get(meUrl.toString()).then((response: AxiosResponse<DiscordUser>) => {
+            // authentication complete, update main state
+            window.login(response.data);
+            resolve();
+          });
+        });
+      });
     })
-  })
+  });
 }
 
 function refresh() {
-  let refreshToken: string | undefined = cookies.get("refresh_token");
-  if (!refreshToken){
-    console.log("no refresh_token cookie found");
-    return;
-  }
-  let refreshUrl = new URL(BACKEND_URL);
-  refreshUrl.pathname = "/api/refresh";
-  axios.post(refreshUrl.toString(), {refresh_token: refreshToken}).then((response: AxiosResponse<AccessTokenResponse>) => {
-    // set cookies and auth header
-    setTokenResponseData(response.data);
-    // attempt to fetch user
-    let meUrl = new URL(BACKEND_URL);
-    meUrl.pathname = "/api/users/@me";
-    axios.get(meUrl.toString()).then((response: AxiosResponse<DiscordUser>) => {
-      // authentication complete, send login
-      window.login(response.data);
+  return new Promise<void>((resolve) => {
+    let refreshToken: string | undefined = cookies.get("refresh_token");
+    if (!refreshToken){
+      console.log("no refresh_token cookie found");
+      resolve();
+      return;
+    }
+    let refreshUrl = new URL(BACKEND_URL);
+    refreshUrl.pathname = "/api/refresh";
+    axios.post(refreshUrl.toString(), {refresh_token: refreshToken}).then((response: AxiosResponse<AccessTokenResponse>) => {
+      // set cookies and auth header
+      setTokenResponseData(response.data);
+      // attempt to fetch user
+      let meUrl = new URL(BACKEND_URL);
+      meUrl.pathname = "/api/users/@me";
+      axios.get(meUrl.toString()).then((response: AxiosResponse<DiscordUser>) => {
+        // authentication complete, send login
+        window.login(response.data);
+        resolve();
+      });
+    }).catch((err) => {
+      console.log(err)
+      console.log("invalid refresh token, not logging in");
+      resolve();
     });
-  }).catch((err) => {
-    console.log("invalid refresh token, not logging in");
-  })
-  return;
+  });
 }
 
 export function setTokenResponseData(data: AccessTokenResponse){
