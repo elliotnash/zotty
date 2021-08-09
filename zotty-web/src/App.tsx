@@ -5,7 +5,6 @@ import {
 } from "react-router-dom";
 import { DiscordUser } from "./types";
 import { cookieLogin, newLogin } from "./utils/auth";
-import Header from "./components/Header";
 import Home from "./routes/Home";
 import Authorize from "./routes/Authorize";
 import Cookies from "universal-cookie";

@@ -80,7 +80,7 @@ export function cookieLogin() {
   });
 }
 
-function refresh(): string | undefined {
+function refresh() {
   let refresh_token: string | undefined = cookies.get("refresh_token");
   if (refresh_token){
     console.log("access token expired or missing, reading refresh token from cookies");

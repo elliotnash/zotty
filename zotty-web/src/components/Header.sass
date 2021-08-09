@@ -33,7 +33,7 @@ div
       filter: brightness(75%)
       transition: all 0.05s ease
   .btn[data-avatar='true']
-    transition: all 0.5s ease-out
+    transition: all 0.1s ease-out
     width: 32px
     border-radius: 20px
 
@@ -51,7 +51,7 @@ div
 #login-text[data-avatar='true']
   display: none
 
-#header-avatar
+#header-avatar-hidden
   @include no-select()
   display: none
   border-radius: 5px
@@ -61,7 +61,7 @@ div
 
 #header-avatar[data-avatar='true']
   @include no-select()
-  animation: avatar 0.5s ease-out
+  animation: avatar 0.1s ease-out
   display: block
   opacity: 1
   width: 32px

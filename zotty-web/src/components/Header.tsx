@@ -10,7 +10,6 @@ interface HeaderProps extends RouteComponentProps {
   user: DiscordUser | undefined
 };
 interface HeaderStates{
-  avatarUrl: string | undefined,
   avatar: boolean,
   menuOpen: boolean
 };
@@ -18,8 +17,7 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
   constructor(props: HeaderProps){
     super(props);
     this.state = {
-      avatarUrl: undefined,
-      avatar: false,
+      avatar: !!this.props.user,
       menuOpen: false
     };
     this.avatarClick = this.avatarClick.bind(this);
@@ -28,10 +26,6 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
     if (this.props.user !== prevProps.user) {
       if (this.props.user) {
         // we just logged in
-        console.log("got avatar url")
-        let avatarUrl = getAvatarUrl(this.props.user, 64);
-        console.log(avatarUrl);
-        this.setState({avatarUrl});
         // set toAvatar state to 1 to start animation
         this.setState({avatar: true});
       } else {
@@ -51,7 +45,7 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
             <div id="login-btn" className="btn" data-avatar={this.state.avatar} onClick={newLogin}>
               <span id="login-text" data-avatar={this.state.avatar}>LOG IN</span>
               <img id="header-avatar" data-avatar={this.state.avatar} onClick={this.avatarClick}
-                src={this.state.avatarUrl} alt="" ref={this.avatarRef}/>
+                src={getAvatarUrl(this.props.user, 64)} alt="" ref={this.avatarRef}/>
             </div>
             <UserMenu isOpen={this.state.menuOpen} setIsOpen={(menuOpen) => {this.setState({menuOpen})}} openRef={this.avatarRef}/>
           </div>
