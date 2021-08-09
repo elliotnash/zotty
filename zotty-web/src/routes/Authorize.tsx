@@ -4,6 +4,7 @@ import Cookies from "universal-cookie";
 import axios, { AxiosResponse } from "axios";
 import { DiscordUser, AccessTokenResponse } from "../types";
 import {BACKEND_URL} from "..";
+import { setTokenResponseData } from "../utils/auth";
 
 const cookies = new Cookies();
 interface AuthorizeProps extends RouteComponentProps {}
@@ -36,15 +37,8 @@ class Authorize extends React.Component<AuthorizeProps, AuthorizeStates> {
       code: auth_code,
       redirect_uri: redirectUrl.toString()
     }).then((response: AxiosResponse<AccessTokenResponse>) => {
-      // set cookies with token data
-      cookies.set("access_token", response.data.access_token, {
-        path: "/", sameSite: "lax", maxAge: response.data.expires_in-1000
-      });
-      cookies.set("refresh_token", response.data.refresh_token, {
-        path: "/", sameSite: "lax", maxAge: 2147483647
-      });
-      // set auth header for all axios
-      axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access_token}`;
+      // set cookies and auth header
+      setTokenResponseData(response.data);
       // attempt to fetch user
       let meUrl = new URL(BACKEND_URL);
       meUrl.pathname = "/api/users/@me";

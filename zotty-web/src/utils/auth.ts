@@ -2,7 +2,7 @@ import Cookies from "universal-cookie";
 import axios, { AxiosResponse } from "axios";
 import { nanoid } from 'nanoid'
 import {BACKEND_URL} from "..";
-import { DiscordUser } from "../types";
+import { AccessTokenResponse, DiscordUser } from "../types";
 
 interface OAuthInfo{
   api_url: string,
@@ -57,39 +57,79 @@ export function newLogin() {
   });
 }
 
-export function cookieLogin() {
-  let access_token: string | undefined = cookies.get("access_token");
-  if (access_token){
-    console.log("reading access token from cookies");
+function getAccessToken() {
+  let accessToken: string | undefined = cookies.get("access_token");
+  if (accessToken){
+    return accessToken;
   } else {
-    let new_token = refresh();
-    if (new_token){
-      access_token = new_token;
-    } else {
-      return;
-    }
+    refresh();
   }
-  // we now have valid access token, set axios auth header
-  axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+}
+
+export function cookieLogin() {
+  let accessToken = getAccessToken();
+  // if token is undefined, return
+  if (!accessToken) {return;};
+  // we now have access token, set axios auth header and make req
+  axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
   // get user obj and set login state
   let meUrl = new URL(BACKEND_URL);
   meUrl.pathname = "/api/users/@me";
   axios.get(meUrl.toString()).then((response: AxiosResponse<DiscordUser>) => {
     // authentication complete, update main state
     window.login(response.data);
-  });
+  }).catch((err) => {
+    console.log(err)
+    console.log("invalid access token, requesting new token using refresh code");
+    cookies.remove("access_token", {path: "/", sameSite: "lax"});
+    let accessToken = getAccessToken();
+    if (!accessToken) {
+      console.log("refresh token invalid");
+      return;
+    }
+    // we now have access token, set axios auth header and make req
+    axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+    axios.get(meUrl.toString()).then((response: AxiosResponse<DiscordUser>) => {
+      // authentication complete, update main state
+      window.login(response.data);
+    })
+  })
 }
 
 function refresh() {
-  let refresh_token: string | undefined = cookies.get("refresh_token");
-  if (refresh_token){
-    console.log("access token expired or missing, reading refresh token from cookies");
-  } else {
-    console.log("no token cookies found");
-    return undefined;
+  let refreshToken: string | undefined = cookies.get("refresh_token");
+  if (!refreshToken){
+    console.log("no refresh_token cookie found");
+    return;
   }
-  // TODO implement
-  return undefined;
+  let refreshUrl = new URL(BACKEND_URL);
+  refreshUrl.pathname = "/api/refresh";
+  axios.post(refreshUrl.toString(), {refresh_token: refreshToken}).then((response: AxiosResponse<AccessTokenResponse>) => {
+    // set cookies and auth header
+    setTokenResponseData(response.data);
+    // attempt to fetch user
+    let meUrl = new URL(BACKEND_URL);
+    meUrl.pathname = "/api/users/@me";
+    axios.get(meUrl.toString()).then((response: AxiosResponse<DiscordUser>) => {
+      // authentication complete, send login
+      window.login(response.data);
+    });
+  }).catch((err) => {
+    console.log("invalid refresh token, not logging in");
+  })
+  return;
+}
+
+export function setTokenResponseData(data: AccessTokenResponse){
+  // set cookies with token data
+  cookies.set("access_token", data.access_token, {
+    path: "/", sameSite: "lax", maxAge: data.expires_in-1000
+  });
+  cookies.set("refresh_token", data.refresh_token, {
+    path: "/", sameSite: "lax", maxAge: 2147483647
+  });
+  // set auth header for all axios
+  axios.defaults.headers.common['Authorization'] = `Bearer ${data.access_token}`;
 }
 
 export function logout() {
