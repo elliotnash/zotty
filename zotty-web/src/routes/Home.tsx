@@ -12,6 +12,7 @@ class Home extends React.Component<HomeProps, HomeStates> {
   render() {
     return (
       <Header user={this.props.user}>
+        <br></br>
         <span id="about-span" className="text">THIS IS A GOD WEBPAGE</span>
       </Header>
     );

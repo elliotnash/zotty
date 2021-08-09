@@ -5,9 +5,8 @@ import App from './App';
 
 export const BACKEND_URL = get_backend_url();
 function get_backend_url(): string {
-  let dev_url = "";
-  if (dev_url !== "")
-    return dev_url
+  if (window.location.port === "3000")
+    return "http://localhost:8000";
   else
     return window.location.origin;
 }
