@@ -25,6 +25,7 @@ div
     align-content: center
     cursor: pointer
     margin: auto
+    margin-right: 0px
     border-radius: 5px
     background-color: var(--primary-accent-color)
     color: var(--font-color)
@@ -47,13 +48,13 @@ div
   .container-container
     height: 32px
     width: 200px
-    margin-right: 10px
+    margin-right: 20px
     margin-left: auto
 
   .btn-container
     position: absolute
     display: flex
-    justify-content: center
+    justify-content: right
     align-content: center
     height: 32px
     width: 200px
@@ -62,6 +63,8 @@ div
     transition-delay: $duration
 
   .avatar-container
+    margin: auto 
+    margin-right: 0
     border-radius: 5px
     cursor: pointer
     padding-right: 5px
@@ -90,6 +93,7 @@ div
   transition: all $duration ease-out
 
 #username-span
+  @include no-select()
   color: var(--font-color)
   max-width: 258px
   overflow: hidden
