@@ -1,6 +1,8 @@
 import axios, { AxiosResponse } from "axios";
 import Cookies from "universal-cookie";
 
+const cookies = new Cookies();
+
 export const BACKEND_URL = getBackendUrl();
 function getBackendUrl(): string {
   if (window.location.port === "3000")
@@ -23,7 +25,24 @@ export interface AccessTokenResponse{
   scope: string
 }
 
-const cookies = new Cookies();
+export interface OAuthInfo{
+  api_url: string,
+  client_id: string
+}
+
+const pingUrl = new URL(BACKEND_URL);
+pingUrl.pathname = "/api/ping";
+export function ping(): Promise<OAuthInfo> {
+  return new Promise<OAuthInfo>((resolve, reject) => {
+    axios.get(
+      pingUrl.toString()
+    ).then((response) => {
+      resolve(response.data);
+    }).catch((err) => {
+      reject(err);
+    });
+  });
+}
 
 const redirectUrl = new URL(window.location.origin);
 redirectUrl.pathname = window.location.pathname;
@@ -35,6 +54,21 @@ export function login(code: string): Promise<void> {
       code,
       redirect_uri: redirectUrl.toString()
     }).then((response: AxiosResponse<AccessTokenResponse>) => {
+      // set cookies and auth header
+      setTokenResponseData(response.data);
+      // resolve
+      resolve();
+    }).catch((err) => {
+      reject(err);
+    });
+  });
+}
+
+const refreshUrl = new URL(BACKEND_URL);
+refreshUrl.pathname = "/api/refresh";
+export function refresh(token: string): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    axios.post(refreshUrl.toString(), {refresh_token: token}).then((response: AxiosResponse<AccessTokenResponse>) => {
       // set cookies and auth header
       setTokenResponseData(response.data);
       // resolve

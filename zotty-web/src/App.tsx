@@ -30,8 +30,7 @@ declare global {
 }
 interface AppProps{}
 interface AppStates{
-  user: DiscordUser | undefined,
-  loaded: boolean
+  user: DiscordUser | undefined
 }
 export default class App extends React.Component<AppProps, AppStates> {
 
@@ -46,23 +45,13 @@ export default class App extends React.Component<AppProps, AppStates> {
     window.logout = this.logout.bind(this);
     // add user state
     this.state = {
-      user: this.cookies.get("user"),
-      loaded: false
+      user: this.cookies.get("user")
     };
   }
 
   componentDidMount(): void {
     // on page load try to log in using cookies
-    cookieLogin().then((loggedIn) => {
-      console.log("page is now loaded, set loaded state");
-      this.setState({loaded: true});
-      if (!loggedIn){
-        // if not logged in, need to make sure to set user state to undefined
-        // incase auth cookies were cleared but not user object
-        console.log("not logged in, clearing user state");
-        this.setState({user: undefined});
-      }
-    });
+    cookieLogin();
   }
 
   login(user: DiscordUser): void {
