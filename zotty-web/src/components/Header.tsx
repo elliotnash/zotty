@@ -37,23 +37,29 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
   }
   avatarRef = createRef<HTMLImageElement>();
   render() {
-    return (
-      <React.Fragment>
-        <div id="header-div">
-          <span id="title-span">ZOTTY</span>
-          <div id="login-btn-container">
-            <div id="login-btn" className="btn" data-avatar={this.state.avatar} onClick={newLogin}>
-              <span id="login-text" data-avatar={this.state.avatar}>LOG IN</span>
-              <img id="header-avatar" data-avatar={this.state.avatar} onClick={this.avatarClick}
-                src={getAvatarUrl(this.props.user, 64)} alt="" ref={this.avatarRef}/>
+    // array is list of routes to not render header in
+    if (["/authorize", "/login"].includes(this.props.location.pathname)) {
+      return null;
+    }
+    else {
+      return (
+        <React.Fragment>
+          <div id="header-div">
+            <span id="title-span">ZOTTY</span>
+            <div id="login-btn-container">
+              <div id="login-btn" className="btn" data-avatar={this.state.avatar} onClick={newLogin}>
+                <span id="login-text" data-avatar={this.state.avatar}>LOG IN</span>
+                <img id="header-avatar" data-avatar={this.state.avatar} onClick={this.avatarClick}
+                  src={getAvatarUrl(this.props.user, 64)} alt="" ref={this.avatarRef}/>
+              </div>
+              <UserMenu isOpen={this.state.menuOpen} setIsOpen={(menuOpen) => {this.setState({menuOpen})}} openRef={this.avatarRef}/>
             </div>
-            <UserMenu isOpen={this.state.menuOpen} setIsOpen={(menuOpen) => {this.setState({menuOpen})}} openRef={this.avatarRef}/>
           </div>
-        </div>
-        {/*render all child components bellow*/}
-        {this.props.children}
-      </React.Fragment>
-    );
+          {/*render all child components bellow*/}
+          {this.props.children}
+        </React.Fragment>
+      );
+    }
   };
   avatarClick(event: React.MouseEvent) {
     // prevent divs underneath from being clicked
