@@ -52,11 +52,13 @@ export default class App extends React.Component<AppProps, AppStates> {
 
   componentDidMount() {
     // on page load try to log in using cookies
-    cookieLogin();
+    cookieLogin().then(() => {
+      console.log("page should now be loaded");
+    });
   }
 
   login(user: DiscordUser) {
-    console.log("LOGIN FUCKTION CALLED");
+    console.log(`LOGIN FUCKTION CALLED WITH DATA: ${JSON.stringify(user)}`);
     this.setState({ user });
   }
   logout() {
