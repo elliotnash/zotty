@@ -56,6 +56,10 @@ export function login() {
   });
 }
 
+function refresh() {
+
+}
+
 export function logout() {
   // remove cookies
   cookies.remove("access_token", {path: "/", sameSite: "lax"});
