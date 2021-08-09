@@ -12,7 +12,7 @@ class Home extends React.Component<HomeProps, HomeStates> {
     return (
       <React.Fragment>
         <br></br>
-        <span id="about-span" className="text">THIS IS A GOD WEBPAGE</span>
+        <span id="about-span" className="text">This is where we put info about Zotty</span>
       </React.Fragment>
     );
   }
