@@ -43,6 +43,10 @@ class Authorize extends React.Component<AuthorizeProps, AuthorizeStates> {
       let meUrl = new URL(BACKEND_URL);
       meUrl.pathname = "/api/users/@me";
       axios.get(meUrl.toString()).then((response: AxiosResponse<DiscordUser>) => {
+        // set user cookie
+        cookies.set("user", response.data, {
+          path: "/", sameSite: "lax", maxAge: 2147483647
+        });
         // authentication complete, close oauth window or redirect
         window.opener?.login(response.data);
         window.close();

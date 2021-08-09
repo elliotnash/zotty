@@ -80,6 +80,10 @@ export function cookieLogin() {
       let meUrl = new URL(BACKEND_URL);
       meUrl.pathname = "/api/users/@me";
       axios.get(meUrl.toString()).then((response: AxiosResponse<DiscordUser>) => {
+        // set user cookie
+        cookies.set("user", response.data, {
+          path: "/", sameSite: "lax", maxAge: 2147483647
+        });
         // authentication complete, update main state and resolve
         window.login(response.data);
         resolve(true);
@@ -91,6 +95,10 @@ export function cookieLogin() {
           // we now have access token, set axios auth header and make req
           axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
           axios.get(meUrl.toString()).then((response: AxiosResponse<DiscordUser>) => {
+            // set user cookie
+            cookies.set("user", response.data, {
+              path: "/", sameSite: "lax", maxAge: 2147483647
+            });
             // authentication complete, update main state
             window.login(response.data);
             resolve(true);
@@ -123,6 +131,10 @@ function refresh() {
       let meUrl = new URL(BACKEND_URL);
       meUrl.pathname = "/api/users/@me";
       axios.get(meUrl.toString()).then((response: AxiosResponse<DiscordUser>) => {
+        // set user cookie
+        cookies.set("user", response.data, {
+          path: "/", sameSite: "lax", maxAge: 2147483647
+        });
         // authentication complete, send login
         window.login(response.data);
         resolve();
@@ -151,6 +163,7 @@ export function logout() {
   // remove cookies
   cookies.remove("access_token", {path: "/", sameSite: "lax"});
   cookies.remove("refresh_token", {path: "/", sameSite: "lax"});
+  cookies.remove("user", {path: "/", sameSite: "lax"});
   // call app logout function
   window.logout();
 }
