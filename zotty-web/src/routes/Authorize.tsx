@@ -49,7 +49,7 @@ class Authorize extends React.Component<AuthorizeProps, AuthorizeStates> {
         });
         // authentication complete, close oauth window or redirect
         window.opener?.login(response.data);
-        //window.close();
+        window.close();
       });
 
     }).catch((err) => {
