@@ -1,7 +1,7 @@
 import React from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import "./Home.sass";
-import { DiscordUser } from "../types";
+import { DiscordUser } from "../utils/request";
 
 interface HomeProps extends RouteComponentProps {
   user: DiscordUser | undefined

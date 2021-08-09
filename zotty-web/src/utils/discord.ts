@@ -1,4 +1,4 @@
-import { DiscordUser } from "../types";
+import { DiscordUser } from "./request";
 
 const CDN_URL = "https://cdn.discordapp.com/";
 export function getAvatarUrl(user: DiscordUser | undefined, size = 256): string | undefined {

@@ -2,7 +2,7 @@ import React from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import Cookies from "universal-cookie";
 import axios, { AxiosResponse } from "axios";
-import { DiscordUser, AccessTokenResponse } from "../types";
+import { DiscordUser, AccessTokenResponse } from "../utils/request";
 import {BACKEND_URL} from "..";
 import { setTokenResponseData } from "../utils/auth";
 

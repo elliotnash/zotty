@@ -3,7 +3,7 @@ import { RouteComponentProps, withRouter } from "react-router-dom";
 import './Header.sass';
 import UserMenu from "./UserMenu";
 import { newLogin } from "../utils/auth";
-import { DiscordUser } from "../types";
+import { DiscordUser } from "../utils/request";
 import { getAvatarUrl } from "../utils/discord";
 
 interface HeaderProps extends RouteComponentProps {

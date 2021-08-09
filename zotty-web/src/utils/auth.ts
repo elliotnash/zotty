@@ -2,7 +2,7 @@ import Cookies from "universal-cookie";
 import axios, { AxiosResponse } from "axios";
 import { nanoid } from 'nanoid';
 import {BACKEND_URL} from "..";
-import { AccessTokenResponse, DiscordUser } from "../types";
+import { AccessTokenResponse, DiscordUser } from "./request";
 
 interface OAuthInfo{
   api_url: string,
