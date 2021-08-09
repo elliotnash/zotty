@@ -33,7 +33,7 @@ export interface OAuthInfo{
 const pingUrl = new URL(BACKEND_URL);
 pingUrl.pathname = "/api/ping";
 export function ping(): Promise<OAuthInfo> {
-  return new Promise<OAuthInfo>((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     axios.get(
       pingUrl.toString()
     ).then((response) => {
@@ -49,7 +49,7 @@ redirectUrl.pathname = window.location.pathname;
 const loginUrl = new URL(BACKEND_URL);
 loginUrl.pathname = "/api/login";
 export function login(code: string): Promise<void> {
-  return new Promise<void>((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     axios.post(loginUrl.toString(), {
       code,
       redirect_uri: redirectUrl.toString()
@@ -67,7 +67,7 @@ export function login(code: string): Promise<void> {
 const refreshUrl = new URL(BACKEND_URL);
 refreshUrl.pathname = "/api/refresh";
 export function refresh(token: string): Promise<void> {
-  return new Promise<void>((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     axios.post(refreshUrl.toString(), {refresh_token: token}).then((response: AxiosResponse<AccessTokenResponse>) => {
       // set cookies and auth header
       setTokenResponseData(response.data);
@@ -82,7 +82,7 @@ export function refresh(token: string): Promise<void> {
 const meUrl = new URL(BACKEND_URL);
 meUrl.pathname = "/api/users/@me";
 export function user(): Promise<DiscordUser> {
-  return new Promise<DiscordUser>((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     axios.get(meUrl.toString()).then((response: AxiosResponse<DiscordUser>) => {
       // set user cookie
       cookies.set("user", response.data, {
@@ -96,7 +96,7 @@ export function user(): Promise<DiscordUser> {
   });
 }
 
-export function setTokenResponseData(data: AccessTokenResponse): void {
+function setTokenResponseData(data: AccessTokenResponse): void {
   // set cookies with token data
   cookies.set("access_token", data.access_token, {
     path: "/", sameSite: "lax", maxAge: data.expires_in-1000

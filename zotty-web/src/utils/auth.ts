@@ -47,7 +47,7 @@ export function newLogin(): void {
 }
 
 function getAccessToken(): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const accessToken: string | undefined = cookies.get("access_token");
     if (accessToken){
       resolve(accessToken);
@@ -61,7 +61,7 @@ function getAccessToken(): Promise<string> {
 }
 
 export function cookieLogin(): Promise<boolean> {
-  return new Promise<boolean>((resolve) => {
+  return new Promise((resolve) => {
     getAccessToken().then((accessToken) => {
       // we now have access token, set axios auth header and make req
       axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
@@ -94,7 +94,7 @@ export function cookieLogin(): Promise<boolean> {
 }
 
 function refresh(): Promise<boolean> {
-  return new Promise<boolean>((resolve) => {
+  return new Promise((resolve) => {
     const refreshToken: string | undefined = cookies.get("refresh_token");
     if (!refreshToken){
       console.log("no refresh_token cookie found");
