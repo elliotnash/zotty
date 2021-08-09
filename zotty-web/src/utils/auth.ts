@@ -72,7 +72,7 @@ function getAccessToken() {
 }
 
 export function cookieLogin() {
-  return new Promise<void>((resolve) => {
+  return new Promise<boolean>((resolve) => {
     getAccessToken().then((accessToken) => {
       // we now have access token, set axios auth header and make req
       axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
@@ -82,7 +82,7 @@ export function cookieLogin() {
       axios.get(meUrl.toString()).then((response: AxiosResponse<DiscordUser>) => {
         // authentication complete, update main state and resolve
         window.login(response.data);
-        resolve();
+        resolve(true);
       }).catch((err) => {
         console.log(err)
         console.log("invalid access token, requesting new token using refresh code");
@@ -93,15 +93,15 @@ export function cookieLogin() {
           axios.get(meUrl.toString()).then((response: AxiosResponse<DiscordUser>) => {
             // authentication complete, update main state
             window.login(response.data);
-            resolve();
+            resolve(true);
           });
         }).catch(() => {
           console.log("refresh_token invalid");
-          resolve();
+          resolve(false);
         })
       });
     }).catch(() => {
-      resolve();
+      resolve(false);
     });
   });
 }

@@ -53,9 +53,15 @@ export default class App extends React.Component<AppProps, AppStates> {
 
   componentDidMount() {
     // on page load try to log in using cookies
-    cookieLogin().then(() => {
+    cookieLogin().then((loggedIn) => {
       console.log("page is now loaded, set loaded state");
       this.setState({loaded: true});
+      if (!loggedIn){
+        // if not logged in, need to make sure to set user state to undefined
+        // incase auth cookies were cleared but not user object
+        console.log("not logged in, clearing user state");
+        this.setState({user: undefined});
+      }
     });
   }
 
