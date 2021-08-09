@@ -77,12 +77,44 @@ enum DiscordError{
 #[derive(Serialize, Deserialize, Debug)]
 struct OAuthError{
     pub error: String,
-    pub error_description: String,
+    pub error_description: Option<String>,
 }
 #[derive(Serialize, Deserialize, Debug)]
 struct GatewayError{
     pub code: i32,
     pub message: String,
+}
+
+#[post("/api/refresh")]
+async fn refresh(cred: web::Json<RefreshCredentials>) -> Result<impl Responder> {
+    let token_request = RefreshTokenRequest {
+        client_id: &CONFIG.get().unwrap().web.oauth.client_id,
+        client_secret: &CONFIG.get().unwrap().web.oauth.client_secret,
+        grant_type: "refresh_token",
+        refresh_token: cred.refresh_token.clone()
+    };
+    let resp = REQWEST.post(format!("{}/oauth2/token", CONFIG.get().unwrap().web.oauth.api_url))
+        .header(reqwest::header::CONTENT_TYPE, "application/x-www-form-urlencoded")
+        .body(serde_urlencoded::to_string(&token_request).unwrap())
+        .send().await.unwrap();
+    if resp.status().is_success() {
+        let resp_json: AccessTokenResponse = resp.json().await.unwrap();
+        Ok(HttpResponse::Ok().json(resp_json))
+    } else {
+        let resp_json: DiscordError = resp.json().await.unwrap();
+        Ok(HttpResponse::BadRequest().json(resp_json))
+    }
+}
+#[derive(Deserialize, Debug)]
+struct RefreshCredentials{
+    pub refresh_token: String,
+}
+#[derive(Serialize, Deserialize, Debug)]
+struct RefreshTokenRequest{
+    pub client_id: &'static str,
+    pub client_secret: &'static str,
+    pub grant_type: &'static str,
+    pub refresh_token: String
 }
 
 #[get("/api/users/@me")]
@@ -156,6 +188,7 @@ pub async fn run() {
             .service(login)
             .service(user_me)
             .service(guild_me)
+            .service(refresh)
             .service(Files::new("/", build_dir)
                 .index_file("index.html")
                 .default_handler(NamedFile::open(index_path).unwrap()))
