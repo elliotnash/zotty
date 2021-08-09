@@ -2,7 +2,7 @@ import React, { createRef } from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import './Header.sass';
 import UserMenu from "./UserMenu";
-import { login } from "../utils/login";
+import { login } from "../utils/auth";
 import { DiscordUser } from "../types";
 import { getAvatarUrl } from "../utils/discord";
 

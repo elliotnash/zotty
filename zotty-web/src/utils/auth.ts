@@ -55,3 +55,9 @@ export function login() {
     oauth_window?.location.replace(oauthUrl.toString());
   });
 }
+
+export function logout() {
+  cookies.remove("access_token", {path: "/", sameSite: "lax"});
+  cookies.remove("refresh_token", {path: "/", sameSite: "lax"});
+  console.log("log out called, cookies cleared");
+}

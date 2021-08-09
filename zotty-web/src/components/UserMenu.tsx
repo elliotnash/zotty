@@ -1,15 +1,17 @@
 import React, { createRef, RefObject } from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
+import { logout } from "../utils/auth";
 import './UserMenu.sass';
 
 interface MenuItemProps extends RouteComponentProps {
-  text: string
+  text: string,
+  onClick?: ()=>void
 };
 interface MenuItemStates{};
 const MenuItem = withRouter(class MenuItem extends React.Component<MenuItemProps, MenuItemStates> {
   render() {
     return (
-      <div className="menu-item-div">
+      <div className="menu-item-div" onClick={this.props.onClick}>
         <span className="menu-item-text">{this.props.text}</span>
       </div>
     );
@@ -48,8 +50,8 @@ class UserMenu extends React.Component<UserMenuProps, UserMenuStates> {
   render() {
     return (
       <div ref={this.menuRef} className={this.props.isOpen ? 'menu-div' : 'menu-div-hidden'}>
-        <MenuItem text="Servers"/>
-        <MenuItem text="Log Out"/>
+        <MenuItem text="Servers" onClick={()=>{this.props.history.push("/servers")}}/>
+        <MenuItem text="Log Out" onClick={logout}/>
       </div>
     );
   }

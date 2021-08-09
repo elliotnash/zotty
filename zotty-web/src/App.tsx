@@ -4,7 +4,7 @@ import {
   Route
 } from "react-router-dom";
 import { DiscordUser } from "./types";
-import { login } from "./utils/login";
+import { login } from "./utils/auth";
 import Header from "./components/Header";
 import Home from "./routes/Home";
 import Authorize from "./routes/Authorize";
