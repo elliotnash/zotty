@@ -1,3 +1,5 @@
+@import "../styles/mixins.sass"
+  
 #header-div
   display: flex
   justify-content: right
@@ -36,12 +38,14 @@ div
   margin-left: auto
 
 #login-text
+  @include no-select()
   margin: auto
 
 #login-text[data-avatar='true']
   display: none
 
 #header-avatar
+  @include no-select()
   display: none
   border-radius: 5px
   opacity: 0
@@ -49,6 +53,7 @@ div
   height: 100%
 
 #header-avatar[data-avatar='true']
+  @include no-select()
   animation: avatar 0.5s ease-out
   display: block
   opacity: 1
