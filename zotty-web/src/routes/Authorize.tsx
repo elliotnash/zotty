@@ -15,17 +15,17 @@ class Authorize extends React.Component<AuthorizeProps, AuthorizeStates> {
   }
   componentDidMount() {
     // parse url for auth token
-    const auth_params = new URLSearchParams(window.location.search);
-    const auth_code = auth_params.get("code");
-    const dc_state = auth_params.get("state");
+    const authParams = new URLSearchParams(window.location.search);
+    const authCode = authParams.get("code");
+    const dcState = authParams.get("state");
     // get cookie state var and redirect var
-    const cookie_state = cookies.get("state");
+    const cookieState = cookies.get("state");
     // delete cookies
     cookies.remove("state", {path: "/", sameSite: "lax"});
     cookies.remove("redirect_path", {path: "/", sameSite: "lax"});
-    if (dc_state !== cookie_state) {
+    if (dcState !== cookieState) {
       // state not equal, redirect to login
-      console.log(`Invalid state: state is ${cookie_state} but returned ${dc_state}`);
+      console.log(`Invalid state: state is ${cookieState} but returned ${dcState}`);
       this.props.history.push("/login");
       return;
     }
@@ -34,7 +34,7 @@ class Authorize extends React.Component<AuthorizeProps, AuthorizeStates> {
     const loginUrl = new URL(BACKEND_URL);
     loginUrl.pathname = "/api/login";
     axios.post(loginUrl.toString(), {
-      code: auth_code,
+      code: authCode,
       redirect_uri: redirectUrl.toString()
     }).then((response: AxiosResponse<AccessTokenResponse>) => {
       // set cookies and auth header

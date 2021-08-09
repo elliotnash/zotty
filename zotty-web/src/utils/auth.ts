@@ -20,7 +20,7 @@ export function newLogin(): void {
   const top = window.screenY + (window.outerHeight - height) / 2.5;
 
   const windowFeatures = `toolbar=0,scrollbars=0,status=0,resizable=0,location=0,menuBar=0,width=${width},height=${height},top=${top},left=${left}`;
-  const oauth_window = window.open(
+  const oauthWindow = window.open(
       "",
       "Login",
       windowFeatures
@@ -53,7 +53,7 @@ export function newLogin(): void {
       state
     }).toString();
     // set oauth window url
-    oauth_window?.location.replace(oauthUrl.toString());
+    oauthWindow?.location.replace(oauthUrl.toString());
   });
 }
 
