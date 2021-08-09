@@ -1,8 +1,8 @@
 import Cookies from "universal-cookie";
 import axios, { AxiosResponse } from "axios";
 import { nanoid } from 'nanoid';
-import {BACKEND_URL} from "..";
-import { AccessTokenResponse, DiscordUser } from "./request";
+import {BACKEND_URL} from "../utils/request";
+import { AccessTokenResponse, DiscordUser, setTokenResponseData } from "./request";
 
 interface OAuthInfo{
   api_url: string,
@@ -145,18 +145,6 @@ function refresh(): Promise<void> {
       resolve();
     });
   });
-}
-
-export function setTokenResponseData(data: AccessTokenResponse): void {
-  // set cookies with token data
-  cookies.set("access_token", data.access_token, {
-    path: "/", sameSite: "lax", maxAge: data.expires_in-1000
-  });
-  cookies.set("refresh_token", data.refresh_token, {
-    path: "/", sameSite: "lax", maxAge: 2147483647
-  });
-  // set auth header for all axios
-  axios.defaults.headers.common['Authorization'] = `Bearer ${data.access_token}`;
 }
 
 export function logout(): void {

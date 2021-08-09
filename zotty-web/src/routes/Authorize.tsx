@@ -1,10 +1,7 @@
 import React from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import Cookies from "universal-cookie";
-import axios, { AxiosResponse } from "axios";
-import { DiscordUser, AccessTokenResponse } from "../utils/request";
-import {BACKEND_URL} from "..";
-import { setTokenResponseData } from "../utils/auth";
+import * as request from '../utils/request';
 
 const cookies = new Cookies();
 interface AuthorizeProps extends RouteComponentProps {}
@@ -29,31 +26,15 @@ class Authorize extends React.Component<AuthorizeProps, AuthorizeStates> {
       this.props.history.push("/login");
       return;
     }
-    const redirectUrl = new URL(window.location.origin);
-    redirectUrl.pathname = window.location.pathname;
-    const loginUrl = new URL(BACKEND_URL);
-    loginUrl.pathname = "/api/login";
-    axios.post(loginUrl.toString(), {
-      code: authCode,
-      redirect_uri: redirectUrl.toString()
-    }).then((response: AxiosResponse<AccessTokenResponse>) => {
-      // set cookies and auth header
-      setTokenResponseData(response.data);
-      // attempt to fetch user
-      const meUrl = new URL(BACKEND_URL);
-      meUrl.pathname = "/api/users/@me";
-      axios.get(meUrl.toString()).then((response: AxiosResponse<DiscordUser>) => {
-        // set user cookie
-        cookies.set("user", response.data, {
-          path: "/", sameSite: "lax", maxAge: 2147483647
-        });
+
+    request.login(authCode as string).then(() => {
+      request.user().then((user) => {
         // authentication complete, close oauth window or redirect
-        window.opener?.login(response.data);
+        window.opener?.login(user);
         window.close();
       });
-
     }).catch((err) => {
-      // if invalid code, redirect to login page again
+      // if invalid code, close window without login
       console.log(err.response.data);
       window.close();
     });
