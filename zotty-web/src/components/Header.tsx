@@ -17,7 +17,7 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
   constructor(props: HeaderProps){
     super(props);
     this.state = {
-      avatarUrl: "",
+      avatarUrl: this.props.user ? getAvatarUrl(this.props.user, 64) : "",
       menuOpen: false
     };
     this.avatarClick = this.avatarClick.bind(this);
@@ -55,7 +55,7 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
                 <UserMenu isOpen={this.state.menuOpen} setIsOpen={(menuOpen) => {this.setState({menuOpen});}} openRef={this.avatarRef}/>
                 <img id="header-avatar" data-avatar={!!this.props.user} onClick={this.avatarClick}
                   src={this.state.avatarUrl} alt="" ref={this.avatarRef}/>
-                <span id="username-span" data-avatar={!!this.props.user}>icanflyit</span>
+                <span id="username-span" data-avatar={!!this.props.user}>{this.props.user?.username}</span>
               </div>
             </div>
           </div>
