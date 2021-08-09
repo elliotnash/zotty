@@ -56,7 +56,6 @@ export default class App extends React.Component<AppProps, AppStates> {
       console.log("page is now loaded, set loaded state");
       this.setState({loaded: true});
     });
-    
   }
 
   login(user: DiscordUser) {
