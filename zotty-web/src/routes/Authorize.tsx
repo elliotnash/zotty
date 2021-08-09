@@ -50,7 +50,7 @@ class Authorize extends React.Component<AuthorizeProps, AuthorizeStates> {
       meUrl.pathname = "/api/users/@me";
       axios.get(meUrl.toString()).then((response: AxiosResponse<DiscordUser>) => {
         // authentication complete, close oauth window or redirect
-        window.opener?.authorize(response.data);
+        window.opener?.login(response.data);
         window.close();
       });
 

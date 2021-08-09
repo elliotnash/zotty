@@ -51,7 +51,7 @@ class UserMenu extends React.Component<UserMenuProps, UserMenuStates> {
     return (
       <div ref={this.menuRef} className={this.props.isOpen ? 'menu-div' : 'menu-div-hidden'}>
         <MenuItem text="Servers" onClick={()=>{this.props.history.push("/servers")}}/>
-        <MenuItem text="Log Out" onClick={logout}/>
+        <MenuItem text="Log Out" onClick={()=>{logout(); this.props.setIsOpen(false);}}/>
       </div>
     );
   }

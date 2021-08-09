@@ -22,7 +22,10 @@ class Login extends React.Component {
 }
 
 declare global {
-  interface Window { authorize: {(user: DiscordUser):void};}
+  interface Window {
+    login: (user: DiscordUser)=>void,
+    logout: ()=>void;
+  }
 }
 interface AppProps{}
 interface AppStates{
@@ -36,19 +39,24 @@ export default class App extends React.Component<AppProps, AppStates> {
     super(props);
     // create header ref
     this.headerRef = React.createRef();
-    // set authorize attribute in window
+    // set login and logout attributes in window
     // we need to use bind so function still has access
     // to setState when called from other contexts
-    window.authorize = this.authorize.bind(this);
+    window.login = this.login.bind(this);
+    window.logout = this.logout.bind(this);
     // add user state
     this.state = {
       user: undefined
     };
   }
 
-  authorize(user: DiscordUser) {
-    console.log("AUTHORIZE FUCKTION CALLED");
+  login(user: DiscordUser) {
+    console.log("LOGIN FUCKTION CALLED");
     this.setState({ user });
+  }
+  logout() {
+    console.log("LOGOUT FUCKTION CALLED");
+    this.setState({ user: undefined });
   }
 
   render() {

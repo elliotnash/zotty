@@ -57,7 +57,9 @@ export function login() {
 }
 
 export function logout() {
+  // remove cookies
   cookies.remove("access_token", {path: "/", sameSite: "lax"});
   cookies.remove("refresh_token", {path: "/", sameSite: "lax"});
-  console.log("log out called, cookies cleared");
+  // call app logout function
+  window.logout();
 }

@@ -34,6 +34,10 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
         this.setState({avatarUrl});
         // set toAvatar state to 1 to start animation
         this.setState({avatar: true});
+      } else {
+        // we just logged out
+        console.log("header recieved logout");
+        this.setState({avatar: false});
       }
     }
   }
