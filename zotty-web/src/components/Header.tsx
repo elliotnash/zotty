@@ -39,7 +39,7 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
   render() {
     // array is list of routes to not render header in
     if (["/authorize", "/login"].includes(this.props.location.pathname)) {
-      return null;
+      return this.props.children;
     }
     else {
       return (
