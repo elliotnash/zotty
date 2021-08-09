@@ -1,7 +1,8 @@
 import Cookies from "universal-cookie";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { nanoid } from 'nanoid'
 import {BACKEND_URL} from "..";
+import { DiscordUser } from "../types";
 
 interface OAuthInfo{
   api_url: string,
@@ -9,7 +10,7 @@ interface OAuthInfo{
 }
 
 const cookies = new Cookies();
-export function login() {
+export function newLogin() {
   // create oauth window, need to do it now else calling window.open 
   // from other context gets blocked by browser popup blocker
   // we'll set content later
@@ -56,8 +57,39 @@ export function login() {
   });
 }
 
-function refresh() {
+export function cookieLogin() {
+  let access_token: string | undefined = cookies.get("access_token");
+  if (access_token){
+    console.log("reading access token from cookies");
+  } else {
+    let new_token = refresh();
+    if (new_token){
+      access_token = new_token;
+    } else {
+      return;
+    }
+  }
+  // we now have valid access token, set axios auth header
+  axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+  // get user obj and set login state
+  let meUrl = new URL(BACKEND_URL);
+  meUrl.pathname = "/api/users/@me";
+  axios.get(meUrl.toString()).then((response: AxiosResponse<DiscordUser>) => {
+    // authentication complete, update main state
+    window.login(response.data);
+  });
+}
 
+function refresh(): string | undefined {
+  let refresh_token: string | undefined = cookies.get("refresh_token");
+  if (refresh_token){
+    console.log("access token expired or missing, reading refresh token from cookies");
+  } else {
+    console.log("no token cookies found");
+    return undefined;
+  }
+  // TODO implement
+  return undefined;
 }
 
 export function logout() {

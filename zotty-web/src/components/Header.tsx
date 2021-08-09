@@ -2,7 +2,7 @@ import React, { createRef } from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import './Header.sass';
 import UserMenu from "./UserMenu";
-import { login } from "../utils/auth";
+import { newLogin } from "../utils/auth";
 import { DiscordUser } from "../types";
 import { getAvatarUrl } from "../utils/discord";
 
@@ -48,7 +48,7 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
         <div id="header-div">
           <span id="title-span">ZOTTY</span>
           <div id="login-btn-container">
-            <div id="login-btn" className="btn" data-avatar={this.state.avatar} onClick={login}>
+            <div id="login-btn" className="btn" data-avatar={this.state.avatar} onClick={newLogin}>
               <span id="login-text" data-avatar={this.state.avatar}>LOG IN</span>
               <img id="header-avatar" data-avatar={this.state.avatar} onClick={this.avatarClick}
                 src={this.state.avatarUrl} alt="" ref={this.avatarRef}/>

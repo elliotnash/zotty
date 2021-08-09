@@ -44,7 +44,7 @@ class Authorize extends React.Component<AuthorizeProps, AuthorizeStates> {
         path: "/", sameSite: "lax", maxAge: 2147483647
       });
       // set auth header for all axios
-      axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access_token}`
+      axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access_token}`;
       // attempt to fetch user
       let meUrl = new URL(BACKEND_URL);
       meUrl.pathname = "/api/users/@me";

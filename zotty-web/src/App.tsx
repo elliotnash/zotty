@@ -4,7 +4,7 @@ import {
   Route
 } from "react-router-dom";
 import { DiscordUser } from "./types";
-import { login } from "./utils/auth";
+import { cookieLogin, newLogin } from "./utils/auth";
 import Header from "./components/Header";
 import Home from "./routes/Home";
 import Authorize from "./routes/Authorize";
@@ -16,7 +16,7 @@ class Login extends React.Component {
       <React.Fragment>
         <span>LOGIN</span>
         <br/>
-        <button onClick={login}>login</button>
+        <button onClick={newLogin}>login</button>
       </React.Fragment>
     );
   };
@@ -50,7 +50,8 @@ export default class App extends React.Component<AppProps, AppStates> {
   }
 
   componentDidMount() {
-    
+    // on page load try to log in using cookies
+    cookieLogin();
   }
 
   login(user: DiscordUser) {
