@@ -53,7 +53,8 @@ export default class App extends React.Component<AppProps, AppStates> {
   componentDidMount() {
     // on page load try to log in using cookies
     cookieLogin().then(() => {
-      console.log("page should now be loaded");
+      console.log("page is now loaded, set loaded state");
+      this.setState({loaded: true});
     });
   }
 
