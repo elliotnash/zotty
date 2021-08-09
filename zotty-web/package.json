@@ -20,7 +20,9 @@
     "start": "cross-env BROWSER=none react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "lint": "eslint . --ext .ts --ext .tsx",
+    "fix": "eslint . --ext .ts --ext .tsx --fix"
   },
   "eslintConfig": {
     "extends": [
@@ -46,7 +48,10 @@
     "@types/react": "^17.0.15",
     "@types/react-dom": "^17.0.9",
     "@types/react-router-dom": "^5.1.8",
+    "@typescript-eslint/eslint-plugin": "^4.29.1",
+    "@typescript-eslint/parser": "^4.29.1",
     "cross-env": "^7.0.3",
+    "eslint": "^7.32.0",
     "sass": "^1.36.0",
     "typescript": "^4.3.5"
   }

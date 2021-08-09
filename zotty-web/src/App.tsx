@@ -19,7 +19,7 @@ class Login extends React.Component {
         <button onClick={newLogin}>login</button>
       </React.Fragment>
     );
-  };
+  }
 }
 
 declare global {
@@ -51,7 +51,7 @@ export default class App extends React.Component<AppProps, AppStates> {
     };
   }
 
-  componentDidMount() {
+  componentDidMount(): void {
     // on page load try to log in using cookies
     cookieLogin().then((loggedIn) => {
       console.log("page is now loaded, set loaded state");
@@ -65,16 +65,16 @@ export default class App extends React.Component<AppProps, AppStates> {
     });
   }
 
-  login(user: DiscordUser) {
+  login(user: DiscordUser): void {
     console.log(`LOGIN FUCKTION CALLED WITH DATA: ${JSON.stringify(user)}`);
     this.setState({ user });
   }
-  logout() {
+  logout(): void {
     console.log("LOGOUT FUCKTION CALLED");
     this.setState({ user: undefined });
   }
 
-  render() {
+  render(): React.ReactNode {
     return (
       <Router>
         <Header user={this.state.user}>

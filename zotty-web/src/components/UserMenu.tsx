@@ -6,8 +6,8 @@ import './UserMenu.sass';
 interface MenuItemProps extends RouteComponentProps {
   text: string,
   onClick?: ()=>void
-};
-interface MenuItemStates{};
+}
+interface MenuItemStates{}
 const MenuItem = withRouter(class MenuItem extends React.Component<MenuItemProps, MenuItemStates> {
   render() {
     return (
@@ -22,8 +22,8 @@ interface UserMenuProps extends RouteComponentProps {
   isOpen: boolean,
   setIsOpen: (state: boolean)=>void,
   openRef: RefObject<HTMLElement>
-};
-interface UserMenuStates{};
+}
+interface UserMenuStates{}
 class UserMenu extends React.Component<UserMenuProps, UserMenuStates> {
 
   private menuRef = createRef<HTMLDivElement>();
@@ -50,7 +50,7 @@ class UserMenu extends React.Component<UserMenuProps, UserMenuStates> {
   render() {
     return (
       <div ref={this.menuRef} className={this.props.isOpen ? 'menu-div' : 'menu-div-hidden'}>
-        <MenuItem text="Servers" onClick={()=>{this.props.history.push("/servers")}}/>
+        <MenuItem text="Servers" onClick={()=>{this.props.history.push("/servers");}}/>
         <MenuItem text="Log Out" onClick={()=>{logout(); this.props.setIsOpen(false);}}/>
       </div>
     );

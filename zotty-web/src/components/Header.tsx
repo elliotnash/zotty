@@ -8,11 +8,11 @@ import { getAvatarUrl } from "../utils/discord";
 
 interface HeaderProps extends RouteComponentProps {
   user: DiscordUser | undefined
-};
+}
 interface HeaderStates{
   avatar: boolean,
   menuOpen: boolean
-};
+}
 class Header extends React.Component<HeaderProps, HeaderStates> {
   constructor(props: HeaderProps){
     super(props);
@@ -22,7 +22,7 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
     };
     this.avatarClick = this.avatarClick.bind(this);
   }
-  componentDidUpdate(prevProps: HeaderProps, prevState: HeaderStates) {
+  componentDidUpdate(prevProps: HeaderProps): void {
     if (this.props.user !== prevProps.user) {
       if (this.props.user) {
         // we just logged in
@@ -36,7 +36,7 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
     }
   }
   avatarRef = createRef<HTMLImageElement>();
-  render() {
+  render(): React.ReactNode {
     // array is list of routes to not render header in
     if (["/authorize", "/login"].includes(this.props.location.pathname)) {
       return this.props.children;
@@ -52,7 +52,7 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
                 <img id="header-avatar" data-avatar={this.state.avatar} onClick={this.avatarClick}
                   src={getAvatarUrl(this.props.user, 64)} alt="" ref={this.avatarRef}/>
               </div>
-              <UserMenu isOpen={this.state.menuOpen} setIsOpen={(menuOpen) => {this.setState({menuOpen})}} openRef={this.avatarRef}/>
+              <UserMenu isOpen={this.state.menuOpen} setIsOpen={(menuOpen) => {this.setState({menuOpen});}} openRef={this.avatarRef}/>
             </div>
           </div>
           {/*render all child components bellow*/}
@@ -60,10 +60,10 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
         </React.Fragment>
       );
     }
-  };
+  }
   avatarClick(event: React.MouseEvent) {
     // prevent divs underneath from being clicked
-    event.stopPropagation()
+    event.stopPropagation();
     // toggle menu
     this.setState({menuOpen: !this.state.menuOpen});
   }

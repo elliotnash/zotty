@@ -1,6 +1,6 @@
 import React from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
-import "./Home.sass"
+import "./Home.sass";
 import { DiscordUser } from "../types";
 
 interface HomeProps extends RouteComponentProps {
@@ -15,6 +15,6 @@ class Home extends React.Component<HomeProps, HomeStates> {
         <span id="about-span" className="text">THIS IS A GOD WEBPAGE</span>
       </React.Fragment>
     );
-  };
+  }
 }
 export default withRouter(Home);

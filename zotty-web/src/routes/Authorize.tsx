@@ -15,11 +15,11 @@ class Authorize extends React.Component<AuthorizeProps, AuthorizeStates> {
   }
   componentDidMount() {
     // parse url for auth token
-    let auth_params = new URLSearchParams(window.location.search);
-    let auth_code = auth_params.get("code");
-    let dc_state = auth_params.get("state");
+    const auth_params = new URLSearchParams(window.location.search);
+    const auth_code = auth_params.get("code");
+    const dc_state = auth_params.get("state");
     // get cookie state var and redirect var
-    let cookie_state = cookies.get("state");
+    const cookie_state = cookies.get("state");
     // delete cookies
     cookies.remove("state", {path: "/", sameSite: "lax"});
     cookies.remove("redirect_path", {path: "/", sameSite: "lax"});
@@ -29,9 +29,9 @@ class Authorize extends React.Component<AuthorizeProps, AuthorizeStates> {
       this.props.history.push("/login");
       return;
     }
-    let redirectUrl = new URL(window.location.origin);
+    const redirectUrl = new URL(window.location.origin);
     redirectUrl.pathname = window.location.pathname;
-    let loginUrl = new URL(BACKEND_URL);
+    const loginUrl = new URL(BACKEND_URL);
     loginUrl.pathname = "/api/login";
     axios.post(loginUrl.toString(), {
       code: auth_code,
@@ -40,7 +40,7 @@ class Authorize extends React.Component<AuthorizeProps, AuthorizeStates> {
       // set cookies and auth header
       setTokenResponseData(response.data);
       // attempt to fetch user
-      let meUrl = new URL(BACKEND_URL);
+      const meUrl = new URL(BACKEND_URL);
       meUrl.pathname = "/api/users/@me";
       axios.get(meUrl.toString()).then((response: AxiosResponse<DiscordUser>) => {
         // set user cookie
@@ -56,7 +56,7 @@ class Authorize extends React.Component<AuthorizeProps, AuthorizeStates> {
       // if invalid code, redirect to login page again
       console.log(err.response.data);
       window.close();
-    })
+    });
   }
 }
 export default withRouter(Authorize);
