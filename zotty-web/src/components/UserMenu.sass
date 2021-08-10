@@ -23,6 +23,8 @@ div
     @include no-select()
     display: flex
     height: 30px
+    @media (pointer:none), (pointer:coarse)
+      height: 40px
     width: auto
     margin: 5px 5px 0px 5px
     border-radius: 5px
