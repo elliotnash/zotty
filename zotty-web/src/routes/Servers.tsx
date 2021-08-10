@@ -2,7 +2,7 @@ import axios from "axios";
 import React from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import * as request from "../utils/request";
-import { PartialGuild } from "../utils/request";
+import type { PartialGuild } from "../utils/request";
 import "./Home.sass";
 
 interface ServersProps extends RouteComponentProps {}

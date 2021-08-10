@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@snowpack/app-template-react-typescript": "^2.1.3"
+  }
+}

@@ -3,7 +3,7 @@ import {
   BrowserRouter as Router,
   Route
 } from "react-router-dom";
-import { DiscordUser } from "./utils/request";
+import type { DiscordUser } from "./utils/request";
 import { cookieLogin, newLogin } from "./utils/auth";
 import Home from "./routes/Home";
 import Servers from "./routes/Servers";
