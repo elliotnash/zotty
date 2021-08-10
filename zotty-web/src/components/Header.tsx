@@ -44,7 +44,7 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
       return (
         <React.Fragment>
           <div id="header-div">
-            <span id="title-span">ZOTTY</span>
+            <span id="title-span" onClick={() => {this.props.history.push("/");}}>ZOTTY</span>
             <div id="login-container-container" className="container-container">
               <div id="login-btn-container" className="btn-container" data-hidden={!!this.props.user}>
                 <div id="login-btn" className="btn btn-animation" data-avatar={!!this.props.user} onClick={newLogin}>
