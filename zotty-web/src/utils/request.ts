@@ -30,6 +30,14 @@ export interface OAuthInfo{
   client_id: string
 }
 
+export interface PartialGuild {
+  id: string,
+  name: string,
+  icon?: string,
+  owner: boolean,
+  permissions: string,
+}
+
 const pingUrl = new URL(BACKEND_URL);
 pingUrl.pathname = "/api/ping";
 export function ping(): Promise<OAuthInfo> {
@@ -86,6 +94,23 @@ export function user(): Promise<DiscordUser> {
     axios.get(meUrl.toString()).then((response: AxiosResponse<DiscordUser>) => {
       // set user cookie
       cookies.set("user", response.data, {
+        path: "/", sameSite: "lax", maxAge: 2147483647
+      });
+      // authentication complete, resolve
+      resolve(response.data);
+    }).catch((err) => {
+      reject(err);
+    });
+  });
+}
+
+const guildsUrl = new URL(BACKEND_URL);
+guildsUrl.pathname = "/api/users/@me/guilds";
+export function guilds(): Promise<PartialGuild[]> {
+  return new Promise((resolve, reject) => {
+    axios.get(guildsUrl.toString()).then((response: AxiosResponse<PartialGuild[]>) => {
+      // set user cookie
+      cookies.set("guilds", response.data, {
         path: "/", sameSite: "lax", maxAge: 2147483647
       });
       // authentication complete, resolve
