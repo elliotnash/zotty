@@ -13,9 +13,22 @@ class Servers extends React.Component<ServersProps, ServersStates> {
   constructor(props: ServersProps){
     super(props);
     this.state = {guilds: undefined};
+    console.log("servers constructer called ");
+    window.emiter.on('loaded', () => {
+      if (axios.defaults.headers['common']['Authorization']) {
+        this.fetchServers();
+      } else {
+        this.props.history.push("/login");
+      }
+    });
   }
   componentDidMount(): void {
-    console.log("axios default (in servers)");
+    if (axios.defaults.headers['common']['Authorization']) {
+      // then we're already authorized
+      this.fetchServers();
+    }
+  }
+  fetchServers(): void {
     console.log(axios.defaults.headers?.common);
     request.guilds().then((guilds) => {
       this.setState({guilds});
@@ -27,6 +40,8 @@ class Servers extends React.Component<ServersProps, ServersStates> {
       <React.Fragment>
         <br></br>
         <span id="about-span" className="text">This is where we show your servers</span>
+        <br></br>
+        <span id="servers" className="text">{JSON.stringify(this.state.guilds)}</span>
       </React.Fragment>
     );
   }

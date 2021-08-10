@@ -11,6 +11,7 @@ import Authorize from "./routes/Authorize";
 import Cookies from "universal-cookie";
 import Header from "./components/Header";
 import axios from "axios";
+import EventEmitter from "eventemitter3";
 
 class Login extends React.Component {
   render() {
@@ -27,7 +28,8 @@ class Login extends React.Component {
 declare global {
   interface Window {
     login: (user: DiscordUser)=>void,
-    logout: ()=>void;
+    logout: ()=>void,
+    emiter: EventEmitter
   }
 }
 interface AppProps{}
@@ -45,6 +47,7 @@ export default class App extends React.Component<AppProps, AppStates> {
     // to setState when called from other contexts
     window.login = this.login.bind(this);
     window.logout = this.logout.bind(this);
+    window.emiter = new EventEmitter();
     // add user state
     this.state = {
       user: this.cookies.get("user")
@@ -53,7 +56,10 @@ export default class App extends React.Component<AppProps, AppStates> {
 
   componentDidMount(): void {
     // on page load try to log in using cookies
-    cookieLogin();
+    cookieLogin().then(() => {
+      console.log("page loaded, firing loaded event");
+      window.emiter.emit('loaded');
+    });
   }
 
   login(user: DiscordUser): void {
