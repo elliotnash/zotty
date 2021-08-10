@@ -10,6 +10,7 @@ import Servers from "./routes/Servers";
 import Authorize from "./routes/Authorize";
 import Cookies from "universal-cookie";
 import Header from "./components/Header";
+import axios from "axios";
 
 class Login extends React.Component {
   render() {
@@ -58,6 +59,8 @@ export default class App extends React.Component<AppProps, AppStates> {
   login(user: DiscordUser): void {
     console.log(`LOGIN FUCKTION CALLED WITH DATA: ${JSON.stringify(user)}`);
     this.setState({ user });
+    console.log("axios default (in app)");
+    console.log(axios.defaults.headers?.common);
   }
   logout(): void {
     console.log("LOGOUT FUCKTION CALLED");
