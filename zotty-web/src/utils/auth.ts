@@ -68,7 +68,7 @@ export function cookieLogin(): Promise<boolean> {
       // get user obj and set login state
       request.user().then((user) => {
         // authentication complete, update main state and resolve
-        window.login(user);
+        window.emiter.emit('login', user);
         resolve(true);
       }).catch((err) => {
         console.log(err);
@@ -79,7 +79,7 @@ export function cookieLogin(): Promise<boolean> {
           axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
           request.user().then((user) => {
             // authentication complete, update main state
-            window.login(user);
+            window.emiter.emit('login', user);
             resolve(true);
           });
         }).catch(() => {
@@ -108,7 +108,7 @@ function refresh(): Promise<boolean> {
           path: "/", sameSite: "lax", maxAge: 2147483647
         });
         // authentication complete, send login
-        window.login(user);
+        window.emiter.emit('login', user);
         resolve(true);
       });
     }).catch((err) => {
@@ -125,5 +125,5 @@ export function logout(): void {
   cookies.remove("refresh_token", {path: "/", sameSite: "lax"});
   cookies.remove("user", {path: "/", sameSite: "lax"});
   // call app logout function
-  window.logout();
+  window.emiter.emit('logout');
 }

@@ -21,18 +21,10 @@ class Header extends React.Component<HeaderProps, HeaderStates> {
       menuOpen: false
     };
     this.avatarClick = this.avatarClick.bind(this);
-  }
-  componentDidUpdate(prevProps: HeaderProps): void {
-    if (this.props.user !== prevProps.user) {
-      if (this.props.user) {
-        // we just logged in
-        // set toAvatar state to 1 to start animation
-        this.setState({avatarUrl: getAvatarUrl(this.props.user, 64)});
-      } else {
-        // we just logged out
-        console.log("header recieved logout");
-      }
-    }
+    // listen for login
+    window.emiter.on('login', (user) => {
+      this.setState({avatarUrl: getAvatarUrl(user, 64)});
+    });
   }
   avatarRef = createRef<HTMLImageElement>();
   render(): React.ReactNode {

@@ -30,7 +30,7 @@ class Authorize extends React.Component<AuthorizeProps, AuthorizeStates> {
     request.login(authCode as string).then(() => {
       request.user().then((user) => {
         // authentication complete, close oauth window or redirect
-        window.opener?.login(user);
+        window.opener?.emiter.emit('login', user);
         window.close();
       });
     }).catch((err) => {

@@ -14,12 +14,17 @@ class Servers extends React.Component<ServersProps, ServersStates> {
     super(props);
     this.state = {guilds: undefined};
     console.log("servers constructer called ");
+    // on page load, we should fetch servers if authorized, otherwise redirect
     window.emiter.on('loaded', () => {
       if (axios.defaults.headers['common']['Authorization']) {
         this.fetchServers();
       } else {
         this.props.history.push("/login");
       }
+    });
+    // on logout we need to redirect, this page is for authed users only
+    window.emiter.on('logout', () => {
+      this.props.history.push("/");
     });
   }
   componentDidMount(): void {

@@ -27,8 +27,6 @@ class Login extends React.Component {
 
 declare global {
   interface Window {
-    login: (user: DiscordUser)=>void,
-    logout: ()=>void,
     emiter: EventEmitter
   }
 }
@@ -42,12 +40,10 @@ export default class App extends React.Component<AppProps, AppStates> {
 
   constructor(props: AppProps){
     super(props);
-    // set login and logout attributes in window
-    // we need to use bind so function still has access
-    // to setState when called from other contexts
-    window.login = this.login.bind(this);
-    window.logout = this.logout.bind(this);
+    // add emiter to window and listen to login and logout
     window.emiter = new EventEmitter();
+    window.emiter.on('login', this.login.bind(this));
+    window.emiter.on('logout', this.logout.bind(this));
     // add user state
     this.state = {
       user: this.cookies.get("user")
