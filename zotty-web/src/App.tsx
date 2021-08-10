@@ -72,13 +72,13 @@ export default class App extends React.Component<AppProps, AppStates> {
             <Authorize/>
           </Route>
           <Route path="/" exact>
-            <Home user={this.state.user}/>
+            <Home/>
           </Route>
           <Route path="/login" exact>
             <Login/>
           </Route>
           <Route path="/servers" exact>
-            <Servers user={this.state.user}/>
+            <Servers/>
           </Route>
         </Header>
       </Router>
