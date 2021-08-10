@@ -6,6 +6,7 @@ import {
 import { DiscordUser } from "./utils/request";
 import { cookieLogin, newLogin } from "./utils/auth";
 import Home from "./routes/Home";
+import Servers from "./routes/Servers";
 import Authorize from "./routes/Authorize";
 import Cookies from "universal-cookie";
 import Header from "./components/Header";
@@ -75,6 +76,9 @@ export default class App extends React.Component<AppProps, AppStates> {
           </Route>
           <Route path="/login" exact>
             <Login/>
+          </Route>
+          <Route path="/servers" exact>
+            <Servers user={this.state.user}/>
           </Route>
         </Header>
       </Router>
