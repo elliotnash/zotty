@@ -43,7 +43,7 @@ class Servers extends React.Component<ServersProps, ServersStates> {
   }
   render() {
     return (
-      <div id="server-container" className="container">
+      <div id="server-container" className="server-container">
         {!this.state.guilds?(
           // runs while guilds not loaded
           <span id="loading-text" className="text">servers loading...</span>
