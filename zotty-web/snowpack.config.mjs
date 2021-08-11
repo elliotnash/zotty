@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /** @type {import("snowpack").SnowpackUserConfig } */
 export default {
   mount: {

@@ -42,8 +42,6 @@ export default class App extends React.Component<AppProps, AppStates> {
     super(props);
     // add emiter to window and listen to login and logout
     window.emiter = new EventEmitter();
-    window.emiter.on('login', this.login.bind(this));
-    window.emiter.on('logout', this.logout.bind(this));
     // add user state
     this.state = {
       user: this.cookies.get("user")
@@ -51,6 +49,8 @@ export default class App extends React.Component<AppProps, AppStates> {
   }
 
   componentDidMount(): void {
+    window.emiter.on('login', this.login.bind(this));
+    window.emiter.on('logout', this.logout.bind(this));
     // on page load try to log in using cookies
     cookieLogin().then(() => {
       console.log("page loaded, firing loaded event");
@@ -72,20 +72,22 @@ export default class App extends React.Component<AppProps, AppStates> {
   render(): React.ReactNode {
     return (
       <Router>
-        <Header user={this.state.user}>
-          <Route path="/authorize" exact>
-            <Authorize/>
-          </Route>
-          <Route path="/" exact>
-            <Home/>
-          </Route>
-          <Route path="/login" exact>
-            <Login/>
-          </Route>
-          <Route path="/servers" exact>
-            <Servers/>
-          </Route>
-        </Header>
+        <div style={{display: "flex", flexDirection: "column", height: "100vh"}} >
+          <Header user={this.state.user}>
+            <Route path="/authorize" exact>
+              <Authorize/>
+            </Route>
+            <Route path="/" exact>
+              <Home/>
+            </Route>
+            <Route path="/login" exact>
+              <Login/>
+            </Route>
+            <Route path="/servers" exact>
+              <Servers/>
+            </Route>
+          </Header>
+        </div>
       </Router>
     );
   }
