@@ -25,5 +25,5 @@ export function printConsoleWarn(): void {
 ▐▒░░░░░▒▒▒▐▒▒▒░░░░░▒▌
 .▀▄▒▒▒▒▒▄▀▒▀▄▒▒▒▒▒▄▀
 .. ▀▀▀▀▀ ▀▀▀▀▀`);
-  console.log("cum on you know you're being scammed rn");
+  console.log("%c cum on you know you're being scammed rn", 'color: #fa2143');
 }
