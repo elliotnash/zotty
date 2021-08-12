@@ -12,8 +12,82 @@ div
       grid-template-columns: max-content max-content
     grid-auto-flow: row
     padding: 10px 10px 0 0
+    animation: pop-in 0.3s ease
+    
+@keyframes pop-in
+  0%
+    transform: scaleX(0)
+    opacity: 0
+  50%
+    transform: scaleX(110%)
+  100%
+    transform: scaleX(100%)
+    opacity: 1
     
 
 span.text
   color: var(--font-color)
   margin: 0 0 10px 10px
+
+.dot-background
+  margin: auto
+
+.dot-pulse
+  position: relative
+  left: -9999px
+  width: 10px
+  height: 10px
+  border-radius: 5px
+  background-color: var(--secondary-accent-color)
+  color: var(--secondary-accent-color)
+  box-shadow: 9999px 0 0 -5px var(--secondary-accent-color)
+  animation: dotPulse 1.5s infinite linear
+  animation-delay: .25s
+
+.dot-pulse::before, .dot-pulse::after 
+  content: ''
+  display: inline-block
+  position: absolute
+  top: 0
+  width: 10px
+  height: 10px
+  border-radius: 5px
+  background-color: var(--secondary-accent-color)
+  color: var(--secondary-accent-color)
+
+.dot-pulse::before
+  box-shadow: 9984px 0 0 -5px var(--secondary-accent-color)
+  animation: dotPulseBefore 1.5s infinite linear
+  animation-delay: 0s
+
+.dot-pulse::after
+  box-shadow: 10014px 0 0 -5px var(--secondary-accent-color)
+  animation: dotPulseAfter 1.5s infinite linear
+  animation-delay: .5s
+
+@keyframes dotPulseBefore
+  0%
+    box-shadow: 9984px 0 0 -5px var(--secondary-accent-color)
+  30%
+    box-shadow: 9984px 0 0 2px var(--secondary-accent-color)
+  60%,
+  100%
+    box-shadow: 9984px 0 0 -5px var(--secondary-accent-color)
+
+@keyframes dotPulse
+  0%
+    box-shadow: 9999px 0 0 -5px var(--secondary-accent-color)
+  30%
+    box-shadow: 9999px 0 0 2px var(--secondary-accent-color)
+  60%,
+  100%
+    box-shadow: 9999px 0 0 -5px var(--secondary-accent-color)
+
+@keyframes dotPulseAfter
+  0%
+    box-shadow: 10014px 0 0 -5px var(--secondary-accent-color)
+  30%
+    box-shadow: 10014px 0 0 2px var(--secondary-accent-color)
+  60%,
+  100%
+    box-shadow: 10014px 0 0 -5px var(--secondary-accent-color)

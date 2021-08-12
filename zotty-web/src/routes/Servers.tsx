@@ -45,17 +45,19 @@ class Servers extends React.Component<ServersProps, ServersStates> {
   }
   render() {
     return (
-      <div id="server-container" className="server-container">
-        {!this.state.guilds?(
-          // runs while guilds not loaded
-          <span id="loading-text" className="text">servers loading...</span>
-        ):(
-          // runs while guilds loaded
-          this.state.guilds.map((guild) => {
+      !this.state.guilds?(
+        // runs while guilds not loaded
+        <div className="dot-background" >
+          <div className="dot-pulse" ></div>
+        </div>
+      ):(
+        // runs while guilds loaded
+        <div id="server-container" className="server-container">
+          {this.state.guilds.map((guild) => {
             return <ServerListItem key={guild.id} guild={guild}/>;
-          })
-        )}
-      </div>
+          })}
+        </div>
+      )
     );
   }
 }
