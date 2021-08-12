@@ -1,0 +1,60 @@
+@import "../styles/mixins.sass"
+
+.item-container
+  border-radius: 20px
+  overflow: hidden
+
+.server-img
+  @include no-select()
+  display: block
+  height: 200px,
+  width: 200px
+  @media (max-width: 500px)
+    height: 128px,
+    width: 128px
+
+.name-background
+  position: absolute
+  display: flex
+  justify-content: center
+  align-content: center
+  margin-top: -200px
+  width: 200px
+  height: 200px
+  @media (max-width: 500px)
+    width: 128px
+    height: 128px
+    margin-top: -128px
+  border-radius: 20px
+  opacity: 0
+  transition: all 0.05s ease-out
+  &:hover
+    opacity: 1
+    transition: all 0.05s ease-out
+
+.name-background-animated
+  position: absolute
+  display: flex
+  justify-content: center
+  align-content: center
+  margin-top: -200px
+  width: 200px
+  height: 200px
+  @media (max-width: 500px)
+    width: 128px
+    height: 128px
+    margin-top: -128px
+  border-radius: 20px
+  opacity: 0.8
+  margin-top: 0
+  background-color: var(--primary-bg-color)
+
+.server-item-text
+  @include no-select()
+  text-align: center
+  margin: auto
+  font-size: 32px
+  font-weight: bold
+  color: var(--font-color)
+  word-wrap: break-word
+  z-index: 10

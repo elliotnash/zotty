@@ -114,7 +114,35 @@ export function guilds(): Promise<PartialGuild[]> {
         path: "/", sameSite: "lax", maxAge: 2147483647
       });
       // authentication complete, resolve
-      resolve(response.data);
+      //resolve(response.data);
+      resolve([
+        {
+            id: "743256836014342166",
+            name: "ETech Developer Server",
+            icon: "2187417166b60abf02c3b4bf85db2dfa",
+            owner: false,
+            permissions: "274877906943"
+        },
+        {
+            id: "812805217543782430",
+            name: "cheese",
+            owner: true,
+            permissions: "274877906943"
+        },
+        {
+          id: "743256836014342166",
+          name: "ETech Developer Server",
+          icon: "2187417166b60abf02c3b4bf85db2dfa",
+          owner: false,
+          permissions: "274877906943"
+        },
+        {
+          id: "812805217543782430",
+          name: "cheese",
+          owner: true,
+          permissions: "274877906943"
+        },
+      ]);
     }).catch((err) => {
       reject(err);
     });

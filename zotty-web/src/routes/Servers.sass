@@ -1,10 +1,19 @@
 
 div
   .server-container
+    display: grid
     margin: auto
     background-color: var(--secondary-bg-color)
-    border-radius: 10px
+    border-radius: 20px
+    grid-template-columns: max-content max-content max-content max-content
+    @media (max-width: 1000px) and (min-width: 750px)
+      grid-template-columns: max-content max-content max-content
+    @media (max-width: 750px)
+      grid-template-columns: max-content max-content
+    grid-auto-flow: row
+    gap: 10px
     padding: 10px
+    
 
 span.text
   color: var(--font-color)
