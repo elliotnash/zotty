@@ -53,7 +53,7 @@ export function ping(): Promise<OAuthInfo> {
 }
 
 const redirectUrl = new URL(window.location.origin);
-redirectUrl.pathname = window.location.pathname;
+redirectUrl.pathname = "/authorize";
 const loginUrl = new URL(BACKEND_URL);
 loginUrl.pathname = "/api/login";
 export function login(code: string): Promise<void> {

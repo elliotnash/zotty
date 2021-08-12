@@ -119,6 +119,30 @@ function refresh(): Promise<boolean> {
   });
 }
 
+export function authorize(authCode: string, dcState: string): void {
+  console.log(`authorize function called ${authCode} ${dcState}`);
+  // get cookie state var and redirect var
+  const cookieState = cookies.get("state");
+  // delete cookies
+  cookies.remove("state", {path: "/", sameSite: "lax"});
+  cookies.remove("redirect_path", {path: "/", sameSite: "lax"});
+  if (dcState !== cookieState) {
+    // state not equal, return
+    console.log(`Invalid state: state is ${cookieState} but returned ${dcState}`);
+    return;
+  }
+
+  request.login(authCode).then(() => {
+    request.user().then((user) => {
+      // authentication complete, close oauth window or redirect
+      window.emiter.emit('login', user);
+    });
+  }).catch((err) => {
+    // if invalid code, close window without login
+    console.log(err.response.data);
+  });
+}
+
 export function logout(): void {
   // remove cookies
   cookies.remove("access_token", {path: "/", sameSite: "lax"});

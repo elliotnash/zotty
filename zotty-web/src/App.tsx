@@ -4,7 +4,7 @@ import {
   Route
 } from "react-router-dom";
 import type { DiscordUser } from "./utils/request";
-import { cookieLogin, newLogin } from "./utils/auth";
+import { authorize, cookieLogin, newLogin } from "./utils/auth";
 import Home from "./routes/Home";
 import Servers from "./routes/Servers";
 import Authorize from "./routes/Authorize";
@@ -51,6 +51,7 @@ export default class App extends React.Component<AppProps, AppStates> {
   componentDidMount(): void {
     window.emiter.on('login', this.login.bind(this));
     window.emiter.on('logout', this.logout.bind(this));
+    window.emiter.on('authorize', this.authorize.bind(this));
     // on page load try to log in using cookies
     cookieLogin().then(() => {
       console.log("page loaded, firing loaded event");
@@ -67,6 +68,9 @@ export default class App extends React.Component<AppProps, AppStates> {
   logout(): void {
     console.log("LOGOUT FUCKTION CALLED");
     this.setState({ user: undefined });
+  }
+  authorize(code: string, state: string): void {
+    authorize(code, state);
   }
 
   render(): React.ReactNode {

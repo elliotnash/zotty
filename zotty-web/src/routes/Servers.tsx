@@ -17,6 +17,8 @@ class Servers extends React.Component<ServersProps, ServersStates> {
     console.log("servers constructer called ");
   }
   componentDidMount(): void {
+    console.log("Servers component mounted");
+    console.log(axios.defaults.headers['common']['Authorization']);
     if (axios.defaults.headers['common']['Authorization']) {
       // then we're already authorized
       this.fetchServers();
