@@ -12,6 +12,7 @@ import Cookies from "universal-cookie";
 import Header from "./components/Header";
 import axios from "axios";
 import EventEmitter from "eventemitter3";
+import { printConsoleWarn } from "./utils/misc";
 
 class Login extends React.Component {
   render() {
@@ -46,6 +47,8 @@ export default class App extends React.Component<AppProps, AppStates> {
     this.state = {
       user: this.cookies.get("user")
     };
+    // log console "warning"
+    printConsoleWarn();
   }
 
   componentDidMount(): void {
