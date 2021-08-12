@@ -25,4 +25,5 @@ export function printConsoleWarn(): void {
 ▐▒░░░░░▒▒▒▐▒▒▒░░░░░▒▌
 .▀▄▒▒▒▒▒▄▀▒▀▄▒▒▒▒▒▄▀
 .. ▀▀▀▀▀ ▀▀▀▀▀`);
+  console.log("cum on you know you're being scammed rn");
 }
